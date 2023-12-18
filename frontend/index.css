@@ -1,0 +1,50 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: 'Test National', sans-serif;
+  font-size: 20px;
+  background-image: radial-gradient(circle at 1px 1px, #CFCECB 2px, transparent 0);
+  background-size: 30px 30px;
+  background-color: #F5F3ED;
+}
+
+.bg-images {
+  background-image: url(bg.svg);
+  background-repeat: no-repeat;
+  background-position: left 18em top 8em;
+}
+
+h1 {
+  font-family: 'Test Söhne Breit Halbfett';
+  line-height: 3rem;
+  font-size: 42px;
+}
+
+label.btn-primary {
+  font-family: 'Test Söhne Breit Halbfett';
+  font-size: 28px;
+  color: white;
+}
+
+h2 {
+  font-family: 'Test National';
+  font-weight: 400;
+  font-size: 36px;
+  line-height: 1.2;
+}
+
+h2 em {
+  font-family: 'Test National';
+  font-weight: bold;
+  font-style: normal;
+  color: #3A59FF;
+}
+
+#player {
+  font-family: 'Test Pitch';
+  font-weight: 400;
+  font-size: 20px;
+  line-height: 1.4;
+}

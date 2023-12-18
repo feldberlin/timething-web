@@ -2,4 +2,4 @@
 #
 #
 
-modal serve src.app
+modal serve app
