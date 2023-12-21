@@ -25,4 +25,4 @@ export default function App() {
   );
 }
 
-ReactDOM.createRoot(document.getElementById("react")).render(<App />);
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);

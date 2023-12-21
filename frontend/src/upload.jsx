@@ -3,32 +3,42 @@ import PropTypes from 'prop-types';
 import { useHistory } from "react-router-dom";
 const { useState, useEffect, useCallback, useRef } = React;
 
-export const Upload = ({ initialUploading, initialProgress, initialError, initialProgressText, ...props }) => {
+export const Upload = ({ initialUploading, initialProgress, initialError, initialProgressText, initialProgressColor, ...props }) => {
   const [uploading, setUploading] = useState(initialUploading)
   const [progress, setProgress] = useState(initialProgress)
   const [progressText, setProgressText] = useState(initialProgressText)
+  const [progressColor, setProgressColor] = useState(initialProgressColor)
   const [error, setError] = useState(initialError)
   const history = useHistory();
 
+  // make it discoverable for tailwind
+  const progressColorVariants = {
+    primary: 'progress-primary',
+    neutral: 'progress-neutral',
+    secondary: 'progress-secondary'
+  }
+
   function handleSelect(ev) {
     let evFile = ev.target.files[0];
-    let formdata = new FormData();
     let ajax = new XMLHttpRequest();
-
-    formdata.append("file", evFile);
-    formdata.append("filename", evFile.name);
     ajax.upload.addEventListener("progress", handleProgress, false);
     ajax.addEventListener("load", handleCompleted, false);
     ajax.addEventListener("error", handleError, false);
     ajax.addEventListener("abort", handleAbort, false);
-    ajax.open("POST", "/transcribe");
-    ajax.send(formdata);
+    ajax.open("POST", "/upload");
+    ajax.send(evFile);
   }
 
   function handleProgress(ev) {
-    setProgress(Math.round((ev.loaded / ev.total) * 100))
+    const percentDone = Math.round((ev.loaded / ev.total) * 100)
     setUploading(true)
-    setError(null)
+    if (percentDone == 100) {
+      setProgressText("Processing audio")
+      setProgressColor("neutral")
+      setProgress(null)
+    } else {
+      setProgress(percentDone)
+    }
   }
 
   function handleError(ev) {
@@ -42,19 +52,59 @@ export const Upload = ({ initialUploading, initialProgress, initialError, initia
   function handleCompleted(ev) {
     ev.preventDefault()
     if (ev.target.status == 200) {
-      setError(null)
-      setUploading(false)
-      let transcript = JSON.parse(ev.target.response)
-      history.push('/player', { transcript: transcript });
+      process(JSON.parse(ev.target.response));
     } else {
       setUploadError()
     }
   }
 
   function setUploadError() {
-    setError("There was an error processing your file. Please try again.")
-    setProgress(0)
-    setUploading(false)
+    setError("There was an error processing your file. Please try again.");
+    setProgress(0);
+    setUploading(false);
+  }
+
+  function process(transcription_id) {
+    const sse = new EventSource("/transcribe/" + encodeURIComponent(transcription_id));
+
+    // transcode
+    sse.addEventListener("TranscodingProgress", (event) => {
+      const data = JSON.parse(event.data);
+      const percentDone = data.percent_done;
+      const track = data.track;
+      if (track == null) {
+        if (percentDone == 100) {
+          setProgressText("Converting audio to text")
+          setProgressColor("secondary")
+          setProgress(null)
+        } else {
+          setProgressText("Processing audio")
+          setProgressColor("neutral")
+          setProgress(percentDone)
+        }
+      }
+    });
+
+    // transcribe
+    sse.addEventListener("TranscriptionProgress", (event) => {
+      const data = JSON.parse(event.data);
+      const percentDone = data.percent_done;
+      const transcript = data.transcript;
+      if (transcript == null) {
+        setProgressText("Converting audio to text");
+        setProgressColor("secondary");
+        setProgress(percentDone);
+      } else {
+        sse.close();
+        history.push("/player", { transcript: transcript });
+      }
+    });
+
+    sse.onerror = (event) => {
+      sse.close();
+      setUploadError()
+      console.error("event source failed:", event);
+    };
   }
 
   return (
@@ -79,8 +129,8 @@ export const Upload = ({ initialUploading, initialProgress, initialError, initia
       {uploading &&
         <div>
           <div className="text-2xl">{progressText}</div>
-          <progress id="progressbar" className="progress progress-primary w-56" value={progress} max="100"></progress>
-          <h3 id="status" className="text-slate-400 mt-2">{progress}%</h3>
+          <progress id="progressbar" className={`progress ${progressColorVariants[progressColor]} w-56`} value={progress} max="100"></progress>
+          <h3 id="status" className="text-slate-400 mt-2">{progress}{progress ? '%' : ''}</h3>
         </div>
       }
     </form>
@@ -97,6 +147,8 @@ Upload.propTypes = {
   initialError: PropTypes.string,
   // uploading text
   initialUploadingText: PropTypes.string,
+  // progress bar color
+  initialProgressColor: PropTypes.string,
 
 };
 
@@ -104,6 +156,7 @@ Upload.defaultProps = {
   initialUploading: false,
   initialProgress: 0,
   initialError: null,
-  initialUploadingText: "Uploading"
+  initialUploadingText: "Uploading",
+  initialProgressColor: "primary",
 
 };

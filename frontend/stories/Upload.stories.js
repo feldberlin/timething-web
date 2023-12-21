@@ -22,7 +22,27 @@ export const Uploading = {
   args: {
     initialUploading: true,
     initialProgress: 20,
-    initialProgressText: 'Uploading'
+    initialProgressText: 'Uploading',
+    initialProgressColor: 'primary'
+  },
+};
+
+export const ProcessingAudio = {
+  args: {
+    initialUploading: true,
+    initialProgress: 20,
+    initialProgressText: 'Processing audio',
+    initialProgressColor: 'secondary',
+    initialProgressColor: 'neutral'
+  },
+};
+
+export const ConvertingAudioToText = {
+  args: {
+    initialUploading: true,
+    initialProgress: 20,
+    initialProgressText: 'Converting audio to text',
+    initialProgressColor: 'secondary'
   },
 };
 

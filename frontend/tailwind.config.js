@@ -2,17 +2,27 @@
 module.exports = {
   content: [
     "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
+    "./src/*.jsx",
+    "./src/pages/*.jsx"
   ],
-  theme: {
-    extend: {
-      colors: {
-        ground: "#aaa",
-        primary: "#333",
-        "accent-pink": "#FC9CC6",
-        "accent-blue": "#3A59FF",
-      },
-    },
-  },
   plugins: [require("daisyui")],
+  daisyui: {
+    themes: [
+      {
+        light: {
+          ...require("daisyui/src/theming/themes")[
+              "[data-theme=light]"
+          ],
+          primary: "#3A59FF",
+          secondary: "#FF3434",
+          accent: "#37cdbe",
+          neutral: "#3d4451",
+          "base-100": "#ffffff",
+        },
+      },
+    ],
+  },
+  theme: {
+      extend: {},
+  },
 }
