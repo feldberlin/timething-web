@@ -3,11 +3,20 @@ import PropTypes from 'prop-types';
 import { useHistory } from "react-router-dom";
 const { useState, useEffect, useCallback, useRef } = React;
 
-export const Upload = ({ initialUploading, initialProgress, initialError, initialProgressText, initialProgressColor, ...props }) => {
+export const Upload = ({
+  initialUploading,
+  initialProgress,
+  initialError,
+  initialProgressText,
+  initialProgressColor,
+  initialDropping,
+  ...props
+}) => {
   const [uploading, setUploading] = useState(initialUploading)
   const [progress, setProgress] = useState(initialProgress)
   const [progressText, setProgressText] = useState(initialProgressText)
   const [progressColor, setProgressColor] = useState(initialProgressColor)
+  const [dropping, setDropping] = useState(initialDropping)
   const [error, setError] = useState(initialError)
   const history = useHistory();
 
@@ -19,19 +28,23 @@ export const Upload = ({ initialUploading, initialProgress, initialError, initia
   }
 
   function handleSelect(ev) {
-    let evFile = ev.target.files[0];
+    handleFile(ev.target.files[0]);
+  }
+
+  function handleFile(file) {
     let ajax = new XMLHttpRequest();
     ajax.upload.addEventListener("progress", handleProgress, false);
     ajax.addEventListener("load", handleCompleted, false);
     ajax.addEventListener("error", handleError, false);
     ajax.addEventListener("abort", handleAbort, false);
     ajax.open("POST", "/upload");
-    ajax.send(evFile);
+    ajax.send(file);
   }
 
   function handleProgress(ev) {
     const percentDone = Math.round((ev.loaded / ev.total) * 100)
     setUploading(true)
+    setError(null)
     if (percentDone == 100) {
       setProgressText("Processing audio")
       setProgressColor("neutral")
@@ -65,7 +78,8 @@ export const Upload = ({ initialUploading, initialProgress, initialError, initia
   }
 
   function process(transcription_id) {
-    const sse = new EventSource("/transcribe/" + encodeURIComponent(transcription_id));
+    const id = encodeURIComponent(transcription_id)
+    const sse = new EventSource("/transcribe/" + id);
 
     // transcode
     sse.addEventListener("TranscodingProgress", (event) => {
@@ -107,33 +121,102 @@ export const Upload = ({ initialUploading, initialProgress, initialError, initia
     };
   }
 
+  function dropHandler(ev) {
+    ev.preventDefault();
+    if (ev.dataTransfer.items) {
+      [...ev.dataTransfer.items].forEach((item, i) => {
+        if (item.kind === "file") {
+          const file = item.getAsFile();
+          undrop();
+          handleFile(file);
+        }
+      });
+    } else {
+      [...ev.dataTransfer.files].forEach((file, i) => {
+          undrop();
+          handleFile(file);
+      });
+    }
+  }
+
+  function drop() {
+    setDropping(true);
+    document
+      .querySelector('#dropzone')
+      .classList
+      .add('dropping');
+  }
+
+  function undrop() {
+    setDropping(false);
+    document
+      .querySelector('#dropzone')
+      .classList
+      .remove('dropping');
+  }
+
+  function dragOverHandler(ev) {
+    ev.preventDefault();
+    drop()
+  }
+
+  function dragEnterHandler(ev) {
+    ev.preventDefault();
+    drop()
+  }
+
+  function dragLeaveHandler(ev) {
+    ev.preventDefault();
+    undrop()
+  }
+
+  const droppingClass = dropping ? 'dropping' : '';
   return (
-    <form id="upload" encType="multipart/form-data" method="post">
-      {error &&
-        <div role="alert" className="alert alert-error mb-10 text-white">
-          <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
-            <path strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          <p>{error}</p>
-        </div>
-      }
+    <div
+    id="dropzone"
+    className={`${droppingClass} flex items-center flex-col mt-20 drop-shadow-lg bg-white p-24 pt-16 pb-24 rounded-lg`}
+    onDrop={dropHandler}
+    onDragOver={dragOverHandler}
+    onDragEnter={dragEnterHandler}
+    onDragLeave={dragLeaveHandler}
+    >
       {!uploading &&
-        <div className="button">
-          <label className="btn btn-lg btn-primary" htmlFor="media">Upload</label>
-          <input className="hidden" type="file" name="media" id="media" onChange={handleSelect} />
-        </div>
+      <h2 className="text-2xl mb-7">
+        Drag and drop your video or audio file here or
+      </h2>
       }
-      {uploading &&
-        <div>
-          <div className="text-2xl">{progressText}</div>
-          <progress id="progressbar" className={`progress ${progressColorVariants[progressColor]} w-56`} value={progress} max="100"></progress>
-          <h3 id="status" className="text-slate-400 mt-2">{progress}{progress ? '%' : ''}</h3>
-        </div>
-      }
-    </form>
+      <form id="upload" encType="multipart/form-data" method="post">
+        {!uploading &&
+          <div className="button text-center">
+            <label className="btn btn-lg btn-primary" htmlFor="media">Choose a file to upload</label>
+            <input className="hidden" type="file" name="media" id="media" onChange={handleSelect} />
+          </div>
+        }
+        {uploading &&
+          <div>
+            <div className="text-2xl mt-5">{progressText}</div>
+            <progress
+              id="progressbar"
+            className={`progress w-96 ${progressColorVariants[progressColor]}`}
+              value={progress}
+              max="100">
+          i </progress>
+            <h3 id="status" className="text-slate-400 mt-2">{progress}{progress != null ? '%' : ''}</h3>
+          </div>
+        }
+        {error &&
+          <div role="alert" className="alert alert-error text-white mt-10">
+            <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+              <path strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <p>{error}</p>
+          </div>
+        }
+      </form>
+    </div>
   )
 }
 
@@ -149,6 +232,8 @@ Upload.propTypes = {
   initialUploadingText: PropTypes.string,
   // progress bar color
   initialProgressColor: PropTypes.string,
+  // currently dropping a file?
+  initialDropping: PropTypes.bool,
 
 };
 
@@ -158,5 +243,6 @@ Upload.defaultProps = {
   initialError: null,
   initialUploadingText: "Uploading",
   initialProgressColor: "primary",
+  initialDropping: false,
 
 };

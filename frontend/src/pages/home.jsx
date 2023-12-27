@@ -1,8 +1,15 @@
 import "../../index.css";
 import { Upload } from "../upload.jsx";
 import logoUrl from '../../timething.svg'
+import { useHistory } from "react-router-dom";
 
 export default function HomePage() {
+  const history = useHistory();
+
+  function upload() {
+    history.push("/upload");
+  }
+
   return (
     <div className="min-w-full min-h-screen screen">
       <div className="w-full h-screen flex bg-images">
@@ -16,7 +23,9 @@ export default function HomePage() {
             video files with just one upload. Enhance accessibility, increase
             comprehension and break language barriers with subtitles.
           </h2>
-          <Upload initialProgressText={"Uploading"}/>
+          <div className="button">
+            <label className="btn btn-lg btn-primary" onClick={upload}>Upload</label>
+          </div>
         </main>
       </div>
     </div>

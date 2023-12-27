@@ -8,6 +8,7 @@ import {
 } from "react-router-dom";
 
 import PlayerPage from './pages/player';
+import UploadPage from './pages/upload';
 import HomePage from './pages/home';
 
 export default function App() {
@@ -17,6 +18,9 @@ export default function App() {
         <Route path="/player">
           <PlayerPage />
         </Route>
+        <Route path="/upload">
+          <UploadPage />
+        </Route>
         <Route path="/">
           <HomePage />
         </Route>
@@ -25,4 +29,6 @@ export default function App() {
   );
 }
 
-ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+ReactDOM.createRoot(
+  document.getElementById("root")
+).render(<App />);

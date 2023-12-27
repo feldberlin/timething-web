@@ -42,6 +42,7 @@ def ffmpeg(sock, total_duration):
             data = lines[-1]
     finally:
         connection.close()
+        yield 100
 
 
 @contextlib.contextmanager

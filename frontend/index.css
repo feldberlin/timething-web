@@ -48,3 +48,11 @@ h2 em {
   font-size: 20px;
   line-height: 1.4;
 }
+
+#dropzone {
+  width: 800px;
+}
+
+#dropzone.dropping {
+  border: 4px dashed #999;
+}

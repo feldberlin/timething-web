@@ -12,12 +12,12 @@ export const Player = ({ initialMedia, initialTranscript, initialFocus, ...props
     return transcript.split(' ').map((word, index) => {
       if (index == focus) {
         return <span>
-            <span className="bg-accent-blue text-white" data-key={index}>{word}</span>
+            <span className="bg-primary text-white" data-key={index}>{word}</span>
             <span> </span>
           </span>
       } else {
         return <span>
-            <span className="hover:bg-accent-blue hover:text-white" data-key={index}>{word}</span>
+            <span className="hover:bg-primary hover:text-white" data-key={index}>{word}</span>
             <span> </span>
           </span>
       }

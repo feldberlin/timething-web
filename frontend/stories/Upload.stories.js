@@ -13,8 +13,12 @@ export default {
 };
 
 export const Primary = {
+  args: {},
+};
+
+export const Dropping = {
   args: {
-    initialProgressText: 'Uploading'
+    initialDropping: true
   },
 };
 

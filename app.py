@@ -13,8 +13,6 @@ import common
 from common import stub
 from recogniser import Recogniser
 
-static_path = Path("./frontend/dist").resolve()
-
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
@@ -26,8 +24,15 @@ nfs = {
     str(common.MEDIA_PATH): volume
 }
 
+# paths
+static_path = Path("./frontend/dist").resolve()
+remote_path = Path('/assets')
+
+# mount
+mount = Mount.from_local_dir(static_path, remote_path=remote_path)
+
 @stub.function(
-    mounts=[Mount.from_local_dir(static_path, remote_path="/assets")],
+    mounts=[mount],
     network_file_systems=nfs,
     container_idle_timeout=300,
     timeout=600,
@@ -35,7 +40,7 @@ nfs = {
 @asgi_app()
 def web():
     from fastapi import FastAPI, Request
-    from fastapi.responses import Response, StreamingResponse
+    from fastapi.responses import Response, FileResponse, StreamingResponse
     from fastapi.staticfiles import StaticFiles
 
     web_app = FastAPI()
@@ -59,5 +64,11 @@ def web():
             generate(), media_type="text/event-stream"
         )
 
-    web_app.mount("/", StaticFiles(directory="/assets", html=True))
+    web_app.mount("/assets", StaticFiles(directory=remote_path / 'assets', html=True))
+
+    @web_app.get("/")
+    @web_app.get("/{fallback:path}")
+    async def fallback(request: Request):
+        return FileResponse(f'{remote_path}/index.html')
+
     return web_app
