@@ -7,8 +7,6 @@ import progress
 import recogniser
 import shutil
 
-WHISPER_MODEL_NAME = "base.en"
-
 fixtures = Path("fixtures")
 
 

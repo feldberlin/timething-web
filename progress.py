@@ -8,10 +8,10 @@ import socket
 import sys
 import tempfile
 
+import common
+
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
-
-WHISPER_MODEL_NAME = "base.en"
 
 
 def ffmpeg(sock, total_duration):
@@ -91,7 +91,7 @@ def worker(q, audio, device):
         # run recognition and send back the transcript. this will also send
         # progress back to the parent process via the given pipe
         use_gpu = device == "gpu"
-        model = whisper.load_model(WHISPER_MODEL_NAME, device=device)
+        model = whisper.load_model(common.MODEL_NAME, device=device)
         transcript = model.transcribe(audio, fp16=use_gpu, verbose=False)
         q.put(transcript)
         q.put(None)

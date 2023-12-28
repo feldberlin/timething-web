@@ -18,12 +18,6 @@ import common
 from common import stub
 import progress
 
-# fixed language for now
-LANGUAGE = "en"
-
-# fixed english whisper model for now
-MODEL_NAME = "base.en"
-
 # main storage volume
 volume = NetworkFileSystem.persisted("media")
 
@@ -40,13 +34,14 @@ class RecogniserError(Exception):
     pass
 
 
-def download_model():
+def load_model():
     import whisper
+    whisper.load_model(common.MODEL_NAME)
+
     # import timething
     # from timething import utils
 
     # cfg = utils.load_config(LANGUAGE)
-    whisper.load_model(progress.WHISPER_MODEL_NAME)
     # timething_align.Aligner.build(get_device(), cfg)
 
 
@@ -61,7 +56,7 @@ image = (
         "ffmpeg-python",
         "tqdm"
     )
-    .run_function(download_model)
+    .run_function(load_model)
 )
 
 

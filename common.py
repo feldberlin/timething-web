@@ -8,6 +8,12 @@ from modal import Stub
 # directory to store media on the volume
 MEDIA_PATH = Path("/media")
 
+# fixed language for now
+LANGUAGE = "en"
+
+# fixed english whisper model for now
+MODEL_NAME = "large-v2"
+
 # stub
 stub = Stub(name="timething-web")
 

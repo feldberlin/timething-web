@@ -34,7 +34,7 @@ mount = Mount.from_local_dir(static_path, remote_path=remote_path)
 @stub.function(
     mounts=[mount],
     network_file_systems=nfs,
-    container_idle_timeout=300,
+    container_idle_timeout=600,
     timeout=600,
 )
 @asgi_app()
