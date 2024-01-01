@@ -18,6 +18,8 @@ export const Upload = ({
   const [progressColor, setProgressColor] = useState(initialProgressColor)
   const [dropping, setDropping] = useState(initialDropping)
   const [error, setError] = useState(initialError)
+  const [transcriptionId, setTranscriptionId] = useState(null)
+  const [track, setTrack] = useState(null)
   const history = useHistory();
 
   // make it discoverable for tailwind
@@ -33,12 +35,14 @@ export const Upload = ({
 
   function handleFile(file) {
     let ajax = new XMLHttpRequest();
+    let formData = new FormData();
+    formData.append("file", file);
     ajax.upload.addEventListener("progress", handleProgress, false);
     ajax.addEventListener("load", handleCompleted, false);
     ajax.addEventListener("error", handleError, false);
     ajax.addEventListener("abort", handleAbort, false);
     ajax.open("POST", "/upload");
-    ajax.send(file);
+    ajax.send(formData);
   }
 
   function handleProgress(ev) {
@@ -65,7 +69,9 @@ export const Upload = ({
   function handleCompleted(ev) {
     ev.preventDefault()
     if (ev.target.status == 200) {
-      process(JSON.parse(ev.target.response));
+      const id = JSON.parse(ev.target.response);
+      setTranscriptionId(id);
+      process(id);
     } else {
       setUploadError()
     }
@@ -77,8 +83,8 @@ export const Upload = ({
     setUploading(false);
   }
 
-  function process(transcription_id) {
-    const id = encodeURIComponent(transcription_id)
+  function process(transcriptionId) {
+    const id = encodeURIComponent(transcriptionId)
     const sse = new EventSource("/transcribe/" + id);
 
     // transcode
@@ -96,6 +102,8 @@ export const Upload = ({
           setProgressColor("neutral")
           setProgress(percentDone)
         }
+      } else {
+        setTrack(track)
       }
     });
 
@@ -110,7 +118,11 @@ export const Upload = ({
         setProgress(percentDone);
       } else {
         sse.close();
-        history.push("/player", { transcript: transcript });
+        history.push("/player", {
+          transcriptionId: transcriptionId,
+          transcript: transcript,
+          track: track
+        });
       }
     });
 
@@ -174,7 +186,7 @@ export const Upload = ({
   return (
     <div
     id="dropzone"
-    className={`${droppingClass} flex items-center flex-col mt-20 drop-shadow-lg bg-white p-24 pt-16 pb-24 rounded-lg`}
+    className={`${droppingClass} flex items-center flex-col drop-shadow-lg bg-white p-24 pt-16 pb-24 rounded-lg`}
     onDrop={dropHandler}
     onDragOver={dragOverHandler}
     onDragEnter={dragEnterHandler}

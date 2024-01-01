@@ -7,8 +7,12 @@ export default function PlayerPage() {
   let location = useLocation();
   let state = location.state;
   let transcript = "No transcript."
+  let transcriptionId = null
+  let track = null
   if (state) {
     transcript = state.transcript
+    transcriptionId = state.transcriptionId
+    track = state.track
   }
 
   return (
@@ -16,8 +20,11 @@ export default function PlayerPage() {
       <div className="w-full h-screen flex">
         <main className="p-12 w-full flex flex-col items-start gap-3 overflow-auto">
           <div className="flex-col mx-auto" >
-            <h1 className="mb-10">Transcript</h1>
-            <Player initialTranscript={transcript}/>
+            <Player
+              initialTranscript={transcript}
+              initialTranscriptionId={transcriptionId}
+              initialTrack={track}
+            />
           </div>
         </main>
       </div>

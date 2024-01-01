@@ -146,7 +146,8 @@ def get_device():
     gpu="A10G",
     container_idle_timeout=180,
     image=image,
-    network_file_systems=nfs
+    network_file_systems=nfs,
+    timeout=600
 )
 class Recogniser:
     def __enter__(self):
