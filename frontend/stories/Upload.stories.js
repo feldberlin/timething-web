@@ -22,6 +22,15 @@ export const Dropping = {
   },
 };
 
+export const Preparing = {
+  args: {
+    initialProgressText: 'Preparing',
+    initialProgress: 100,
+    initialProgressColor: 'primary',
+    initialPreparing: true
+  },
+};
+
 export const Uploading = {
   args: {
     initialUploading: true,
@@ -53,6 +62,6 @@ export const ConvertingAudioToText = {
 export const Error = {
   args: {
     initialUploading: false,
-    initialError: 'There was an error uploading your file. Please try again.'
+    initialError: 'Oops! Please retry and we\'ll pick up right where we left off! 🌟'
   },
 };

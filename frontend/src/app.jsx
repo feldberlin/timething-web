@@ -15,7 +15,7 @@ export default function App() {
   return (
     <Router>
       <Switch>
-        <Route path="/player">
+        <Route path="/player/:transcriptionId">
           <PlayerPage />
         </Route>
         <Route path="/upload">

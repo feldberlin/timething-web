@@ -14,9 +14,10 @@ module.exports = {
               "[data-theme=light]"
           ],
           primary: "#3A59FF",
-          secondary: "#FF3434",
+          secondary: "#ff3434",
           accent: "#37cdbe",
           neutral: "#3d4451",
+          success: "#2fbc63",
           "base-100": "#ffffff",
         },
       },

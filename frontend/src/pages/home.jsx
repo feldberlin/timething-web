@@ -14,7 +14,7 @@ export default function HomePage() {
     <div className="min-w-full min-h-screen screen">
       <div className="w-full h-screen flex bg-images">
         <main className="w-full mt-20 ml-20 flex flex-col items-start gap-3 pt-6 overflow-auto">
-          <img src={logoUrl} />
+          <img src={logoUrl} height="36" width="180" />
           <h1 className="mt-5 font-black">
             Make every word count. <br />Subtitle your videos, gain viewers.
           </h1>

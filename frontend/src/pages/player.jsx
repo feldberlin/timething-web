@@ -1,4 +1,5 @@
 import { useLocation } from 'react-router-dom';
+import { useParams } from 'react-router';
 import "../../index.css";
 import { Player } from "../player.jsx";
 import logoUrl from '../../timething.svg'
@@ -7,11 +8,10 @@ export default function PlayerPage() {
   let location = useLocation();
   let state = location.state;
   let transcript = "No transcript."
-  let transcriptionId = null
+  const { transcriptionId } = useParams();
   let track = null
   if (state) {
     transcript = state.transcript
-    transcriptionId = state.transcriptionId
     track = state.track
   }
 
