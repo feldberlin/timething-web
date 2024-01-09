@@ -18,12 +18,13 @@ module.exports = {
           accent: "#37cdbe",
           neutral: "#3d4451",
           success: "#2fbc63",
-          "base-100": "#ffffff",
+          "base-100": "#f5f3ed",
+          "base-200": "#e7e2d2"
         },
       },
     ],
   },
   theme: {
-      extend: {},
+    extend: { }
   },
 }

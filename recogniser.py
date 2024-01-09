@@ -61,27 +61,9 @@ image = (
 
 
 @dataclass
-class Track:
-    title: str = None
-    artist: str = None
-    album: str = None
-    comment: str = None
-    date: str = None
-    duration: float = None
-    path: str = None
-
-    def from_probe(probe):
-        tags = probe.get("format", {}).get("tags", {})
-        allowed_tags = Track().__dict__.keys()
-        tags = {k: v for (k, v) in tags.items() if k in allowed_tags}
-        tags["duration"] = float(probe['format']['duration'])
-        return Track(**tags)
-
-
-@dataclass
 class TranscodingProgress:
     percent_done: int = None
-    track: Track = None
+    track: common.Track = None
 
 
 @dataclass
@@ -106,7 +88,7 @@ def transcode(
 
     # get metadata
     probe = ffmpeg.probe(in_file)
-    track = Track.from_probe(probe)
+    track = common.Track.from_probe(probe)
 
     with progress.sock() as (socket_filename, socket):
         process = (
@@ -178,9 +160,18 @@ class Recogniser:
                 case int(percent_done):
                     yield TranscriptionProgress(percent_done=percent_done)
                 case dict(transcript):
+                    transcript=transcript
                     yield TranscriptionProgress(transcript=transcript['text'])
                 case Exception as e:
                     logger.error(e)
+
+        common.db.create(
+            common.Transcription(
+                transcription_id=transcription_id,
+                transcript=transcript,
+                track=track
+            )
+        )
 
     @method()
     def align(

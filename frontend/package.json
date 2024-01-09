@@ -8,7 +8,7 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "watch": "npx vite build --watch",
-    "dev": "npx vite serve"
+    "dev": "npx vite preview"
   },
   "keywords": [],
   "author": "",
