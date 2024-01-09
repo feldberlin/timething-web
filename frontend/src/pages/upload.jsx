@@ -2,6 +2,10 @@ import "../../index.css";
 import { Upload } from "../upload.jsx";
 import logoUrl from '../../timething.svg'
 
+/**
+ * Upload page. Mounted on /upload
+ *
+ */
 export default function UploadPage() {
   return (
     <div className="flex flex-col items-center h-screen bg-images w-full pt-14">

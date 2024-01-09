@@ -8,7 +8,7 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "watch": "npx vite build --watch",
-    "dev": "npx vite serve"
+    "dev": "npx vite preview"
   },
   "keywords": [],
   "author": "",
@@ -19,6 +19,7 @@
     "react-dom": "^18.2.0",
     "react-feather": "^2.0.10",
     "react-router-dom": "^5.3.4",
+    "react-select": "^5.8.0",
     "react-spinners": "^0.13.6",
     "swr": "^1.3.0"
   },

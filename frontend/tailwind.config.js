@@ -13,17 +13,22 @@ module.exports = {
           ...require("daisyui/src/theming/themes")[
               "[data-theme=light]"
           ],
-          primary: "#3A59FF",
+          primary: "#3a59ff",
           secondary: "#ff3434",
           accent: "#37cdbe",
           neutral: "#3d4451",
           success: "#2fbc63",
-          "base-100": "#ffffff",
+          "base-100": "#f5f3ed",
+          "base-200": "#e7e2d2"
         },
       },
     ],
   },
   theme: {
-      extend: {},
+    extend: {
+      boxShadow: {
+        'zee': '0px 0 15px -2px #aaa',
+      }
+    }
   },
 }

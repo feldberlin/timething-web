@@ -3,6 +3,10 @@ import { Upload } from "../upload.jsx";
 import logoUrl from '../../timething.svg'
 import { useHistory } from "react-router-dom";
 
+/**
+ * Main page users land on when they visit the site.
+ *
+ */
 export default function HomePage() {
   const history = useHistory();
 

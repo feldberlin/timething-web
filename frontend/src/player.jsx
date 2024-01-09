@@ -1,74 +1,137 @@
-import React from 'react'
+import React, { useState, useRef, forwardRef, useImperativeHandle } from 'react'
 import PropTypes from 'prop-types';
 import ReactPlayer from 'react-player/lazy';
+import { Timer } from './timer.jsx'
 
-const { useState } = React;
-
-export const Player = ({
-  initialMedia,
-  initialTranscript,
+/**
+ * A media player. Currently wraps ReactPlayer. This is just the main window,
+ * play / pause and seek controls are separate components. The player 
+ * coordinates with these components.
+ *
+ */
+export const Player = forwardRef(({
+  playing,
+  setPlaying,
+  elapsed,
+  setElapsed,
+  initialUrl,
   initialTranscriptionId,
-  initialTrack,
-  initialFocus,
+  initialPlaying,
+  initialBuffering,
+  initialReady,
   ...props
-}) => {
-  const [media, setMedia] = useState(initialMedia)
-  const [transcript, setTranscript] = useState(initialTranscript)
-  const [transcriptionId, setTranscriptionId] = useState(initialTranscriptionId)
-  const [track, setTrack] = useState(initialTrack || {})
-  const [focus, setFocus] = useState(initialFocus)
+}, ref) => {
+  const [url, setUrl] = useState(initialUrl)
+  const [ready, setReady] = useState(initialReady)
+  const [buffering, setBuffering] = useState(initialBuffering)
+  const [seekTo, setSeekTo] = useState()
+  const [totalDuration, setTotalDuration] = useState(0)
+  const playerRef = useRef(null);
 
-  function targets(transcript) {
-    return transcript.split(' ').map((word, index) => {
-      if (index == focus) {
-        return <span>
-            <span className="bg-primary text-white rounded inline-block pl-1 pr-1" data-key={index}>{word}</span>
-            <span> </span>
-          </span>
-      } else {
-        return <span>
-            <span className="hover:bg-primary hover:text-white hover:rounded inline-block ml-1 mr-1" data-key={index}>{word}</span>
-            <span className="inline-block -ml-px"> </span>
-          </span>
-      }
-    })
+  // expose seekTo() to parent
+  useImperativeHandle(ref, () => ({
+    seekTo: (offset, offsetType) => {
+      playerRef.current.seekTo(offset, offsetType)
+    }
+  }));
+
+  /**
+   * Event handlers
+   *
+   */
+  function hClickProgress(ev) {
+    ev.preventDefault()
+    const rect = ev.target.getBoundingClientRect()
+    const x = ev.clientX - rect.left
+    const w = rect.right - rect.left
+    const p = x / w
+    playerRef.current.seekTo(p, 'fraction')
+  }
+
+  function hMouseMoveProgress(ev) {
+    ev.preventDefault()
+    const total = playerRef.current.getDuration()
+    if (!total) {
+      return
+    }
+
+    const rect = ev.target.getBoundingClientRect()
+    const x = ev.clientX - rect.left
+    const w = rect.right - rect.left
+    const p = x / w
+    const duration = p * total
+
+    setSeekTo(duration)
+  }
+
+  function hMouseOutProgress(ev) {
+    ev.preventDefault()
+    setSeekTo(null)
+  }
+
+  function hReady(ev) {
+    setReady(true)
+    setTotalDuration(playerRef.current.getDuration())
+  }
+
+  function hOnProgress({ playedSeconds }) {
+    setElapsed(playedSeconds)
   }
 
   return (
-    <div>
-      <h1 className="mb-10">{track.name || 'Transcript'}</h1>
-      <div className="max-w-6xl bg-white p-10 rounded-lg drop-shadow-2xl">
-        { transcriptionId &&
+    <div id="media-player" className="m-2.5">
+      <div id="video"
+        style={{width: 600, height: 400}}
+        className={`flex justify-center items-center bg-white rounded shadow-zee ${ ready ? 'video-loaded' : 'video-loading'} `}>
+        { url &&
           <ReactPlayer
-            url={`/media/${transcriptionId}`}
-            width="640"
-            height="360"
-            controls
+            ref={playerRef}
+            onProgress={hOnProgress}
+            onBuffer={() => setBuffering(true)}
+            onBufferEnd={() => setBuffering(false)}
+            onEnded={() => setPlaying(false)}
+            onPause={() => setPlaying(false)}
+            onReady={hReady}
+            progressInterval={10}
+            playing={playing}
+            url={url}
+            width="600"
+            height="400"
           />
         }
-        <article id="player">
-          {targets(transcript)}
-        </article>
+        { (!ready || buffering) &&
+          <div className="loading loading-spinner loading-lg opacity-90 text-slate-800 fixed" ></div>
+        }
       </div>
+
+      <progress
+        id="video-progress"
+        className="progress progress-primary cursor-pointer"
+        onClick={hClickProgress}
+        onMouseMove={hMouseMoveProgress}
+        onMouseOut={hMouseOutProgress}
+        value={elapsed}
+        max={totalDuration || 0}
+        >
+      </progress>
+
+      <Timer elapsed={elapsed} secondaryElapsed={seekTo}/>
     </div>
   )
-}
+});
 
 Player.propTypes = {
   // media content
-  initialMedia: PropTypes.bytes,
-  // transcript
-  initialTranscript: PropTypes.string,
-  // transcript id
+  initialUrl: PropTypes.string,
+  // transcription id
   initialTranscriptionId: PropTypes.string,
-  // transcript
-  initialFocus: PropTypes.number,
+  // ready
+  initialReady: PropTypes.bool
 
 };
 
 Player.defaultProps = {
-  initialMedia: null,
-  initialTranscript: null,
+  initialUrl: null,
   initialTranscriptionId: null,
-  initialFocus: null,
+  initialReady: false
 };

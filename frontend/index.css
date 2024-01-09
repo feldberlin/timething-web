@@ -16,6 +16,12 @@ body {
   background-position: left 18em top 8em;
 }
 
+.bg-images-right {
+  background-image: url(bg-2.svg);
+  background-repeat: no-repeat;
+  background-position: right 0em top 0em;
+}
+
 h1 {
   font-family: 'Test Söhne Breit Halbfett';
   line-height: 3rem;
@@ -42,11 +48,61 @@ h2 em {
   color: #3A59FF;
 }
 
-#player {
-  font-family: 'Test Pitch';
-  font-weight: 400;
-  font-size: 20px;
-  line-height: 1.4;
+#studio h1, #studio h2, #studio p, #studio article {
+  font-family: 'Test National';
+}
+
+#studio h1 {
+  font-weight: bold;
+  line-height: 2rem;
+  font-size: 26px;
+}
+
+#studio p, #studio article {
+  font-size: 16px;
+}
+
+#studio #sidebar {
+  min-width: 250px;
+}
+
+#studio #editor {
+  box-shadow: 7px 0 15px -2px #e8e6e0;
+  min-width: 640px;
+  max-width: 640px;
+  height: 100vh;
+  overflow: auto;
+}
+
+#studio #player {
+  flex-basis: 100%;
+}
+
+#editor article.article-loading .contents {
+  color: rgba(0,0,0,0);
+}
+
+#editor article.article-loaded .contents {
+  color: rgba(0,0,0,1.0);
+  transition: all 0.5s ease-in-out 0.1s;
+}
+
+#video.video-loading video {
+  opacity: 0;
+  position: absolute;
+  top: -1000px;
+  left: -1000px;
+}
+
+#video.video-loaded video {
+   opacity: 1;
+   transition: opacity 0.3s ease-in-out 0.1s;
+   position: static;
+}
+
+#video progress:hover {
+  height: 12px;
+  animation: growHeight 2s forwards;
 }
 
 #dropzone {
@@ -60,3 +116,10 @@ h2 em {
 #dropzone.dropping h2 {
   margin-top: -4px;
 }
+
+
+#timer {
+  font-family: 'Test Pitch Sans';
+  font-weight: 500;
+}
+

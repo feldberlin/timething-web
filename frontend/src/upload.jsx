@@ -4,6 +4,13 @@ import { useHistory } from "react-router-dom";
 const { useState, useEffect, useCallback, useRef } = React;
 import { createXXHash3 } from 'hash-wasm';
 
+/**
+ * Upload component. Manages the upload process, including uploading,
+ * transcoding, and tracking progress. Upload is chunked and resumable. Files
+ * are initially hashed so that duplicate uploads can be detected and resumed
+ * from where they were interrupted.
+ *
+ */
 export const Upload = ({
   initialUploading,
   initialPreparing,
@@ -81,8 +88,14 @@ export const Upload = ({
 
     // update the UI first
     setError(null);
-    setPreparing(true);
-    showState(states.preparing);
+    if (file.size > 1024 * 1024 * 512) {
+      setPreparing(true);
+      showState(states.preparing);
+    } else {
+      // pretend to upload. hashing will be fast
+      setUploading(true);
+      showState(states.uploading);
+    }
 
     // initialize or resume the upload
     const mediaHash = await hash(file)
@@ -94,10 +107,8 @@ export const Upload = ({
       id = await initUpload(file, mediaHash)
       start = 0
     }
-    setTranscription(id, mediaHash);
 
-    // update the ui after 1.5 seconds
-    await new Promise(r => setTimeout(r, 1500));
+    setTranscription(id, mediaHash);
     setPreparing(false);
     setUploading(true);
     setProgress(null);
@@ -239,6 +250,8 @@ export const Upload = ({
     }
   }
 
+
+  // fast hashing via xxhash3. around 1GB/s
   async function hash(file) {
     const chunkSize = 1024 * 1024 * 512; // 0.5GB
     const nChunks = Math.floor(file.size / chunkSize)
@@ -262,6 +275,7 @@ export const Upload = ({
     return await xx.digest();
   }
 
+  // wait to get back online. fail after some time.
   async function waitForInternet() {
     if (!navigator.onLine) {
       setError("You're offline - check your connection 🤔")
@@ -315,7 +329,7 @@ export const Upload = ({
         showState(states.transcribing);
       } else {
         sse.close();
-        history.push(`/player/${transcriptionId}`, {
+        history.push(`/studio/${transcriptionId}`, {
           transcript: transcript,
           track: track
         });
@@ -442,7 +456,7 @@ export const Upload = ({
             value={progress}
             max="100">
           </progress>
-          <h3 id="status" className="text-slate-400 mt-2">{progress}{progress != null ? '%' : ''}</h3>
+          <h3 id="status" className="text-slate-400 mt-2">{progress}{progress != null ? '%' : '\u00A0'}</h3>
         </div>
       )
     } else {

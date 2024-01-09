@@ -1,5 +1,7 @@
 import { Player } from '../src/player';
 
+const sampleMp4 = 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4'
+
 export default {
   title: 'Player',
   component: Player,
@@ -12,25 +14,28 @@ export default {
   },
 };
 
-export const Primary = {
+export const Loading = {
   args: {
-    initialTranscript: "Alex Papadamus, you've written a book. Yeah, how about that? It's called 'Keanu Reeves, most triumphant: the movies and meaning of an irrepressable icon'. But I have a question for you.",
+    initialUrl: "NO",
+    initialReady: false
   },
 };
 
-export const Focussed = {
+export const Buffering = {
   args: {
-    initialTranscript: "Alex Papadamus, you've written a book. Yeah, how about that? It's called 'Keanu Reeves, most triumphant: the movies and meaning of an irrepressable icon'. But I have a question for you.",
-    initialFocus: 3,
+    playing: false,
+    initialUrl: sampleMp4,
+    initialReady: true,
+    initialBuffering: true
   },
 };
 
-export const Named = {
-  args: {
-    initialTranscript: "Alex Papadamus, you've written a book. Yeah, how about that? It's called 'Keanu Reeves, most triumphant: the movies and meaning of an irrepressable icon'. But I have a question for you.",
 
-    initialTrack: {
-      name: 'Keanu Reeves, most triumphant',
-    }
+export const Playing = {
+  args: {
+    playing: true,
+    initialUrl: sampleMp4,
+    initialReady: true
   },
 };
+

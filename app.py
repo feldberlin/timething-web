@@ -6,6 +6,7 @@ API routes for transcription and alignment.
 from dataclasses import dataclass
 from pathlib import Path
 import logging
+import json
 import re
 import uuid
 
@@ -61,7 +62,7 @@ class Transcription:
 def web():
 
     from fastapi import FastAPI, HTTPException, Request, Header, UploadFile, File
-    from fastapi.responses import Response, FileResponse, StreamingResponse
+    from fastapi.responses import Response, FileResponse, JSONResponse, StreamingResponse
     from fastapi.staticfiles import StaticFiles
 
     web_app = FastAPI()
@@ -159,6 +160,19 @@ def web():
         return StreamingResponse(
             generate(), media_type="text/event-stream"
         )
+
+    @web_app.get("/transcription/{transcription_id}")
+    async def transcription(transcription_id: str):
+        if transcription_id not in stub.transcriptions:
+            error(404, f'invalid id {transcription_id}')
+
+        # safe after validation. we created the id
+        try:
+            content = common.db.select(transcription_id)
+            logger.info(f"got {content}")
+        except Exception as e:
+            error(404, f'id is still processing: {e}')
+        return JSONResponse(content=content)
 
     @web_app.get("/media/{transcription_id}")
     def media(
