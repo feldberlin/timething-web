@@ -4,24 +4,29 @@ import PropTypes from 'prop-types';
 const { useState } = React;
 
 export const Editor = ({
+  transcript,
+  track,
   initialTitle,
-  initialTranscript,
   initialTranscriptionId,
-  initialTrack,
   initialFocus,
   ...props
 }) => {
-  const [transcript, setTranscript] = useState(initialTranscript)
   const [transcriptionId, setTranscriptionId] = useState(initialTranscriptionId)
-  const [track, setTrack] = useState(initialTrack || {})
   const [focus, setFocus] = useState(initialFocus)
 
-  function targets(transcript) {
-    if (!transcript) {
-      return <p>Loading...</p>
+  function targets(text) {
+    if (!text) {
+      return (
+        <div className="flex flex-col gap-4 w-52 opacity-50">
+          <div className="skeleton h-32 w-full"></div>
+          <div className="skeleton h-4 w-28"></div>
+          <div className="skeleton h-4 w-full"></div>
+          <div className="skeleton h-4 w-full"></div>
+        </div>
+      )
     }
 
-    return transcript.split(' ').map((word, index) => {
+    return text.trim().split(' ').map((word, index) => {
       if (index == focus) {
         return <span>
             <span className="bg-primary text-white rounded inline-block pl-1 pr-1" data-key={index}>{word}</span>
@@ -38,17 +43,15 @@ export const Editor = ({
 
   return (
     <div>
-      <h1 className="mb-10">{track.name || 'Keanu Reeves: most triumphant'}</h1>
+      <h1 className="mb-5">{track ? track.name || 'Transcript' : 'Transcript'}</h1>
       <article id="player">
-        {targets(transcript)}
+        {targets(transcript ? transcript.text : "")}
       </article>
     </div>
   )
 }
 
 Editor.propTypes = {
-  // transcript
-  initialTranscript: PropTypes.string,
   // transcript id
   initialTranscriptionId: PropTypes.string,
   // transcript
@@ -57,7 +60,6 @@ Editor.propTypes = {
 };
 
 Editor.defaultProps = {
-  initialTranscript: '',
   initialTranscriptionId: null,
   initialFocus: null,
 };

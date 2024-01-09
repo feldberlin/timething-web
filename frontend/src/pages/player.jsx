@@ -16,14 +16,18 @@ export default function PlayerPage() {
     try {
       const res = await fetch(`/transcription/${transcriptionId}`, {})
       if (res.ok) {
-        const meta = JSON.parse(res.text());
-        setTranscript(meta.transcript.text)
+        const meta = JSON.parse(await res.text());
         setTrack(meta.track)
+        if (meta.transcript) {
+          setTranscript(meta.transcript)
+        }
+      } else {
+        console.error(`couldn't find transcription ${transcriptionId}`)
       }
     } catch (e) {
       console.error(e)
     }
-  })
+  }, [])
 
   return (
     <div id="studio" className="flex min-w-full min-h-screen screen">
@@ -52,11 +56,11 @@ export default function PlayerPage() {
         <div className="section border-b border-base-200 pt-1 pb-5">
           <h3 className="my-3 mx-8 font-bold">Speakers</h3>
           <p className="my-3 mx-8">Wesley Morris</p>
-          <p className="my-3 mx-8">Alex Pappademus</p>
+          <p className="mx-8">Alex Pappademus</p>
         </div>
       </div>
       <div id="editor" className="bg-white p-16">
-        <Editor initialTranscript={ transcript } initialTrack={ track } />
+        <Editor transcript={transcript} track={track} />
       </div>
       <div id="player" className="flex justify-center items-center h-screen">
         <Player

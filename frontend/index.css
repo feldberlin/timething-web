@@ -42,7 +42,7 @@ h2 em {
   color: #3A59FF;
 }
 
-#studio h1, #studio h2, #studio p {
+#studio h1, #studio h2, #studio p, #studio article {
   font-family: 'Test National';
 }
 
@@ -52,26 +52,30 @@ h2 em {
   font-size: 26px;
 }
 
-#studio p {
+#studio p, #studio article {
   font-size: 16px;
 }
 
 #studio #sidebar {
-  min-width: 280px;
+  min-width: 240px;
 }
 
 #studio #editor {
   box-shadow: 7px 0 15px -2px #e8e6e0;
-  min-width: 750px;
+  min-width: 650px;
 }
 
 #studio #player {
   flex-basis: 100%;
 }
 
+#studio #player #media-player {
+  margin: 15px;
+}
+
 #studio #player #video {
-  box-shadow: 0px 0 15px -2px #999;
-  min-width: 640px;
+  box-shadow: 0px 0 15px -2px #aaa;
+  min-width: 550px;
 }
 
 #dropzone {
