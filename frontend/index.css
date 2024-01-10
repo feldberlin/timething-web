@@ -57,7 +57,7 @@ h2 em {
 }
 
 #studio #sidebar {
-  min-width: 240px;
+  min-width: 250px;
 }
 
 #studio #editor {
@@ -72,12 +72,11 @@ h2 em {
 }
 
 #studio #player #media-player {
-  margin: 15px;
+  margin: 10px;
 }
 
 #studio #player #video {
   box-shadow: 0px 0 15px -2px #aaa;
-  min-width: 550px;
 }
 
 #dropzone {

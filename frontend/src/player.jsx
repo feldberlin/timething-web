@@ -14,18 +14,23 @@ export const Player = ({
   const [transcriptionId, setTranscriptionId] = useState(initialTranscriptionId)
   const [progress, setProgress] = useState(0)
   const [playing, setPlaying] = useState(false)
+  const [ready, setReady] = useState(false)
 
   return (
     <div id="media-player">
-      <div id="video" className="bg-white rounded">
+      <div id="video" className="bg-white rounded flex items-center" style={{width: 600, height: 330}}>
         { transcriptionId &&
           <ReactPlayer
             onProgress={({ played }) => setProgress(played * 100)}
+            onReady={() => setReady(true)}
             playing={playing}
             url={`/media/${transcriptionId}`}
             width="640"
             height="360"
           />
+        }
+        { !ready &&
+          <span className="loading loading-spinner loading-lg opacity-90"></span>
         }
       </div>
 

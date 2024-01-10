@@ -57,7 +57,7 @@ export default function StudioPage() {
           <h3 className="my-3 mx-8 font-bold">Speakers</h3>
         </div>
       </div>
-      <div id="editor" className="bg-white p-16">
+      <div id="editor" className="bg-white p-14">
         <Editor transcript={transcript} track={track} />
       </div>
       <div id="player" className="flex justify-center items-center h-screen">
