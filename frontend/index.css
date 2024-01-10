@@ -63,6 +63,8 @@ h2 em {
 #studio #editor {
   box-shadow: 7px 0 15px -2px #e8e6e0;
   min-width: 650px;
+  height: 100vh;
+  overflow: auto;
 }
 
 #studio #player {

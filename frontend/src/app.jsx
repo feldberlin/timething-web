@@ -7,7 +7,7 @@ import {
   Link
 } from "react-router-dom";
 
-import PlayerPage from './pages/player';
+import StudioPage from './pages/studio';
 import UploadPage from './pages/upload';
 import HomePage from './pages/home';
 
@@ -15,8 +15,8 @@ export default function App() {
   return (
     <Router>
       <Switch>
-        <Route path="/player/:transcriptionId">
-          <PlayerPage />
+        <Route path="/studio/:transcriptionId">
+          <StudioPage />
         </Route>
         <Route path="/upload">
           <UploadPage />

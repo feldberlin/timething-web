@@ -6,7 +6,7 @@ import { Player } from "../player.jsx";
 import { Editor } from "../editor.jsx";
 import logoUrl from '../../timething.svg'
 
-export default function PlayerPage() {
+export default function StudioPage() {
   let location = useLocation();
   const { transcriptionId } = useParams();
   const [transcript, setTranscript] = useState(null);
@@ -37,7 +37,7 @@ export default function PlayerPage() {
         </div>
         <div className="section border-b border-base-200 py-1">
           <h3 className="my-3 mx-8 font-bold">Title</h3>
-          <p className="my-3 mx-8">Keanu Reeves, most triumphant: The Movies and Meaning of an Irrepressible Icon.</p>
+          <p className="my-3 mx-8">{track ? track.title : ''}</p>
         </div>
         <div className="section border-b border-base-200 py-1">
           <h3 className="my-3 mx-8 font-bold">Source Language</h3>
@@ -55,8 +55,6 @@ export default function PlayerPage() {
         </div>
         <div className="section border-b border-base-200 pt-1 pb-5">
           <h3 className="my-3 mx-8 font-bold">Speakers</h3>
-          <p className="my-3 mx-8">Wesley Morris</p>
-          <p className="mx-8">Alex Pappademus</p>
         </div>
       </div>
       <div id="editor" className="bg-white p-16">

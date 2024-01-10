@@ -315,7 +315,7 @@ export const Upload = ({
         showState(states.transcribing);
       } else {
         sse.close();
-        history.push(`/player/${transcriptionId}`, {
+        history.push(`/studio/${transcriptionId}`, {
           transcript: transcript,
           track: track
         });

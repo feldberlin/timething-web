@@ -160,18 +160,16 @@ class Recogniser:
                 case int(percent_done):
                     yield TranscriptionProgress(percent_done=percent_done)
                 case dict(transcript):
-                    transcript=transcript
+                    t = common.Transcription(
+                        transcription_id=transcription_id,
+                        transcript=transcript,
+                        track=track
+                    )
+                    common.db.create(t)
                     yield TranscriptionProgress(transcript=transcript['text'])
                 case Exception as e:
                     logger.error(e)
 
-        common.db.create(
-            common.Transcription(
-                transcription_id=transcription_id,
-                transcript=transcript,
-                track=track
-            )
-        )
 
     @method()
     def align(
