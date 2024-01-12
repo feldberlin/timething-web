@@ -118,7 +118,18 @@ export default function StudioPage() {
       .map(x => x - wordDuration)
   }
 
+
+  // check if language is in the language options. if not, add the language
+  // code and language name to the options array. we have a static list of
+  // supported languages, but whisper may incorrectly identify the language of
+  // the audio, e.g. welsh instead of english due to leading silence or music.
+  // we would like to be able to display the language name in the select box.
   const { language = '' } = transcript || {}
+  if (language && !languages.find(o => o.value === language)) {
+    const names = new Intl.DisplayNames(['en'], { type: 'language' });
+    languages.push({ value: language, label: names.of(language) })
+  }
+
   return (
     <div id="studio" className="flex min-w-full min-h-screen screen">
       <div id="sidebar" className="h-screen bg-base-100 w-72 text-base">
