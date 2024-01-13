@@ -90,11 +90,20 @@ def transcode(
     probe = ffmpeg.probe(in_file)
     track = common.Track.from_probe(probe)
 
+    # check if we've already transcoded this. we need a valid wav file
+    if out_file.exists():
+        try:
+            probe = ffmpeg.probe(out_file)
+            yield TranscodingProgress(track=track)
+            return
+        except:
+            pass
+
     with progress.sock() as (socket_filename, socket):
         process = (
             ffmpeg.input(str(in_file))
             .output(
-                filename=str(str(out_file)),
+                filename=str(out_file),
                 format="wav",
                 ac=1,
                 ar=sr

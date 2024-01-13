@@ -8,6 +8,9 @@ import { PlayButton } from "../play-button.jsx";
 import { ZeeSelect } from "../select.jsx";
 import logoImg from '../../timething.svg'
 import addImg from '../../add.svg'
+import {
+  supportedLanguages as languages
+} from "../lib.js";
 
 /**
  * Studio page, mounted at /studio/:transcriptionId. This is the main editing
@@ -25,20 +28,6 @@ export default function StudioPage() {
   const [elapsed, setElapsed] = useState(0)
   const [modalMessage, setModalMessage] = useState(0)
   const [modalButtons, setModalButtons] = useState(0)
-  const languages = [
-    { value: 'en', label: 'English' },
-    { value: 'de', label: 'German' },
-    { value: 'es', label: 'Spanish' },
-    { value: 'it', label: 'Italian' },
-    { value: 'pt', label: 'Portugese' },
-    { value: 'fr', label: 'French' },
-    { value: 'nl', label: 'Dutch' },
-    { value: 'ja', label: 'Japanese' },
-    { value: 'pl', label: 'Polish' },
-    { value: 'ru', label: 'Russian' },
-    { value: 'el', label: 'Greek' },
-    { value: 'ar', label: 'Arabic' }
-  ];
 
   /**
    * Fetch the transcription metadata.
@@ -127,20 +116,28 @@ export default function StudioPage() {
   function hChange({value, label}) {
     if (language) {
 
+      // very modal
+      setPlaying(false)
+
       // message
       setModalMessage(
         <p className="py-4">
-          🤦‍♂ Looks like we got the source language wrong.
+          😬 Looks like we got the source language wrong.
           Would you like to generate a new automatic transcription
           in {label}?
         </p>
       )
 
+      const hRetranscribe = () => {
+        setLanguage(value)
+        transcribe(value)
+      }
+
       // buttons
       setModalButtons(
         <form method="dialog">
-          <button className="btn mr-2">Cancel</button>
-          <button className="btn bg-primary text-white">Change to {label}</button>
+          <button className="btn mr-2" onClick={hRetranscribe}>Cancel</button>
+          <button className="btn bg-black text-white">Change to {label}</button>
         </form>
       )
 
@@ -148,6 +145,14 @@ export default function StudioPage() {
       const modal = document.querySelector('#change-language-modal')
       modal.showModal()
     }
+  }
+
+  /**
+   * Retranscribe the audio in the new language.
+   *
+   */
+  function hRetranscribe(ev) {
+
   }
 
   // check if language is in the language options. if not, add the language

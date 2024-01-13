@@ -3,6 +3,10 @@ import PropTypes from 'prop-types';
 import { useHistory } from "react-router-dom";
 const { useState, useEffect, useCallback, useRef } = React;
 import { createXXHash3 } from 'hash-wasm';
+import {
+  process,
+  transcriptionStates as states
+} from './lib'
 
 /**
  * Upload component. Manages the upload process, including uploading,
@@ -37,14 +41,6 @@ export const Upload = ({
     primary: 'progress-primary',
     neutral: 'progress-neutral',
     secondary: 'progress-secondary'
-  }
-
-  // display settings for each state
-  const states = {
-    preparing: { text: 'Preparing', color: 'success' },
-    uploading: { text: 'Uploading', color: 'primary' },
-    transcoding: { text: 'Processing audio', color: 'neutral' },
-    transcribing: { text: 'Converting audio to text', color: 'secondary' }
   }
 
   /**
@@ -86,28 +82,41 @@ export const Upload = ({
       await new Promise(r => setTimeout(r, backoffSeconds * 1000));
     }
 
-    // update the UI first
+    // reset any previous errors
     setError(null);
+
+    // for smaller files we don't want to flash hashing progress
+    let hashingProgress
     if (file.size > 1024 * 1024 * 512) {
+      hashingProgress = setProgress // show progress
       setPreparing(true);
       showState(states.preparing);
     } else {
       // pretend to upload. hashing will be fast
+      hashingProgress = () => {} // completely disable hashing progress
       setUploading(true);
       showState(states.uploading);
     }
 
     // initialize or resume the upload
-    const mediaHash = await hash(file)
+    const mediaHash = await hash({
+      file: file,
+      setProgress: hashingProgress
+    })
+
+    // check local storage for existing transcription for this file
     let id = getTranscription(mediaHash)
     if (id) {
       start = await resume(id, file)
     }
+
+    // we don't have an id, or resume failed. start a new upload
     if (!start || !id) {
       id = await initUpload(file, mediaHash)
       start = 0
     }
 
+    // set up the upload ui
     setTranscription(id, mediaHash);
     setPreparing(false);
     setUploading(true);
@@ -163,7 +172,14 @@ export const Upload = ({
     // upload completed, now process
     setProgress(null)
     showState(states.transcoding);
-    process(id);
+    process({
+      transcriptionId: id,
+      setState: showState,
+      setProgress: setProgress,
+      setTrack: setTrack,
+      onComplete: t => history.push(`/studio/${id}`),
+      onError: setUploadError
+    });
   }
 
   /**
@@ -252,7 +268,7 @@ export const Upload = ({
 
 
   // fast hashing via xxhash3. around 1GB/s
-  async function hash(file) {
+  async function hash({file, setProgress}) {
     const chunkSize = 1024 * 1024 * 512; // 0.5GB
     const nChunks = Math.floor(file.size / chunkSize)
     const xx = await createXXHash3();
@@ -291,56 +307,6 @@ export const Upload = ({
     }
 
     return false
-  }
-
-  /**
-   * Process audio. Transcodes and transcribes the media file.
-   *
-   */
-  function process(transcriptionId) {
-    const id = encodeURIComponent(transcriptionId)
-    const sse = new EventSource("/transcribe/" + id);
-
-    // transcode
-    sse.addEventListener("TranscodingProgress", (ev) => {
-      const data = JSON.parse(ev.data);
-      const percentDone = data.percent_done;
-      const track = data.track;
-      if (track == null) {
-        if (percentDone == 100) {
-          setProgress(null)
-          showState(states.transcribing)
-        } else {
-          setProgress(percentDone)
-          showState(states.transcoding)
-        }
-      } else {
-        setTrack(track)
-      }
-    });
-
-    // transcribe
-    sse.addEventListener("TranscriptionProgress", (ev) => {
-      const data = JSON.parse(ev.data);
-      const percentDone = data.percent_done;
-      const transcript = data.transcript;
-      if (transcript == null) {
-        setProgress(percentDone);
-        showState(states.transcribing);
-      } else {
-        sse.close();
-        history.push(`/studio/${transcriptionId}`, {
-          transcript: transcript,
-          track: track
-        });
-      }
-    });
-
-    sse.onerror = (ev) => {
-      sse.close();
-      setUploadError()
-      console.error("event source failed:", ev);
-    };
   }
 
   /**
@@ -465,7 +431,7 @@ export const Upload = ({
           <h2 className="text-2xl mb-7">
             Drag and drop your video or audio file here or
           </h2>
-          <div className="button text-center">
+          <div className="button text-center pb-4">
             <label className="btn btn-lg btn-primary" htmlFor="media">Choose a file to upload</label>
             <input className="hidden" type="file" name="media" id="media" onChange={hSelect} />
           </div>
@@ -478,7 +444,7 @@ export const Upload = ({
   return (
     <div
     id="dropzone"
-    className={`${droppingClass} flex items-center flex-col drop-shadow-lg bg-white p-24 pt-16 pb-24 rounded-lg`}
+    className={`${droppingClass} flex items-center flex-col drop-shadow-lg bg-white p-24 pt-16 pb-20 rounded-lg`}
     onDrop={hDrop}
     onDragOver={hDragOver}
     onDragEnter={hDragEnter}
@@ -487,7 +453,7 @@ export const Upload = ({
       <form id="upload" encType="multipart/form-data" method="post">
         { uploaderJSX() }
         {error &&
-          <div role="alert" className="alert alert-error text-white mt-8">
+          <div role="alert" className="alert alert-error text-white mt-4">
             <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
               <path strokeLinecap="round"
                     strokeLinejoin="round"
@@ -529,5 +495,4 @@ Upload.defaultProps = {
   initialUploadingText: "Uploading",
   initialProgressColor: "primary",
   initialDropping: false,
-
 };
