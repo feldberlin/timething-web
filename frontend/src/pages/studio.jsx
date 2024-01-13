@@ -23,6 +23,8 @@ export default function StudioPage() {
   const [track, setTrack] = useState(null);
   const [focus, setFocus] = useState(0);
   const [elapsed, setElapsed] = useState(0)
+  const [modalMessage, setModalMessage] = useState(0)
+  const [modalButtons, setModalButtons] = useState(0)
   const languages = [
     { value: 'en', label: 'English' },
     { value: 'de', label: 'German' },
@@ -118,6 +120,35 @@ export default function StudioPage() {
       .map(x => x - wordDuration)
   }
 
+  /**
+   * Event handlers
+   *
+   */
+  function hChange({value, label}) {
+    if (language) {
+
+      // message
+      setModalMessage(
+        <p className="py-4">
+          🤦‍♂ Looks like we got the source language wrong.
+          Would you like to generate a new automatic transcription
+          in {label}?
+        </p>
+      )
+
+      // buttons
+      setModalButtons(
+        <form method="dialog">
+          <button className="btn mr-2">Cancel</button>
+          <button className="btn bg-primary text-white">Change to {label}</button>
+        </form>
+      )
+
+
+      const modal = document.querySelector('#change-language-modal')
+      modal.showModal()
+    }
+  }
 
   // check if language is in the language options. if not, add the language
   // code and language name to the options array. we have a static list of
@@ -132,6 +163,17 @@ export default function StudioPage() {
 
   return (
     <div id="studio" className="flex min-w-full min-h-screen screen">
+      <div id="studio-modal">
+        <dialog id="change-language-modal" className="modal">
+          <div className="modal-box">
+            <h3 className="font-bold text-lg">Changing Language</h3>
+            {modalMessage}
+            <div className="modal-action">
+              {modalButtons}
+            </div>
+          </div>
+        </dialog>
+      </div>
       <div id="sidebar" className="h-screen bg-base-100 w-72 text-base">
         <div className="section border-b border-base-200">
           <img src={logoImg} height="26" width="130" className="ml-8 my-7" />
@@ -143,7 +185,12 @@ export default function StudioPage() {
         </div>
         <div className="section border-b border-base-200 py-1 pb-7">
           <h3 className="my-3 mb-4 mx-8 font-bold">Source Language</h3>
-          <ZeeSelect selected={language} options={languages} />
+          <ZeeSelect
+            onChange={hChange}
+            selected={language}
+            options={languages}
+            disabled={!language}
+          />
         </div>
         <div className="section border-b border-base-200 py-1">
           <img src={addImg} width="27px" height="27px" className="float-right m-3 mr-5" alt="Add translation" />

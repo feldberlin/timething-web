@@ -7,7 +7,7 @@ import Select from 'react-select'
  * Custom select.
  *
  */
-export const ZeeSelect = ({selected, options}) => {
+export const ZeeSelect = ({selected, disabled, options, onChange}) => {
 
   /**
    * Styles
@@ -65,6 +65,8 @@ export const ZeeSelect = ({selected, options}) => {
         styles={selectStyles}
         options={options}
         isLoading={!value}
+        isDisabled={disabled}
+        onChange={onChange}
       />
     </div>
   );
