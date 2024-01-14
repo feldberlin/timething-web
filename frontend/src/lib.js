@@ -11,16 +11,18 @@ export const transcriptionStates = {
 
 // make it discoverable by tailwind
 export const progressColors = {
-  primary: 'progress-primary',
   neutral: 'progress-neutral',
-  secondary: 'progress-secondary'
+  primary: 'progress-primary',
+  secondary: 'progress-secondary',
+  success: 'progress-success'
 }
 
 // make it discoverable by tailwind
 export const textColors = {
-  primary: 'text-primary',
   neutral: 'text-neutral',
-  secondary: 'text-secondary'
+  primary: 'text-primary',
+  secondary: 'text-secondary',
+  success: 'text-success'
 }
 
 /**

@@ -1,9 +1,14 @@
-import React from 'react'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
 import PropTypes from 'prop-types';
+
+// thid party components
 import { useHistory } from "react-router-dom";
-const { useState, useEffect, useCallback, useRef } = React;
 import { createXXHash3 } from 'hash-wasm';
-import { ErrorMessage } from './error'
+
+// components
+import { ErrorMessage } from './ErrorMessage'
+
+// lib
 import {
   process,
   transcriptionStates as states,
@@ -88,7 +93,7 @@ export const Upload = ({
       showState(states.preparing);
     } else {
       // pretend to upload. hashing will be fast
-      hashingProgress = () => {} // completely disable hashing progress
+      hashingProgress = () => {} // disable hashing progress
       setUploading(true);
       showState(states.uploading);
     }

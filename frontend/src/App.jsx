@@ -7,9 +7,11 @@ import {
   Link
 } from "react-router-dom";
 
-import StudioPage from './pages/studio';
-import UploadPage from './pages/upload';
-import HomePage from './pages/home';
+import "../index.css";
+
+import StudioPage from './pages/StudioPage';
+import UploadPage from './pages/UploadPage';
+import HomePage from './pages/HomePage';
 
 /**
  * Main application component. Handles routing.

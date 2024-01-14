@@ -1,7 +1,10 @@
-import "../../index.css";
-import { Upload } from "../upload.jsx";
-import logoUrl from '../../timething.svg'
 import { useHistory } from "react-router-dom";
+
+// components
+import { Upload } from "../Upload.jsx";
+
+// images
+import logoUrl from '../../timething.svg'
 
 /**
  * Main page users land on when they visit the site.

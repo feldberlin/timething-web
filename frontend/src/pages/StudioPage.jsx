@@ -1,14 +1,20 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useParams } from 'react-router';
-import "../../index.css";
-import { Player } from "../player.jsx";
-import { Editor } from "../editor.jsx";
-import { PlayButton } from "../play-button.jsx";
-import { ZeeSelect } from "../select.jsx";
-import { ErrorMessage } from "../error.jsx";
+
+// components
+import { Editor } from "../Editor.jsx";
+import { ErrorMessage } from "../ErrorMessage.jsx";
+import { MiniProgress } from "../MiniProgress.jsx";
+import { PlayButton } from "../PlayButton.jsx";
+import { Player } from "../Player.jsx";
+import { ZeeSelect } from "../ZeeSelect.jsx";
+
+// images
 import logoImg from '../../timething.svg'
 import addImg from '../../add.svg'
+
+// lib
 import {
   supportedLanguages as languages,
   textColors,
@@ -72,6 +78,7 @@ export default function StudioPage() {
           setLanguage(language)
         }
       } else {
+        // use a fatal here so we don't load any of the studio components.
         setFatalError("Couldn't find this transcription.")
       }
     } catch (e) {
@@ -252,17 +259,12 @@ export default function StudioPage() {
           <img src={addImg} width="27px" height="27px" className="float-right m-3 mr-5" alt="Add transcript" />
           <h3 className="my-3 mx-8 font-bold">Transcripts</h3>
           <p className="my-3 mx-8">
-            Auto Transcript
+            {!retranscribing && "Auto Transcript" }
             {retranscribing &&
-              <>
-                <span className="loading loading-dots loading-xs text-secondary ml-2 -mb-1"></span>
-                {retranscribingState &&
-                  <span className={`ml-2 ${textColors[retranscribingState.color]}`}>{retranscribingState.shortText}</span>
-                }
-                {retranscribingProgress &&
-                    <span className={`ml-2 ${textColors[retranscribingState.color]}`}>{retranscribingProgress}%</span>
-                }
-              </>
+              <MiniProgress
+                state={retranscribingState}
+                progress={retranscribingProgress}
+              />
             }
           </p>
         </div>

@@ -1,7 +1,11 @@
 import React, { useState, useRef, forwardRef, useImperativeHandle } from 'react'
 import PropTypes from 'prop-types';
+
+// thid party components
 import ReactPlayer from 'react-player/lazy';
-import { Timer } from './timer.jsx'
+
+// components
+import { Timer } from './Timer.jsx'
 
 /**
  * A media player. Currently wraps ReactPlayer. This is just the main window,

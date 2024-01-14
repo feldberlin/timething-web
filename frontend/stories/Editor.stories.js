@@ -1,4 +1,4 @@
-import { Editor } from '../src/editor';
+import { Editor } from '../src/Editor';
 
 export default {
   title: 'Editor',

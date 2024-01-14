@@ -1,5 +1,9 @@
-import "../../index.css";
-import { Upload } from "../upload.jsx";
+import React from "react";
+
+// components
+import { Upload } from "../Upload.jsx";
+
+// images
 import logoUrl from '../../timething.svg'
 
 /**

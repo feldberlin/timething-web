@@ -1,5 +1,7 @@
 import React, { useState } from 'react'
 import PropTypes from 'prop-types';
+
+// images
 import playImg from '../play.svg'
 import pauseImg from '../pause.svg'
 
