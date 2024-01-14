@@ -6,7 +6,8 @@ import { createXXHash3 } from 'hash-wasm';
 import { ErrorMessage } from './error'
 import {
   process,
-  transcriptionStates as states
+  transcriptionStates as states,
+  progressColors,
 } from './lib'
 
 /**
@@ -36,13 +37,6 @@ export const Upload = ({
   const [transcriptionId, setTranscriptionId] = useState(null)
   const [track, setTrack] = useState(null)
   const history = useHistory();
-
-  // make it discoverable for tailwind
-  const progressColors = {
-    primary: 'progress-primary',
-    neutral: 'progress-neutral',
-    secondary: 'progress-secondary'
-  }
 
   /**
    * Makes the intial request to start the upload.

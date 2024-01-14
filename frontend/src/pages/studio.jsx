@@ -11,6 +11,7 @@ import logoImg from '../../timething.svg'
 import addImg from '../../add.svg'
 import {
   supportedLanguages as languages,
+  textColors,
   process
 } from "../lib.js";
 
@@ -25,13 +26,17 @@ export default function StudioPage() {
   const playerRef = useRef(null);
   const [playing, setPlaying] = useState(false)
   const [transcript, setTranscript] = useState(null);
-  const [retranscribing, setRetranscribing] = useState(false);
   const [language, setLanguage] = useState(null);
   const [track, setTrack] = useState(null);
   const [focus, setFocus] = useState(0);
   const [elapsed, setElapsed] = useState(0)
   const [modalMessage, setModalMessage] = useState(0)
   const [modalButtons, setModalButtons] = useState(0)
+
+  // retranscription
+  const [retranscribing, setRetranscribing] = useState(false);
+  const [retranscribingProgress, setRetranscribingProgress] = useState(0);
+  const [retranscribingState, setRetranscribingState] = useState(0);
 
   // User error, system error. Like 404 vs 500.
   const [error, setError] = useState(null)
@@ -158,10 +163,16 @@ export default function StudioPage() {
         setRetranscribing(true)
         setTranscript(null)
         process({
-          transcriptionId: transcriptionId,
           language: value,
-          onProgress: (progress) => { console.log(progress) },
-          onStateChange: (state) => { console.log(state) },
+          transcriptionId: transcriptionId,
+          onProgress: (progress) => {
+            console.log('progress', progress)
+            setRetranscribingProgress(Number(progress))
+          },
+          onStateChange: (state) => {
+            console.log('state change', state)
+            setRetranscribingState(state)
+          },
           onError: (error) => {
             setTranscript(oldTranscript)
             setRetranscribing(false)
@@ -169,6 +180,8 @@ export default function StudioPage() {
           },
           onComplete: (transcript) => {
             setRetranscribing(false)
+            setRetranscribingProgress(null)
+            setRetranscribingState(null)
             setTranscript(transcript)
           }
         })
@@ -241,7 +254,15 @@ export default function StudioPage() {
           <p className="my-3 mx-8">
             Auto Transcript
             {retranscribing &&
-              <span className="loading loading-dots loading-xs text-secondary ml-2 -mb-1"></span>
+              <>
+                <span className="loading loading-dots loading-xs text-secondary ml-2 -mb-1"></span>
+                {retranscribingState &&
+                  <span className={`ml-2 ${textColors[retranscribingState.color]}`}>{retranscribingState.shortText}</span>
+                }
+                {retranscribingProgress &&
+                    <span className={`ml-2 ${textColors[retranscribingState.color]}`}>{retranscribingProgress}%</span>
+                }
+              </>
             }
           </p>
         </div>

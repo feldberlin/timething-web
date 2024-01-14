@@ -3,10 +3,24 @@
  *
  */
 export const transcriptionStates = {
-  preparing: { text: 'Preparing', color: 'success' },
-  uploading: { text: 'Uploading', color: 'primary' },
-  transcoding: { text: 'Processing audio', color: 'neutral' },
-  transcribing: { text: 'Converting audio to text', color: 'secondary' }
+  preparing: { text: 'Preparing', shortText: 'Preparing', color: 'success' },
+  uploading: { text: 'Uploading', shortText: 'Preparing', color: 'primary' },
+  transcoding: { text: 'Processing audio', shortText: 'Processing', color: 'neutral' },
+  transcribing: { text: 'Converting audio to text', shortText: 'Recognising', color: 'secondary' }
+}
+
+// make it discoverable by tailwind
+export const progressColors = {
+  primary: 'progress-primary',
+  neutral: 'progress-neutral',
+  secondary: 'progress-secondary'
+}
+
+// make it discoverable by tailwind
+export const textColors = {
+  primary: 'text-primary',
+  neutral: 'text-neutral',
+  secondary: 'text-secondary'
 }
 
 /**
