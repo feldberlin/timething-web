@@ -69,7 +69,6 @@ class Store:
         with open(meta, 'w') as f:
             content = json.dumps(asdict(t))
             f.write(content)
-        logger.info(f"wrote {content} to {meta}")
 
     def select(self, transcription_id: str):
         if not transcription_id:
@@ -80,7 +79,6 @@ class Store:
         if not meta.exists():
             raise Exception(f'id not found')
 
-        logger.info(f"returning from {meta}")
         with open(meta, 'r') as f:
             return json.load(f)
 

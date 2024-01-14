@@ -13,9 +13,10 @@ import uuid
 from modal import Mount, NetworkFileSystem, asgi_app
 from pydantic import BaseModel
 
-import common
 from common import stub
 from recogniser import Recogniser
+import common
+import formats
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -169,10 +170,25 @@ def web():
         # safe after validation. we created the id
         try:
             content = common.db.select(transcription_id)
-            logger.info(f"got {content}")
         except Exception as e:
             error(404, f'id is still processing: {e}')
         return JSONResponse(content=content)
+
+    @web_app.get("/export/{transcription_id}")
+    async def export(transcription_id: str, format: str):
+        if transcription_id not in stub.transcriptions:
+            error(404, f'invalid id {transcription_id}')
+
+        try:
+            transcription = common.db.select(transcription_id)
+            transcript = transcription.get('transcript')
+            content = formats.format(transcript, format)
+            return Response(
+                content=content,
+                media_type="text/plain"
+            )
+        except Exception as e:
+            error(404, f'id is still processing: {e}')
 
     @web_app.get("/media/{transcription_id}")
     def media(
@@ -223,4 +239,3 @@ def web():
         return FileResponse(f'{remote_path}/index.html')
 
     return web_app
-

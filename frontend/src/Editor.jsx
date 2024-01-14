@@ -1,7 +1,8 @@
-import React from 'react'
+import React, { useState } from 'react'
 import PropTypes from 'prop-types';
 
-const { useState } = React;
+// images
+import downloadImg from '../download.svg'
 
 /**
  * The main document editor. Used to display and edit the transcript.
@@ -32,22 +33,40 @@ export const Editor = ({
   function targets(text) {
     return text.trim().split(' ').map((word, index) => {
       if (index == focus) {
-        return <span>
+        return (
+          <>
             <span className="bg-primary text-white rounded inline-block pl-1 pr-1 cursor-pointer" data-key={index}>{word}</span>
             <span> </span>
-          </span>
+          </>
+        )
       } else {
-        return <span>
+        return (
+          <>
             <span className="hover:bg-primary hover:text-white hover:rounded inline-block ml-1 mr-1 cursor-pointer" data-key={index}>{word}</span>
             <span className="inline-block -ml-px"> </span>
-          </span>
+          </>
+        )
       }
     })
   }
 
+  const { name: title = "Transcript" } = track || {}
   return (
-    <div>
-      <h1 className="mb-5">{track ? track.name || 'Transcript' : 'Transcript'}</h1>
+    <>
+      <h1 className="mb-5 flex justify-between">
+        {title}
+        <a
+          href={`/export/${transcriptionId}?format=srt`}
+          className="editor-controls flex items-center text-sm text-secondary font-bold filter grayscale opacity-50 hover:filter-none hover:opacity-100"
+          download
+        >
+          <img src={downloadImg} className="w-6 h-6" alt="Download" />
+          <span className="ml-1">Download</span>
+        </a>
+      </h1>
+      <div className="flex justify-end mb-5">
+      </div>
+
       <article className={transcript ? 'article-loaded' : 'article-loading'}>
         { !transcript &&
           <div className="flex flex-col gap-4 w-full opacity-50">
@@ -65,7 +84,7 @@ export const Editor = ({
           {targets(transcript ? transcript.text : "")}
         </div>
       </article>
-    </div>
+    </>
   )
 }
 

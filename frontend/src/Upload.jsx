@@ -15,6 +15,12 @@ import {
   progressColors,
 } from './lib'
 
+// bounds the size of individual http requests.
+const uploadChunkSize = 1024 * 1024 * 16; // 16MB
+
+// bounds the memory usage of the hashing algorithm.
+const hashingChunkSize = 1024 * 1024 * 512;; // 0.5GB
+
 /**
  * Upload component. Manages the upload process, including uploading,
  * transcoding, and tracking progress. Upload is chunked and resumable. Files
@@ -70,7 +76,6 @@ export const Upload = ({
    *
    */
   async function upload(file) {
-    const chunkSize = 1024 * 1024 * 32; // 32MB
     let start = 0;
     let nErrors = 0;
 
@@ -125,7 +130,7 @@ export const Upload = ({
 
     // start upload
     while (start < file.size) {
-      let end = Math.min(start + chunkSize, file.size);
+      let end = Math.min(start + uploadChunkSize, file.size);
       let chunk = file.slice(start, end);
       let response
 
@@ -269,15 +274,14 @@ export const Upload = ({
 
   // fast hashing via xxhash3. around 1GB/s
   async function hash({file, setProgress}) {
-    const chunkSize = 1024 * 1024 * 512; // 0.5GB
-    const nChunks = Math.floor(file.size / chunkSize)
+    const nChunks = Math.floor(file.size / hashingChunkSize)
     const xx = await createXXHash3();
     xx.init();
 
     for (let i = 0; i <= nChunks; i++) {
       let blob = file.slice(
-        chunkSize * i,
-        Math.min(chunkSize * (i + 1), file.size)
+        hashingChunkSize * i,
+        Math.min(hashingChunkSize * (i + 1), file.size)
       );
 
       let chunk = new Uint8Array(await blob.arrayBuffer())

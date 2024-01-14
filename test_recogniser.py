@@ -48,9 +48,6 @@ def test_recogniser():
             r.recognise.local("one.mp3", media_path=Path(tmp))
         )
 
-        for u in updates:
-            print(u)
-
         assert len(updates) > 1
         assert type(updates[0]) == recogniser.TranscodingProgress
         assert updates[1].percent_done == 96

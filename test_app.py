@@ -136,3 +136,36 @@ def test_resume(client, transcription_id = 'abc'):
             # check the file
             with open(common.MEDIA_PATH / transcription_id, 'rb') as f:
                 assert f.read() == b'0123456789abcdef'
+
+
+@patch('app.stub', new=MockedStub())
+def test_export_srt(client, transcription_id = 'abc'):
+
+    # app.Transcription is api only
+    api_transcription = app.Transcription(
+        filename="file.name",
+        content_type="audio/mp3",
+        size_bytes=16
+    )
+
+    app.stub.transcriptions[transcription_id] = api_transcription
+    with tmpdir_scope() as tmp_dir:
+        media_path = Path(tmp_dir)
+        with patch('common.db', new=common.Store(media_path)):
+
+            # copy over fixture
+            src = Path("fixtures/meta.json")
+            dst = (media_path / transcription_id).with_suffix(".json")
+            dst.write_text(src.read_text())
+
+            # get the srt file
+            res = client.get(f"/export/{transcription_id}?format=srt")
+            assert res.status_code == 200
+
+            want = """1
+00:00:00,000 --> 00:00:10,000
+Hi, my name is Rany and my name is Alexey and I would like you to translate what
+we're speaking about which is
+"""
+
+            assert res.text.startswith(want)

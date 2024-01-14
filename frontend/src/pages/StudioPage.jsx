@@ -173,11 +173,9 @@ export default function StudioPage() {
           language: value,
           transcriptionId: transcriptionId,
           onProgress: (progress) => {
-            console.log('progress', progress)
             setRetranscribingProgress(Number(progress))
           },
           onStateChange: (state) => {
-            console.log('state change', state)
             setRetranscribingState(state)
           },
           onError: (error) => {
@@ -286,6 +284,7 @@ export default function StudioPage() {
           focus={focus}
           setFocus={setFocusFromEditor}
           transcript={transcript}
+          initialTranscriptionId={transcriptionId}
           track={track}
         />
       </div>
