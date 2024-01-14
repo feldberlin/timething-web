@@ -66,7 +66,7 @@ def sock():
             yield socket_filename, sock
 
 
-def worker(q, audio, device):
+def worker(q, audio, device, language):
     import tqdm
     import whisper
     import whisper.transcribe
@@ -92,7 +92,7 @@ def worker(q, audio, device):
         # progress back to the parent process via the given pipe
         use_gpu = device == "gpu"
         model = whisper.load_model(common.MODEL_NAME, device=device)
-        transcript = model.transcribe(audio, fp16=use_gpu, verbose=False)
+        transcript = model.transcribe(audio, language=language, fp16=use_gpu, verbose=False)
         q.put(transcript)
         q.put(None)
     except Exception as e:
@@ -100,12 +100,12 @@ def worker(q, audio, device):
         q.put(None)
 
 
-def transcribe(audio, device):
+def transcribe(audio, device, language):
     import torch.multiprocessing as mp
 
     mp.set_start_method("spawn", force=True)
     q = mp.Queue()
-    p = mp.Process(target=worker, args=(q, audio, device))
+    p = mp.Process(target=worker, args=(q, audio, device, language))
     p.start()
     while True:
         res = q.get()

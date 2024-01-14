@@ -34,15 +34,24 @@ export const supportedLanguages = [
  */
 export const process = ({
   transcriptionId,
-  setState = s => {},
-  setProgress = p => {},
+  language = null,
   setTrack = t => {},
   setTranscript = t => {},
-  onError = () => {},
-  onComplete = () => {}
+  onStateChange = s => {},
+  onProgress = p => {},
+  onComplete = () => {},
+  onError = () => {}
 }) => {
   const id = encodeURIComponent(transcriptionId)
-  const sse = new EventSource("/transcribe/" + id);
+  let url = `/transcribe/${id}`
+
+  // add language if specified
+  if (language != null) {
+    url = `${url}?language=${language}`
+  }
+
+  // create and event source and start processing
+  const sse = new EventSource(url);
 
   // transcode
   sse.addEventListener("TranscodingProgress", (ev) => {
@@ -51,11 +60,11 @@ export const process = ({
     const track = data.track;
     if (track == null) {
       if (percentDone == 100) {
-        setProgress(null)
-        setState(transcriptionStates.transcribing)
+        onProgress(null)
+        onStateChange(transcriptionStates.transcribing)
       } else {
-        setProgress(percentDone)
-        setState(transcriptionStates.transcoding)
+        onProgress(percentDone)
+        onStateChange(transcriptionStates.transcoding)
       }
     } else {
       setTrack(track)
@@ -68,12 +77,12 @@ export const process = ({
     const percentDone = data.percent_done;
     const transcript = data.transcript;
     if (transcript == null) {
-      setProgress(percentDone);
-      setState(transcriptionStates.transcribing);
+      onProgress(percentDone);
+      onStateChange(transcriptionStates.transcribing);
     } else {
       sse.close();
       setTranscript(transcript)
-      onComplete()
+      onComplete(transcript)
     }
   });
 

@@ -6,10 +6,12 @@ import { Player } from "../player.jsx";
 import { Editor } from "../editor.jsx";
 import { PlayButton } from "../play-button.jsx";
 import { ZeeSelect } from "../select.jsx";
+import { ErrorMessage } from "../error.jsx";
 import logoImg from '../../timething.svg'
 import addImg from '../../add.svg'
 import {
-  supportedLanguages as languages
+  supportedLanguages as languages,
+  process
 } from "../lib.js";
 
 /**
@@ -23,11 +25,17 @@ export default function StudioPage() {
   const playerRef = useRef(null);
   const [playing, setPlaying] = useState(false)
   const [transcript, setTranscript] = useState(null);
+  const [retranscribing, setRetranscribing] = useState(false);
+  const [language, setLanguage] = useState(null);
   const [track, setTrack] = useState(null);
   const [focus, setFocus] = useState(0);
   const [elapsed, setElapsed] = useState(0)
   const [modalMessage, setModalMessage] = useState(0)
   const [modalButtons, setModalButtons] = useState(0)
+
+  // User error, system error. Like 404 vs 500.
+  const [error, setError] = useState(null)
+  const [fatalError, setFatalError] = useState(null)
 
   /**
    * Fetch the transcription metadata.
@@ -43,14 +51,30 @@ export default function StudioPage() {
           const alignment = interpolation(meta)
           meta.transcript.alignment = alignment
           setTranscript(meta.transcript)
+
+          // check if language is in the language options. if not, add the
+          // language code and language name to the options array. we have
+          // a static list of supported languages, but whisper may incorrectly
+          // identify the language of the audio, e.g. welsh instead of english
+          // due to leading silence or music. we would like to be able to
+          // display the language name in the select box.
+          const { language } = meta.transcript || {}
+          if (language && !languages.find(o => o.value === language)) {
+            const names = new Intl.DisplayNames(['en'], { type: 'language' });
+            languages.push({ value: language, label: names.of(language) })
+          }
+
+          setLanguage(language)
         }
       } else {
-        console.error(`couldn't find transcription ${transcriptionId}`)
+        setFatalError("Couldn't find this transcription.")
       }
     } catch (e) {
       console.error(e)
+      setFatalError("Couldn't load transcription.")
     }
   }, [])
+
 
   /**
    * State
@@ -129,15 +153,32 @@ export default function StudioPage() {
       )
 
       const hRetranscribe = () => {
+        const oldTranscript = transcript
         setLanguage(value)
-        transcribe(value)
+        setRetranscribing(true)
+        setTranscript(null)
+        process({
+          transcriptionId: transcriptionId,
+          language: value,
+          onProgress: (progress) => { console.log(progress) },
+          onStateChange: (state) => { console.log(state) },
+          onError: (error) => {
+            setTranscript(oldTranscript)
+            setRetranscribing(false)
+            setError("We couldn't process your audio.")
+          },
+          onComplete: (transcript) => {
+            setRetranscribing(false)
+            setTranscript(transcript)
+          }
+        })
       }
 
       // buttons
       setModalButtons(
         <form method="dialog">
-          <button className="btn mr-2" onClick={hRetranscribe}>Cancel</button>
-          <button className="btn bg-black text-white">Change to {label}</button>
+          <button className="btn mr-2">Cancel</button>
+          <button className="btn bg-black text-white" onClick={hRetranscribe}>Change to {label}</button>
         </form>
       )
 
@@ -147,23 +188,16 @@ export default function StudioPage() {
     }
   }
 
-  /**
-   * Retranscribe the audio in the new language.
-   *
-   */
-  function hRetranscribe(ev) {
-
-  }
-
-  // check if language is in the language options. if not, add the language
-  // code and language name to the options array. we have a static list of
-  // supported languages, but whisper may incorrectly identify the language of
-  // the audio, e.g. welsh instead of english due to leading silence or music.
-  // we would like to be able to display the language name in the select box.
-  const { language = '' } = transcript || {}
-  if (language && !languages.find(o => o.value === language)) {
-    const names = new Intl.DisplayNames(['en'], { type: 'language' });
-    languages.push({ value: language, label: names.of(language) })
+  if (fatalError) {
+    return (
+      <div id="studio" className="flex flex-col justify-center items-center min-w-full min-h-screen screen p-20 -mt-16">
+        <div>
+          <h1 className="mb-3">Something went wrong.</h1>
+          <p className="mb-5">It's not you, it's us. Please try again later.</p>
+          <ErrorMessage message={fatalError}/>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -204,7 +238,12 @@ export default function StudioPage() {
         <div className="section border-b border-base-200 py-1">
           <img src={addImg} width="27px" height="27px" className="float-right m-3 mr-5" alt="Add transcript" />
           <h3 className="my-3 mx-8 font-bold">Transcripts</h3>
-          <p className="my-3 mx-8">Auto Transcript</p>
+          <p className="my-3 mx-8">
+            Auto Transcript
+            {retranscribing &&
+              <span className="loading loading-dots loading-xs text-secondary ml-2 -mb-1"></span>
+            }
+          </p>
         </div>
         <div className="section border-b border-base-200 py-1">
           <img src={addImg} width="27px" height="27px" className="float-right m-3 mr-5" alt="Add caption" />
@@ -217,6 +256,9 @@ export default function StudioPage() {
         </div>
       </div>
       <div id="editor" className="bg-white p-14">
+        {error &&
+          <Error message={error} />
+        }
         <Editor
           focus={focus}
           setFocus={setFocusFromEditor}

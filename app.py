@@ -149,12 +149,12 @@ def web():
             )
 
     @web_app.get("/transcribe/{transcription_id}")
-    async def transcribe(transcription_id: str):
+    async def transcribe(transcription_id: str, language: str = None):
         if transcription_id not in stub.transcriptions:
             error(404, f'invalid id {transcription_id}')
 
         def generate():
-            for update in recogniser.recognise.remote_gen(transcription_id):
+            for update in recogniser.recognise.remote_gen(transcription_id, language):
                yield common.dataclass_to_event(update)
 
         return StreamingResponse(

@@ -69,7 +69,7 @@ class TranscodingProgress:
 @dataclass
 class TranscriptionProgress:
     percent_done: int = None
-    transcript: str = None
+    transcript: dict = None
 
 
 def transcode(
@@ -89,6 +89,7 @@ def transcode(
     # get metadata
     probe = ffmpeg.probe(in_file)
     track = common.Track.from_probe(probe)
+    track.path = str(out_file)
 
     # check if we've already transcoded this. we need a valid wav file
     if out_file.exists():
@@ -97,6 +98,7 @@ def transcode(
             yield TranscodingProgress(track=track)
             return
         except:
+            # invalid wav. reprocess
             pass
 
     with progress.sock() as (socket_filename, socket):
@@ -124,7 +126,6 @@ def transcode(
         if return_code != 0:
             raise RecogniserError(f"ffmpeg failed : {return_code}")
 
-    track.path = str(out_file)
     yield TranscodingProgress(track=track)
 
 
@@ -152,6 +153,7 @@ class Recogniser:
     def recognise(
         self,
         transcription_id: str,
+        language: str = None,
         media_path: Path = common.MEDIA_PATH
     ):
         # transcode
@@ -164,7 +166,7 @@ class Recogniser:
                     track = track
 
         logger.info(f"transcribing...")
-        for update in progress.transcribe(track.path, get_device()):
+        for update in progress.transcribe(track.path, get_device(), language):
             match update:
                 case int(percent_done):
                     yield TranscriptionProgress(percent_done=percent_done)
@@ -175,7 +177,7 @@ class Recogniser:
                         track=track
                     )
                     common.db.create(t)
-                    yield TranscriptionProgress(transcript=transcript['text'])
+                    yield TranscriptionProgress(transcript=transcript)
                 case Exception as e:
                     logger.error(e)
 
