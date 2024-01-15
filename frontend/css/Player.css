@@ -1,0 +1,32 @@
+#video.video-loading video {
+  opacity: 0;
+  position: absolute;
+  top: -1000px;
+  left: -1000px;
+}
+
+#video.video-loaded video {
+   opacity: 1;
+   transition: opacity 0.3s ease-in-out 0.1s;
+   position: static;
+}
+
+#video video {
+  max-width: 600px;
+  max-height: 400px;
+}
+
+#video progress:hover {
+  height: 12px;
+  animation: growHeight 2s forwards;
+}
+
+#media-player #media-player-controls {
+  opacity: 0;
+  transition: all 0.5s ease-in-out 0.1s;
+}
+
+#media-player:hover #media-player-controls {
+  opacity: 1;
+  transition: all 0.5s ease-in-out 0.1s;
+}

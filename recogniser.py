@@ -134,6 +134,22 @@ def get_device():
     return "cuda" if torch.cuda.is_available() else "cpu"
 
 
+def align(transcript):
+    """XXX(rk): temp alignment heuristic
+    """
+    alignment = []
+    for s in transcript['segments']:
+        text = s['text']
+        start = float(s['start'])
+        end = float(s['end'])
+        duration = end - start
+        words = text.strip().split(' ')
+        for i, w in enumerate(words):
+            alignment.append(start + i * duration / len(words))
+
+    transcript['alignment'] = alignment
+
+
 @stub.cls(
     gpu="A10G",
     container_idle_timeout=180,
@@ -171,6 +187,7 @@ class Recogniser:
                 case int(percent_done):
                     yield TranscriptionProgress(percent_done=percent_done)
                 case dict(transcript):
+                    align(transcript)
                     t = common.Transcription(
                         transcription_id=transcription_id,
                         transcript=transcript,

@@ -4,6 +4,9 @@ import PropTypes from 'prop-types';
 // images
 import downloadImg from '../download.svg'
 
+// styles
+import "../css/Editor.css";
+
 /**
  * The main document editor. Used to display and edit the transcript.
  *

@@ -1,0 +1,31 @@
+#studio h1 {
+  font-weight: bold;
+  line-height: 2rem;
+  font-size: 26px;
+}
+
+#studio p, #studio article {
+  font-size: 16px;
+}
+
+#sidebar {
+  min-width: 250px;
+}
+
+#editor {
+  box-shadow: 7px 0 15px -2px #e8e6e0;
+  min-width: 640px;
+  max-width: 640px;
+  height: 100vh;
+  overflow: hidden;
+  padding: 65px;
+}
+
+#editor:hover {
+  overflow: auto;
+  padding-right: 50px;
+}
+
+#player {
+  flex-basis: 100%;
+}

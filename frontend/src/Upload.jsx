@@ -8,6 +8,9 @@ import { createXXHash3 } from 'hash-wasm';
 // components
 import { ErrorMessage } from './ErrorMessage'
 
+// styles
+import "../css/Upload.css";
+
 // lib
 import {
   process,
@@ -426,7 +429,9 @@ export const Upload = ({
             value={progress}
             max="100">
           </progress>
-          <h3 id="status" className="text-slate-400 mt-2">{progress}{progress != null ? '%' : '\u00A0'}</h3>
+          <h3 id="status" className="text-slate-400 mt-2">
+            {progress}{progress != null ? '%' : '\u00A0'}
+          </h3>
         </div>
       )
     } else {
@@ -436,8 +441,16 @@ export const Upload = ({
             Drag and drop your video or audio file here or
           </h2>
           <div className="button text-center pb-4">
-            <label className="btn btn-lg btn-primary" htmlFor="media">Choose a file to upload</label>
-            <input className="hidden" type="file" name="media" id="media" onChange={hSelect} />
+            <label className="btn btn-lg btn-primary" htmlFor="media">
+              Choose a file to upload
+            </label>
+            <input
+              className="hidden"
+              type="file"
+              name="media"
+              id="media"
+              onChange={hSelect}
+            />
           </div>
         </div>
       )

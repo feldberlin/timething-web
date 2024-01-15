@@ -21,7 +21,8 @@ export const Timer = ({
     marginTop: '-80px',
     padding: '0 15px',
     position: 'fixed',
-    textAlign: 'center'
+    textAlign: 'center',
+    fontWeight: 500
   }
 
   /**

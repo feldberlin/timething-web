@@ -14,6 +14,9 @@ import { ZeeSelect } from "../ZeeSelect.jsx";
 import logoImg from '../../timething.svg'
 import addImg from '../../add.svg'
 
+// styles
+import "../../css/pages/StudioPage.css";
+
 // lib
 import {
   supportedLanguages as languages,
@@ -59,8 +62,6 @@ export default function StudioPage() {
         const meta = JSON.parse(await res.text());
         setTrack(meta.track)
         if (meta.transcript) {
-          const alignment = interpolation(meta)
-          meta.transcript.alignment = alignment
           setTranscript(meta.transcript)
 
           // check if language is in the language options. if not, add the
@@ -133,18 +134,6 @@ export default function StudioPage() {
     setFocus(f)
   }
 
-  // simple alignment heuristic
-  function interpolation(meta) {
-    const words = meta.transcript.text.trim().split(' ')
-    const totalDuration = meta.track.duration
-    const wordDuration = totalDuration / words.length
-    const cumSum = (sum => value => sum += value)(0);
-    return words
-      .map((word, i) => wordDuration)
-      .map(cumSum)
-      .map(x => x - wordDuration)
-  }
-
   /**
    * Event handlers
    *
@@ -196,7 +185,9 @@ export default function StudioPage() {
       setModalButtons(
         <form method="dialog">
           <button className="btn mr-2">Cancel</button>
-          <button className="btn bg-black text-white" onClick={hRetranscribe}>Change to {label}</button>
+          <button className="btn bg-black text-white" onClick={hRetranscribe}>
+            Change to {label}
+          </button>
         </form>
       )
 
@@ -211,7 +202,9 @@ export default function StudioPage() {
       <div id="studio" className="flex flex-col justify-center items-center min-w-full min-h-screen screen p-20 -mt-16">
         <div>
           <h1 className="mb-3">Something went wrong.</h1>
-          <p className="mb-5">It's not you, it's us. Please try again later.</p>
+          <p className="mb-5">
+            It's not you, it's us. Please try again later.
+          </p>
           <ErrorMessage message={fatalError}/>
         </div>
       </div>
@@ -233,10 +226,21 @@ export default function StudioPage() {
       </div>
       <div id="sidebar" className="h-screen bg-base-100 w-72 text-base">
         <div className="section border-b border-base-200">
-          <img src={logoImg} height="26" width="130" className="ml-8 my-7" />
+          <img
+            src={logoImg}
+            height="26"
+            width="130"
+            className="ml-8 my-7"
+          />
         </div>
         <div className="section border-b border-base-200 py-1">
-          <img src={addImg} width="27px" height="27px" className="float-right m-3 mr-5" alt="Add title" />
+          <img
+            src={addImg}
+            width="27px"
+            height="27px"
+            className="float-right m-3 mr-5"
+            alt="Add title"
+          />
           <h3 className="my-3 mx-8 font-bold">Title</h3>
           <p className="my-3 mx-8">{track ? track.title : ''}</p>
         </div>
@@ -250,11 +254,23 @@ export default function StudioPage() {
           />
         </div>
         <div className="section border-b border-base-200 py-1">
-          <img src={addImg} width="27px" height="27px" className="float-right m-3 mr-5" alt="Add translation" />
+          <img
+            src={addImg}
+            width="27px"
+            height="27px"
+            className="float-right m-3 mr-5"
+            alt="Add translation"
+          />
           <h3 className="my-3 mx-8 font-bold">Translations</h3>
         </div>
         <div className="section border-b border-base-200 py-1">
-          <img src={addImg} width="27px" height="27px" className="float-right m-3 mr-5" alt="Add transcript" />
+          <img
+            src={addImg}
+            width="27px"
+            height="27px"
+            className="float-right m-3 mr-5"
+            alt="Add transcript"
+          />
           <h3 className="my-3 mx-8 font-bold">Transcripts</h3>
           <p className="my-3 mx-8">
             {!retranscribing && "Auto Transcript" }
@@ -267,16 +283,28 @@ export default function StudioPage() {
           </p>
         </div>
         <div className="section border-b border-base-200 py-1">
-          <img src={addImg} width="27px" height="27px" className="float-right m-3 mr-5" alt="Add caption" />
+          <img
+            src={addImg}
+            width="27px"
+            height="27px"
+            className="float-right m-3 mr-5"
+            alt="Add caption"
+          />
           <h3 className="my-3 mx-8 font-bold">Captions</h3>
           <p className="my-3 mx-8">Auto Captions</p>
         </div>
         <div className="section border-b border-base-200 pt-1 pb-5">
-          <img src={addImg} width="27px" height="27px" className="float-right m-3 mr-5" alt="Add speaker" />
+          <img
+            src={addImg}
+            width="27px"
+            height="27px"
+            className="float-right m-3 mr-5"
+            alt="Add speaker"
+          />
           <h3 className="my-3 mx-8 font-bold">Speakers</h3>
         </div>
       </div>
-      <div id="editor" className="bg-white p-14">
+      <div id="editor" className="bg-white">
         {error &&
           <Error message={error} />
         }

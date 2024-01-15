@@ -1,5 +1,6 @@
 from functools import partial
 from pathlib import Path
+import json
 
 import numpy as np
 
@@ -57,3 +58,21 @@ def test_recogniser():
         assert type(updates[-1]) == recogniser.TranscriptionProgress
         assert updates[-1].percent_done is None
         assert updates[-1].transcript.strip() == "One"
+
+
+def test_alignment_heuristic():
+    with open(fixtures / "meta.json", "r") as f:
+        meta = json.loads(f.read())
+        transcript = meta['transcript']
+        recogniser.align(transcript)
+        alignment = transcript['alignment']
+
+        # test each chunk start
+        assert alignment[0] == 0.0
+        assert alignment[1] == 10 * 1/23 + 0.0
+        assert alignment[23] == 10.88
+        assert alignment[24] == 6.2 * 1/21 + 10.88
+        assert alignment[44] == 17.88
+        assert alignment[45] == 2 * 1/2 + 17.88
+        assert alignment[46] == 20.0
+        assert alignment[47] == 2.7 * 1/7 + 20

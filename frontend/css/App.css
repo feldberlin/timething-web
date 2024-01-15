@@ -1,0 +1,56 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-size: 20px;
+  background-image: radial-gradient(circle at 1px 1px, #CFCECB 2px, transparent 0);
+  background-size: 30px 30px;
+  background-color: #F5F3ED;
+}
+
+h1, label.btn-primary {
+  font-family: 'Test Söhne Breit Halbfett';
+}
+
+body, h2, h2 em, #studio h1, #studio p, #studio article {
+  font-family: 'Test National', sans-serif;
+}
+
+#timer {
+  font-family: 'Test Pitch Sans';
+}
+
+.bg-images {
+  background-image: url(../bg.svg);
+  background-repeat: no-repeat;
+  background-position: left 18em top 8em;
+}
+
+.bg-images-right {
+  background-image: url(../bg-2.svg);
+  background-repeat: no-repeat;
+  background-position: right 0em top 0em;
+}
+
+h1 {
+  line-height: 3rem;
+  font-size: 42px;
+}
+
+label.btn-primary {
+  font-size: 28px;
+  color: white;
+}
+
+h2 {
+  font-weight: 400;
+  font-size: 36px;
+  line-height: 1.2;
+}
+
+h2 em {
+  font-weight: bold;
+  font-style: normal;
+  color: #3A59FF;
+}

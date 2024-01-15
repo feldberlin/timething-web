@@ -1,0 +1,11 @@
+#dropzone {
+  width: 800px;
+}
+
+#dropzone.dropping {
+  border: 4px dashed #999;
+}
+
+#dropzone.dropping h2 {
+  margin-top: -4px;
+}
