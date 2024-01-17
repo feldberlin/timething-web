@@ -216,6 +216,7 @@ export const Upload = ({
 
     function hProgress(ev) {
       const percentDone = Math.round(100 * (start + ev.loaded) / total)
+      const currentBytes = start + ev.loaded
       setUploading(true)
       setError(null)
       if (percentDone == 100) {
@@ -224,9 +225,17 @@ export const Upload = ({
       } else {
         setProgress((progress) => {
           if (progress == null) {
-            return percentDone
-          } else if(percentDone > progress) {
-            return percentDone
+            return {
+              percent: percentDone,
+              currentBytes: currentBytes,
+              totalBytes: total
+            }
+          } else if(currentBytes > progress.currentBytes) {
+            return {
+              percent: percentDone,
+              currentBytes: currentBytes,
+              totalBytes: total
+            }
           } else {
             return progress
           }
@@ -292,7 +301,12 @@ export const Upload = ({
       chunk = null
 
       // display
-      setProgress(Math.round(100 * (i + 1) / (nChunks + 1)))
+      const percentDone = Math.round(100 * (i + 1) / (nChunks + 1))
+      setProgress({
+        percent: percentDone,
+        currentBytes: hashingChunkSize * (i + 1),
+        totalBytes: file.size
+      })
     }
 
     return await xx.digest();
@@ -322,7 +336,7 @@ export const Upload = ({
    */
   function setUploadError() {
     setError("Oops! Please retry and we'll pick up right where we left off! 🌟");
-    setProgress(0);
+    setProgress(null);
     setUploading(false);
   }
 
@@ -401,11 +415,28 @@ export const Upload = ({
     setUndrop()
   }
 
+  function formatBytes(bytes, decimals) {
+    if (bytes === 0) {
+      return '0 Bytes';
+    }
+
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return (bytes / Math.pow(k, i)).toFixed(decimals) + ' ' + sizes[i];
+  }
+
   /**
    * JSX
    *
    */
   function uploaderJSX() {
+    const {
+      percent: percentDone = null,
+      currentBytes = null,
+      totalBytes = null
+    } = progress || {};
+
     if (preparing) {
       return (
         <div>
@@ -426,12 +457,31 @@ export const Upload = ({
           <progress
             id="progressbar"
             className={`progress w-96 ${progressColors[progressColor]}`}
-            value={progress}
+            value={progress !== null ? progress.percent : null}
             max="100">
           </progress>
-          <h3 id="status" className="text-slate-400 mt-2">
-            {progress}{progress != null ? '%' : '\u00A0'}
-          </h3>
+          <div className="text-lg text-slate-400 mt-2 flex justify-between">
+            <div id="status">
+              {percentDone !== null
+                ? `${percentDone}%`
+                : '\u00A0'
+              }
+            </div>
+            <div class="flex">
+              {(totalBytes !== null && totalBytes > (1024 * 1024 * 512) && percentDone != null)
+                ?
+                  <>
+                    <span className="mr-1 text-right">
+                      {formatBytes(currentBytes, 2)}
+                    </span><span>/</span>
+                    <span className="ml-1">
+                      {formatBytes(totalBytes, 2)}
+                    </span>
+                  </>
+                : '\u00A0'
+              }
+            </div>
+          </div>
         </div>
       )
     } else {
