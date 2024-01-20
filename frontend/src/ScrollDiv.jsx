@@ -74,7 +74,6 @@ export const ScrollDiv = ({
     e.stopPropagation();
     setScrollThumbPosition(e.clientY);
     setDragging(true);
-    console.log("hScrollThumbMouseDown");
   }, []);
 
   const hScroll = useCallback(() => {

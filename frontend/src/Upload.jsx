@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react'
 import PropTypes from 'prop-types';
 
-// thid party components
+// third party components
 import { useHistory } from "react-router-dom";
 import { createXXHash3 } from 'hash-wasm';
 
@@ -24,6 +24,7 @@ const uploadChunkSize = 1024 * 1024 * 16; // 16MB
 // bounds the memory usage of the hashing algorithm.
 const hashingChunkSize = 1024 * 1024 * 512;; // 0.5GB
 
+
 /**
  * Upload component. Manages the upload process, including uploading,
  * transcoding, and tracking progress. Upload is chunked and resumable. Files
@@ -35,6 +36,8 @@ export const Upload = ({
   initialUploading,
   initialPreparing,
   initialProgress,
+  initialEta,
+  initialShowEta,
   initialError,
   initialProgressText,
   initialProgressColor,
@@ -47,6 +50,8 @@ export const Upload = ({
   const [progressText, setProgressText] = useState(initialProgressText)
   const [progressColor, setProgressColor] = useState(initialProgressColor)
   const [dropping, setDropping] = useState(initialDropping)
+  const [eta, setEta] = useState(initialEta) // seconds
+  const [showEta, setShowEta] = useState(initialShowEta)
   const [error, setError] = useState(initialError)
   const [transcriptionId, setTranscriptionId] = useState(null)
   const [track, setTrack] = useState(null)
@@ -132,6 +137,8 @@ export const Upload = ({
     showState(states.uploading);
 
     // start upload
+    let uploadStartedAt = Date.now()
+    let bytesUploaded = 0
     while (start < file.size) {
       let end = Math.min(start + uploadChunkSize, file.size);
       let chunk = file.slice(start, end);
@@ -144,7 +151,8 @@ export const Upload = ({
           start,
           end,
           file.size,
-          file.type
+          file.type,
+          uploadStartedAt
         )
       } catch (e) {
         console.error('failed to upload chunk', e)
@@ -163,6 +171,19 @@ export const Upload = ({
       }
 
       if (response.status === 308) {
+        // calculate upload speed for this chunk
+        bytesUploaded += (end - start)
+        const uploadDuration = (Date.now() - uploadStartedAt) / 1000
+        const bytesPerSecond = bytesUploaded / uploadDuration
+        const bytesRemaining = file.size - bytesUploaded
+        const etaSeconds = bytesRemaining / bytesPerSecond
+        setEta(etaSeconds)
+        // set showEta if 90 seconds have elapsed and there are more than
+        // 2 minutes of upload time remaining
+        if (uploadDuration > 90 && etaSeconds > 120) {
+          setShowEta(true)
+        }
+        // prepare for next chunk
         start = end;
         nErrors = 0;
       } else if (response.status == 200) {
@@ -194,7 +215,7 @@ export const Upload = ({
    * Upload a single chunk of the media file.
    *
    */
-  function uploadChunk(id, chunk, start, end, total, contentType) {
+  function uploadChunk(id, chunk, start, end, total, contentType, uploadStartedAt) {
     return new Promise((resolve, reject) => {
       let xhr = new XMLHttpRequest();
 
@@ -415,6 +436,7 @@ export const Upload = ({
     setUndrop()
   }
 
+  // e.g. 1.2MB
   function formatBytes(bytes, decimals) {
     if (bytes === 0) {
       return '0 Bytes';
@@ -424,6 +446,16 @@ export const Upload = ({
     const sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return (bytes / Math.pow(k, i)).toFixed(decimals) + ' ' + sizes[i];
+  }
+
+  // e.g. 2 minutes to go
+  function formatEta(seconds) {
+    if (seconds === null) {
+      return;
+    }
+
+    const minutes = Math.floor(seconds % 3600 / 60);
+    return `${minutes} minutes to go`;
   }
 
   /**
@@ -439,7 +471,7 @@ export const Upload = ({
 
     if (preparing) {
       return (
-        <div>
+        <div id="uploader">
           <div
             className="radial-progress text-success mt-5"
             style={{"--value":progress,"--size": "7rem","--thickness": "7px"}}
@@ -451,9 +483,15 @@ export const Upload = ({
     }
 
     if (uploading) {
+      const etaClass = showEta ? 'eta-active' : 'eta-hidden';
       return (
-        <div>
-          <div className="text-2xl mt-5">{progressText}</div>
+        <div id="uploader">
+          <div className="text-2xl mt-5 flex justify-between">
+            {progressText}
+            <span className={`text-lg text-slate-400 ${etaClass}`}>
+              {formatEta(eta)}
+            </span>
+          </div>
           <progress
             id="progressbar"
             className={`progress w-96 ${progressColors[progressColor]}`}
@@ -487,7 +525,7 @@ export const Upload = ({
     } else {
       return (
         <div>
-          <h2 className="text-2xl mb-7">
+          <h2 className="text-2xl mb-7 text-center">
             Drag and drop your video or audio file here or
           </h2>
           <div className="button text-center pb-4">
@@ -549,7 +587,9 @@ Upload.propTypes = {
 Upload.defaultProps = {
   initialUploading: false,
   initialPreparing: false,
-  initialProgress: 0,
+  initialProgress: null,
+  initialEta: null,
+  initialShowEta: false,
   initialError: null,
   initialUploadingText: "Uploading",
   initialProgressColor: "primary",

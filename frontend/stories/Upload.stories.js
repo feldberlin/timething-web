@@ -34,7 +34,7 @@ export const Preparing = {
 export const Uploading = {
   args: {
     initialUploading: true,
-    initialProgress: 20,
+    initialProgress: { percent: 20, currentBytes: 20, totalBytes: 100 },
     initialProgressText: 'Uploading',
     initialProgressColor: 'primary'
   },
@@ -43,7 +43,7 @@ export const Uploading = {
 export const ProcessingAudio = {
   args: {
     initialUploading: true,
-    initialProgress: 20,
+    initialProgress: { percent: 20, currentBytes: 20, totalBytes: 100 },
     initialProgressText: 'Processing audio',
     initialProgressColor: 'secondary',
     initialProgressColor: 'neutral'
@@ -53,12 +53,22 @@ export const ProcessingAudio = {
 export const ConvertingAudioToText = {
   args: {
     initialUploading: true,
-    initialProgress: 20,
+    initialProgress: { percent: 20, currentBytes: 20, totalBytes: 100 },
     initialProgressText: 'Converting audio to text',
     initialProgressColor: 'secondary'
   },
 };
 
+export const ETA = {
+  args: {
+    initialUploading: true,
+    initialProgress: { percent: 20, currentBytes: 20, totalBytes: 100 },
+    initialEta: 300,
+    initialShowEta: true,
+    initialProgressText: 'Converting audio to text',
+    initialProgressColor: 'secondary'
+  },
+};
 export const Error = {
   args: {
     initialUploading: false,

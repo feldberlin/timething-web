@@ -9,3 +9,12 @@
 #dropzone.dropping h2 {
   margin-top: -4px;
 }
+
+#uploader .eta-hidden {
+  opacity: 0;
+}
+
+#uploader .eta-active {
+  opacity: 1;
+  transition: all 0.5s ease-in-out 0.1s;
+}

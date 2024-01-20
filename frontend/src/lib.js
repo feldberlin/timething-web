@@ -6,7 +6,7 @@ export const transcriptionStates = {
   preparing: { text: 'Preparing', shortText: 'Preparing', color: 'success' },
   uploading: { text: 'Uploading', shortText: 'Preparing', color: 'primary' },
   transcoding: { text: 'Processing audio', shortText: 'Processing', color: 'neutral' },
-  transcribing: { text: 'Converting audio to text', shortText: 'Recognising', color: 'secondary' }
+  transcribing: { text: 'Converting audio to text', shortText: 'Recognising', color: 'success' }
 }
 
 // make it discoverable by tailwind
