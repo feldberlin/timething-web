@@ -11,6 +11,9 @@ import { ErrorMessage } from './ErrorMessage'
 // styles
 import "../css/Upload.css";
 
+// images
+import hourglassImg from '../hourglass.svg'
+
 // lib
 import {
   process,
@@ -455,7 +458,7 @@ export const Upload = ({
     }
 
     const minutes = Math.floor(seconds % 3600 / 60);
-    return `${minutes} minutes to go`;
+    return `${minutes} mins`;
   }
 
   /**
@@ -484,12 +487,20 @@ export const Upload = ({
 
     if (uploading) {
       const etaClass = showEta ? 'eta-active' : 'eta-hidden';
+      const hourglassImgStyle = {
+        width: 16,
+        marginLeft: 5,
+        marginTop: 1,
+        display: 'inline'
+      }
+
       return (
         <div id="uploader">
           <div className="text-2xl mt-5 flex justify-between">
             {progressText}
-            <span className={`text-lg text-slate-400 ${etaClass}`}>
+            <span className={`text-lg ${etaClass}`}>
               {formatEta(eta)}
+              <img src={hourglassImg} style={hourglassImgStyle} alt="Time" />
             </span>
           </div>
           <progress
