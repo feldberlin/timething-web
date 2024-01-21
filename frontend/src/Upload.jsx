@@ -485,12 +485,15 @@ export const Upload = ({
 
     if (preparing) {
       return (
-        <div id="uploader">
+        <div id="uploader" className="flex flex-col items-center">
+          <div className="text-2xl mt-5">
+            {progressText}
+          </div>
           <div
             className="radial-progress text-success mt-5"
-            style={{"--value":progress,"--size": "7rem","--thickness": "7px"}}
+            style={{"--value":percentDone,"--size": "5rem","--thickness": "5px"}}
             role="progressbar">
-            Preparing
+            {percentDone}%
           </div>
         </div>
       )
@@ -530,7 +533,7 @@ export const Upload = ({
                 : '\u00A0'
               }
             </div>
-            <div class="flex">
+            <div className="flex">
               {(totalBytes !== null && totalBytes >= (1024 * 1024 * 512) && percentDone != null)
                 ?
                   <>
@@ -597,7 +600,7 @@ Upload.propTypes = {
   // currently preparing locally?
   initialPreparing: PropTypes.bool,
   // 0 to 100
-  initialProgress: PropTypes.number,
+  initialProgress: PropTypes.object,
   // eta in seconds
   initialEta: PropTypes.number,
   // bytes per second

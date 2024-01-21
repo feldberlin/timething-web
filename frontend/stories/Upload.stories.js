@@ -24,8 +24,8 @@ export const Dropping = {
 
 export const Preparing = {
   args: {
-    initialProgressText: 'Preparing',
-    initialProgress: 100,
+    initialProgressText: 'Preparing your file',
+    initialProgress: { percent: 80, currentBytes: 2, totalBytes: 10 },
     initialProgressColor: 'primary',
     initialPreparing: true
   },
