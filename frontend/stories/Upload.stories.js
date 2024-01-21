@@ -62,11 +62,12 @@ export const ConvertingAudioToText = {
 export const ETA = {
   args: {
     initialUploading: true,
-    initialProgress: { percent: 20, currentBytes: 20, totalBytes: 100 },
+    initialProgress: { percent: 20, currentBytes: 1024 * 1024 * 512, totalBytes: 1024 * 1024 * 1512 },
     initialEta: 300,
     initialShowEta: true,
-    initialProgressText: 'Converting audio to text',
-    initialProgressColor: 'secondary'
+    initialBps: 1024 * 1024 * 12,
+    initialProgressText: 'Uploading',
+    initialProgressColor: 'primary'
   },
 };
 export const Error = {

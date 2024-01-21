@@ -40,6 +40,7 @@ export const Upload = ({
   initialPreparing,
   initialProgress,
   initialEta,
+  initialBps,
   initialShowEta,
   initialError,
   initialProgressText,
@@ -54,6 +55,7 @@ export const Upload = ({
   const [progressColor, setProgressColor] = useState(initialProgressColor)
   const [dropping, setDropping] = useState(initialDropping)
   const [eta, setEta] = useState(initialEta) // seconds
+  const [bps, setBps] = useState(initialBps) // bytes per second upload speed
   const [showEta, setShowEta] = useState(initialShowEta)
   const [error, setError] = useState(initialError)
   const [transcriptionId, setTranscriptionId] = useState(null)
@@ -110,8 +112,6 @@ export const Upload = ({
     } else {
       // pretend to upload. hashing will be fast
       hashingProgress = () => {} // disable hashing progress
-      setUploading(true);
-      showState(states.uploading);
     }
 
     // initialize or resume the upload
@@ -177,13 +177,14 @@ export const Upload = ({
         // calculate upload speed for this chunk
         bytesUploaded += (end - start)
         const uploadDuration = (Date.now() - uploadStartedAt) / 1000
-        const bytesPerSecond = bytesUploaded / uploadDuration
+        const bps = bytesUploaded / uploadDuration
         const bytesRemaining = file.size - bytesUploaded
-        const etaSeconds = bytesRemaining / bytesPerSecond
+        const etaSeconds = bytesRemaining / bps
         setEta(etaSeconds)
-        // set showEta if 90 seconds have elapsed and there are more than
+        setBps(bps)
+        // set showEta if 60 seconds have elapsed and there are more than
         // 2 minutes of upload time remaining
-        if (uploadDuration > 90 && etaSeconds > 120) {
+        if (uploadDuration > 60 && etaSeconds > 120) {
           setShowEta(true)
         }
         // prepare for next chunk
@@ -204,6 +205,7 @@ export const Upload = ({
     // upload completed, now process
     setProgress(null)
     setEta(null)
+    setBps(null)
     setShowEta(false)
     showState(states.transcoding);
     process({
@@ -496,6 +498,7 @@ export const Upload = ({
 
     if (uploading) {
       const etaClass = showEta ? 'eta-active' : 'eta-hidden';
+      const bpsText = bps !== null ? `${formatBytes(bps, 0)}/s` : null;
       const hourglassImgStyle = {
         width: 16,
         marginLeft: 5,
@@ -507,10 +510,12 @@ export const Upload = ({
         <div id="uploader">
           <div className="text-2xl mt-5 flex justify-between">
             {progressText}
-            <span className={`text-lg ${etaClass}`}>
-              {formatEta(eta)}
-              <img src={hourglassImg} style={hourglassImgStyle} alt="Time" />
-            </span>
+            <div className="tooltip tooltip-top" data-tip={bpsText}>
+              <span className={`text-lg ${etaClass}`}>
+                {formatEta(eta)}
+                <img src={hourglassImg} style={hourglassImgStyle} alt="Time" />
+              </span>
+            </div>
           </div>
           <progress
             id="progressbar"
@@ -518,23 +523,23 @@ export const Upload = ({
             value={progress !== null ? progress.percent : null}
             max="100">
           </progress>
-          <div className="text-lg text-slate-400 mt-2 flex justify-between">
-            <div id="status">
+          <div className="text-lg mt-2 flex justify-between">
+            <div id="status" className="filter opacity-40">
               {percentDone !== null
                 ? `${percentDone}%`
                 : '\u00A0'
               }
             </div>
             <div class="flex">
-              {(totalBytes !== null && totalBytes > (1024 * 1024 * 512) && percentDone != null)
+              {(totalBytes !== null && totalBytes >= (1024 * 1024 * 512) && percentDone != null)
                 ?
                   <>
-                    <span className="mr-1 text-right">
-                      {formatBytes(currentBytes, 2)}
-                    </span><span>/</span>
-                    <span className="ml-1">
-                      {formatBytes(totalBytes, 2)}
-                    </span>
+                    <div className="filer opacity-40 text-right">
+                      <span className="mr-1">{formatBytes(currentBytes, 2)}</span>
+                      <span className="mr-1">of</span>
+                      <span className="mr-1">{formatBytes(totalBytes, 2)}</span>
+                      <span>uploaded</span>
+                    </div>
                   </>
                 : '\u00A0'
               }
@@ -593,6 +598,10 @@ Upload.propTypes = {
   initialPreparing: PropTypes.bool,
   // 0 to 100
   initialProgress: PropTypes.number,
+  // eta in seconds
+  initialEta: PropTypes.number,
+  // bytes per second
+  initialBps: PropTypes.number,
   // error message
   initialError: PropTypes.string,
   // uploading text
@@ -609,6 +618,7 @@ Upload.defaultProps = {
   initialPreparing: false,
   initialProgress: null,
   initialEta: null,
+  initialBps: null,
   initialShowEta: false,
   initialError: null,
   initialUploadingText: "Uploading",
