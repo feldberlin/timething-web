@@ -31,6 +31,15 @@ export const Preparing = {
   },
 };
 
+export const Prepared = {
+  args: {
+    initialProgressText: 'Preparing your file',
+    initialProgress: { percent: 100, currentBytes: 2, totalBytes: 10 },
+    initialProgressColor: 'primary',
+    initialPreparing: true
+  },
+};
+
 export const Uploading = {
   args: {
     initialUploading: true,

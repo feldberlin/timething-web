@@ -2,8 +2,9 @@ import React, { useState, useEffect, useCallback, useRef } from 'react'
 import PropTypes from 'prop-types';
 
 // third party components
-import { useHistory } from "react-router-dom";
+import { Checkmark } from 'react-checkmark'
 import { createXXHash3 } from 'hash-wasm';
+import { useHistory } from "react-router-dom";
 
 // components
 import { ErrorMessage } from './ErrorMessage'
@@ -104,8 +105,10 @@ export const Upload = ({
     setError(null);
 
     // for smaller files we don't want to flash hashing progress
+    const isLargeFile = file.size > 1024 * 1024 * 1024
+    const showHashingProgress = isLargeFile
     let hashingProgress
-    if (file.size > 1024 * 1024 * 512) {
+    if (showHashingProgress) {
       hashingProgress = setProgress // show progress
       setPreparing(true);
       showState(states.preparing);
@@ -130,6 +133,11 @@ export const Upload = ({
     if (!start || !id) {
       id = await initUpload(file, mediaHash)
       start = 0
+    }
+
+    // some large files will still flash the hashing progress too quickly
+    if (showHashingProgress) {
+      await new Promise(r => setTimeout(r, 3000)); // wait for 3s
     }
 
     // set up the upload ui
@@ -489,12 +497,19 @@ export const Upload = ({
           <div className="text-2xl mt-5">
             {progressText}
           </div>
-          <div
-            className="radial-progress text-success mt-5"
-            style={{"--value":percentDone,"--size": "5rem","--thickness": "5px"}}
-            role="progressbar">
-            {percentDone}%
-          </div>
+          {percentDone === 100
+            ?
+              <div className="mt-5">
+                <Checkmark size='96px' color="#2fbc63" />
+              </div>
+            :
+              <div
+                className="radial-progress text-success mt-5"
+                style={{"--value":percentDone,"--size": "96px","--thickness": "5px"}}
+                role="progressbar">
+                {percentDone}%
+              </div>
+          }
         </div>
       )
     }
