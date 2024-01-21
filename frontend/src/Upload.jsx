@@ -203,6 +203,8 @@ export const Upload = ({
 
     // upload completed, now process
     setProgress(null)
+    setEta(null)
+    setShowEta(false)
     showState(states.transcoding);
     process({
       transcriptionId: id,
@@ -458,7 +460,14 @@ export const Upload = ({
     }
 
     const minutes = Math.floor(seconds % 3600 / 60);
+    if (minutes === 0) {
+      return 'less than a minute';
+    } else if (minutes === 1) {
+      return '1 minute';
+    }
+
     return `${minutes} mins`;
+
   }
 
   /**
