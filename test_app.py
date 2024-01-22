@@ -9,7 +9,6 @@ import pytest
 
 import app
 import common
-from progress import tmpdir_scope
 
 
 @dataclass
@@ -41,7 +40,7 @@ def test_upload_chunk(client):
         size_bytes=15
     )
 
-    with tmpdir_scope() as tmp_dir:
+    with common.tmpdir_scope() as tmp_dir:
         with patch('common.MEDIA_PATH', new=Path(tmp_dir)):
             res = client.put(
                 "/upload/abc",
@@ -76,7 +75,7 @@ def test_resume(client, transcription_id = 'abc'):
         size_bytes=16
     )
 
-    with tmpdir_scope() as tmp_dir:
+    with common.tmpdir_scope() as tmp_dir:
         with patch('common.MEDIA_PATH', new=Path(tmp_dir)):
 
             # upload a first chunk
@@ -149,7 +148,7 @@ def test_export_srt(client, transcription_id = 'abc'):
     )
 
     app.stub.transcriptions[transcription_id] = api_transcription
-    with tmpdir_scope() as tmp_dir:
+    with common.tmpdir_scope() as tmp_dir:
         media_path = Path(tmp_dir)
         with patch('common.db', new=common.Store(media_path)):
 

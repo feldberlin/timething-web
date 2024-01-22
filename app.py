@@ -14,23 +14,17 @@ from modal import Mount, NetworkFileSystem, asgi_app
 from pydantic import BaseModel
 
 from common import stub
-from recogniser import Recogniser
 import common
 import formats
+from pipeline import pipeline
+import transcode
+import transcribe
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
 # size of a chunk of media returned
 MEDIA_CHUNK_SIZE = 1024 * 1024
-
-# main storage volume
-volume = NetworkFileSystem.persisted("media")
-
-# nfs
-nfs = {
-    str(common.MEDIA_PATH): volume
-}
 
 # paths
 static_path = Path("./frontend/dist").resolve()
@@ -55,7 +49,7 @@ class Transcription:
 
 @stub.function(
     mounts=[mount],
-    network_file_systems=nfs,
+    network_file_systems=common.nfs,
     container_idle_timeout=300,
     timeout=600,
 )
@@ -67,7 +61,6 @@ def web():
     from fastapi.staticfiles import StaticFiles
 
     web_app = FastAPI()
-    recogniser = Recogniser()
 
     def error(status_code: int, msg: str):
         logger.error(msg)
@@ -155,11 +148,14 @@ def web():
             error(404, f'invalid id {transcription_id}')
 
         def generate():
-            for update in recogniser.recognise.remote_gen(transcription_id, language):
-               yield common.dataclass_to_event(update)
+            yield from map(
+                common.dataclass_to_event,
+                pipeline(transcription_id, language)
+            )
 
         return StreamingResponse(
-            generate(), media_type="text/event-stream"
+            generate(),
+            media_type="text/event-stream"
         )
 
     @web_app.get("/transcription/{transcription_id}")

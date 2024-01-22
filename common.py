@@ -1,10 +1,12 @@
 from dataclasses import dataclass, asdict
-import logging
 from pathlib import Path
-from dataclasses import asdict
+import contextlib
 import json
+import logging
+import shutil
+import tempfile
 
-from modal import Stub, Dict
+from modal import Stub, Dict, NetworkFileSystem
 
 # directory to store media on the volume
 MEDIA_PATH = Path("/media")
@@ -15,6 +17,14 @@ LANGUAGE = "en"
 # fixed english whisper model for now
 MODEL_NAME = "large-v2"
 
+# main storage volume
+volume = NetworkFileSystem.persisted("media")
+
+# nfs
+nfs = {
+    str(MEDIA_PATH): volume
+}
+
 # stub
 stub = Stub(name="timething-web")
 stub.transcriptions = Dict.new()
@@ -23,10 +33,9 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
 
-def dataclass_to_event(x):
-    data = json.dumps(asdict(x), ensure_ascii=False)
-    return f"event: {type(x).__name__}\ndata: {data}\n\n"
-
+# Common data structures
+#
+#
 
 @dataclass
 class Track:
@@ -52,6 +61,10 @@ class Transcription:
     transcript: str
     track: Track
 
+
+# Modal abstractions
+#
+#
 
 class Store:
     """Keep a data layer here so we can move it out of modal later
@@ -85,3 +98,27 @@ class Store:
 
 # store on nfs
 db = Store(MEDIA_PATH)
+
+
+# Utils
+#
+#
+
+
+def dataclass_to_event(x):
+    data = json.dumps(asdict(x), ensure_ascii=False)
+    return f"event: {type(x).__name__}\ndata: {data}\n\n"
+
+
+def get_device():
+    import torch
+    return "cuda" if torch.cuda.is_available() else "cpu"
+
+
+@contextlib.contextmanager
+def tmpdir_scope():
+    tmpdir = tempfile.mkdtemp()
+    try:
+        yield tmpdir
+    finally:
+        shutil.rmtree(tmpdir)
