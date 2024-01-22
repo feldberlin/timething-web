@@ -3,7 +3,7 @@ import React, { useState, useCallback, useEffect, useRef } from "react";
 // component css
 import "../css/ScrollDiv.css";
 
-const min_height = 20;
+const minHeight = 10;
 
 /**
  * Copied from Harsh Kurra, 'Build an On-hover Custom Scrollbar in React'.
@@ -13,9 +13,9 @@ export const ScrollDiv = ({
   children,
   className,
   ...props
-}) {
+}) => {
   const [hovering, setHovering] = useState(false);
-  const [scrollBoxHeight, setScrollBoxHeight] = useState(SCROLL_BOX_MIN_HEIGHT);
+  const [scrollBoxHeight, setScrollBoxHeight] = useState(minHeight);
   const [scrollBoxTop, setScrollBoxTop] = useState(0);
   const [lastScrollThumbPosition, setScrollThumbPosition] = useState(0);
   const [isDragging, setDragging] = useState(false);
@@ -25,15 +25,18 @@ export const ScrollDiv = ({
    */
 
   const hMouseOver = useCallback(() => {
+    console.log('mousehover')
     !hovering && setHovering(true);
   }, [hovering]);
 
   const hMouseOut = useCallback(() => {
+    console.log('mouseout')
     !!hovering && setHovering(false);
   }, [hovering]);
 
   const hDocumentMouseUp = useCallback(
     e => {
+      console.log('mouseup')
       if (isDragging) {
         e.preventDefault();
         setDragging(false);
@@ -44,6 +47,7 @@ export const ScrollDiv = ({
 
   const hDocumentMouseMove = useCallback(
     e => {
+      console.log('mousemove')
       if (isDragging) {
         e.preventDefault();
         e.stopPropagation();
@@ -70,6 +74,7 @@ export const ScrollDiv = ({
   );
 
   const hScrollThumbMouseDown = useCallback(e => {
+    console.log('mousedown')
     e.preventDefault();
     e.stopPropagation();
     setScrollThumbPosition(e.clientY);
@@ -77,6 +82,7 @@ export const ScrollDiv = ({
   }, []);
 
   const hScroll = useCallback(() => {
+    console.log('scroll')
     if (!scrollHostRef) {
       return;
     }
@@ -98,7 +104,7 @@ export const ScrollDiv = ({
     const scrollThumbPercentage = clientHeight / scrollHeight;
     const scrollThumbHeight = Math.max(
       scrollThumbPercentage * clientHeight,
-      SCROLL_BOX_MIN_HEIGHT
+      minHeight
     );
     setScrollBoxHeight(scrollThumbHeight);
     scrollHostElement.addEventListener("scroll", hScroll, true);

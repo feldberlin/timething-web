@@ -17,8 +17,7 @@ export const Editor = ({
   focus,
   setFocus,
   initialTitle,
-  initialTranscriptionId,
-  ...props
+  initialTranscriptionId
 }) => {
   const [transcriptionId, setTranscriptionId] = useState(initialTranscriptionId)
 

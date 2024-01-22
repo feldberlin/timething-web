@@ -21,11 +21,6 @@
   padding: 65px;
 }
 
-#editor:hover {
-  overflow: auto;
-  padding-right: 50px;
-}
-
 #player {
   flex-basis: 100%;
 }

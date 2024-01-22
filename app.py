@@ -148,10 +148,8 @@ def web():
             error(404, f'invalid id {transcription_id}')
 
         def generate():
-            yield from map(
-                common.dataclass_to_event,
-                pipeline(transcription_id, language)
-            )
+            for update in pipeline(transcription_id, language):
+                yield common.dataclass_to_event(update)
 
         return StreamingResponse(
             generate(),
