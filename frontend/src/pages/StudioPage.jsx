@@ -55,39 +55,42 @@ export default function StudioPage() {
    * Fetch the transcription metadata.
    *
    */
-  useEffect(async () => {
-    try {
-      const res = await fetch(`/transcription/${transcriptionId}`, {})
-      if (res.ok) {
-        const meta = JSON.parse(await res.text());
-        setTrack(meta.track)
-        if (meta.transcript) {
-          setTranscript(meta.transcript)
+  useEffect(() => {
+    const getTranscription = async () => {
+      try {
+        const res = await fetch(`/transcription/${transcriptionId}`, {})
+        if (res.ok) {
+          const meta = JSON.parse(await res.text());
+          setTrack(meta.track)
+          if (meta.transcript) {
+            setTranscript(meta.transcript)
 
-          // check if language is in the language options. if not, add the
-          // language code and language name to the options array. we have
-          // a static list of supported languages, but whisper may incorrectly
-          // identify the language of the audio, e.g. welsh instead of english
-          // due to leading silence or music. we would like to be able to
-          // display the language name in the select box.
-          const { language } = meta.transcript || {}
-          if (language && !languages.find(o => o.value === language)) {
-            const names = new Intl.DisplayNames(['en'], { type: 'language' });
-            languages.push({ value: language, label: names.of(language) })
+            // check if language is in the language options. if not, add the
+            // language code and language name to the options array. we have
+            // a static list of supported languages, but whisper may incorrectly
+            // identify the language of the audio, e.g. welsh instead of english
+            // due to leading silence or music. we would like to be able to
+            // display the language name in the select box.
+            const { language } = meta.transcript || {}
+            if (language && !languages.find(o => o.value === language)) {
+              const names = new Intl.DisplayNames(['en'], { type: 'language' });
+              languages.push({ value: language, label: names.of(language) })
+            }
+
+            setLanguage(language)
           }
-
-          setLanguage(language)
+        } else {
+          // use a fatal here so we don't load any of the studio components.
+          setFatalError("Couldn't find this transcription.")
         }
-      } else {
-        // use a fatal here so we don't load any of the studio components.
-        setFatalError("Couldn't find this transcription.")
+      } catch (e) {
+        console.error(e)
+        setFatalError("Couldn't load transcription.")
       }
-    } catch (e) {
-      console.error(e)
-      setFatalError("Couldn't load transcription.")
     }
-  }, [])
 
+    getTranscription()
+  }, []);
 
   /**
    * State

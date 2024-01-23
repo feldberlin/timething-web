@@ -33,19 +33,37 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
 
-# Common data structures
+# Shared data structures
 #
 #
 
 @dataclass
+class UploadInfo:
+    """
+    Original file metadata for a file uploaded by the user.
+    """
+
+    filename: str
+    content_type: str
+    size_bytes: int
+
+
+@dataclass
 class Track:
+    """
+    A processed upload. Tracks go through the following states:
+
+    - uploaded (an upload was completed by the user)
+    - transcoded (ffmpeg ran and a wav was written out)
+    - transcribed (whisper ran and a json result was written out)
+    """
+
     title: str = None
     artist: str = None
     album: str = None
     comment: str = None
     date: str = None
     duration: float = None
-    path: str = None
 
     def from_probe(probe):
         tags = probe.get("format", {}).get("tags", {})
@@ -57,9 +75,33 @@ class Track:
 
 @dataclass
 class Transcription:
+    """
+    A complete transcription and metadata of a processed Upload.
+    """
+
     transcription_id: str
-    transcript: str
-    track: Track
+    upload: UploadInfo
+    track: Track = None
+    transcoded: bool = False
+    transcript: str = None
+    path: str = None
+
+    @property
+    def transcribed(self):
+        return self.transcript is not None
+
+    @property
+    def uploaded_file(self):
+        return Path(self.path)
+
+    @property
+    def transcoded_file(self):
+        return self.uploaded_file.with_suffix('.wav')
+
+    @property
+    def transcribed_file(self):
+        return self.uploaded_file.with_suffix('.json')
+
 
 
 # Modal abstractions
@@ -77,9 +119,7 @@ class Store:
         if not t.transcription_id:
             raise Exception(f'id not specified')
 
-        path = self.media_path / t.transcription_id
-        meta = path.with_suffix('.json')
-        with open(meta, 'w') as f:
+        with open(t.transcribed_file, 'w') as f:
             content = json.dumps(asdict(t))
             f.write(content)
 

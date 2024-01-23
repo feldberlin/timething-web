@@ -17,6 +17,10 @@ class TranscriptionProgress:
     transcript: dict = None
 
 
+class TranscriptionError(Exception):
+    pass
+
+
 def load_whisper():
     import whisper
     whisper.load_model(common.MODEL_NAME)
@@ -39,15 +43,24 @@ transcriber_image = (
     container_idle_timeout=180,
     image=transcriber_image,
     network_file_systems=common.nfs,
-    timeout=600
+    timeout=1200
 )
-def transcribe(audio, language):
+def transcribe(transcription_id, language):
     import torch.multiprocessing as mp
+
+    if transcription_id not in stub.transcriptions:
+        raise TranscriptionError(f"invalid id : {transcription_id}")
+
+    # path is safe after validation. we created the id
+    t = stub.transcriptions.get(transcription_id)
 
     device = common.get_device()
     mp.set_start_method("spawn", force=True)
     q = mp.Queue()
-    p = mp.Process(target=worker, args=(q, audio, device, language))
+    p = mp.Process(
+        target=worker,
+        args=(q, str(t.transcoded_file), device, language)
+    )
     p.start()
     while True:
         res = q.get()
@@ -82,7 +95,9 @@ def worker(q, audio, device, language):
         # run recognition and send back the transcript. this will also send
         # progress back to the parent process via the given pipe
         use_gpu = device == "gpu"
+        logger.info(f"transcribe loading model")
         model = whisper.load_model(common.MODEL_NAME, device=device)
+        logger.info(f"transcribe loaded model")
         transcript = model.transcribe(audio, language=language, fp16=use_gpu, verbose=False)
         q.put(transcript)
         q.put(None)

@@ -1,5 +1,5 @@
 import contextlib
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 import logging
 import os
 import socket
@@ -36,7 +36,7 @@ transcoder_image = (
     container_idle_timeout=180,
     image=transcoder_image,
     network_file_systems=common.nfs,
-    timeout=1200
+    timeout=1800
 )
 def transcode(
     transcription_id: str,
@@ -46,32 +46,26 @@ def transcode(
 ):
     import ffmpeg
 
-    # input media file
-    in_file = media_path / transcription_id
+    if transcription_id not in stub.transcriptions:
+        raise TranscodeError(f"invalid id : {transcription_id}")
 
-    # output transcoded wav file
-    out_file = in_file.with_suffix(".wav")
+    # path is safe after validation. we created the id
+    t = stub.transcriptions.get(transcription_id)
 
-    # get metadata
-    probe = ffmpeg.probe(in_file)
+    # check if we've already transcoded this
+    if t.transcoded and not force_reprocessing:
+        yield TranscodingProgress(track=t.track)
+        return
+
+    # we haven't processed this yet. get the track metadata
+    probe = ffmpeg.probe(t.uploaded_file)
     track = common.Track.from_probe(probe)
-    track.path = str(out_file)
-
-    # check if we've already transcoded this. we need a valid wav file
-    if out_file.exists() and not force_reprocessing:
-        try:
-            probe = ffmpeg.probe(out_file)
-            yield TranscodingProgress(track=track)
-            return
-        except:
-            # invalid wav. reprocess
-            pass
 
     with create_sock() as (socket_filename, socket):
         process = (
-            ffmpeg.input(str(in_file))
+            ffmpeg.input(t.uploaded_file)
             .output(
-                filename=str(out_file),
+                filename=t.transcoded_file,
                 format="wav",
                 ac=1,
                 acodec="pcm_s16le",
@@ -93,7 +87,10 @@ def transcode(
         if return_code != 0:
             raise TranscodeError(f"ffmpeg failed : {return_code}")
 
-    yield TranscodingProgress(track=track)
+    # completed
+    t = replace(t, transcoded=True, track=track)
+    stub.transcriptions[transcription_id] = t
+    yield TranscodingProgress(track=t.track)
 
 
 def progress(sock, total_duration):

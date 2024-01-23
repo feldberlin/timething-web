@@ -16,7 +16,7 @@ from pydantic import BaseModel
 from common import stub
 import common
 import formats
-from pipeline import pipeline
+from pipeline import pipeline, PipelineProgress
 import transcode
 import transcribe
 
@@ -35,13 +35,10 @@ mount = Mount.from_local_dir(static_path, remote_path=remote_path)
 
 
 class MediaForm(BaseModel):
-    filename: str
-    content_type: str
-    size_bytes: int
+    """
+    Pydantic class for FastAPI validations
+    """
 
-
-@dataclass
-class Transcription:
     filename: str
     content_type: str
     size_bytes: int
@@ -51,7 +48,7 @@ class Transcription:
     mounts=[mount],
     network_file_systems=common.nfs,
     container_idle_timeout=300,
-    timeout=600,
+    timeout=1800,
 )
 @asgi_app()
 def web():
@@ -69,10 +66,14 @@ def web():
     @web_app.post("/upload")
     async def upload(media: MediaForm):
         transcription_id = str(uuid.uuid4())
-        stub.transcriptions[transcription_id] = Transcription(
-            filename=media.filename,
-            content_type=media.content_type,
-            size_bytes=media.size_bytes
+        stub.transcriptions[transcription_id] = common.Transcription(
+            transcription_id=transcription_id,
+            path=str(common.MEDIA_PATH / transcription_id),
+            upload=common.UploadInfo(
+                filename=media.filename,
+                content_type=media.content_type,
+                size_bytes=media.size_bytes
+            )
         )
 
         return transcription_id
@@ -90,7 +91,7 @@ def web():
 
         # path is safe after validation. we created the id
         t = stub.transcriptions.get(transcription_id)
-        path = common.MEDIA_PATH / transcription_id
+        path = t.uploaded_file
 
         # get the current file size
         file_size = 0
@@ -101,7 +102,7 @@ def web():
         match = re.match(r'bytes=\*/(\d+)', content_range)
         if match and content_length == 0:
             want,  = map(int, match.groups())
-            if want != t.size_bytes:
+            if want != t.upload.size_bytes:
                 error(406, f"invalid resume total: {content_range}")
 
             return Response(
@@ -117,10 +118,10 @@ def web():
         if end - start != content_length - 1:
             error(406, f"inconsistent content length in range: {content_range}")
 
-        if t.size_bytes != total:
+        if t.upload.size_bytes != total:
             error(406, f"inconsistent size bytes in range: {content_range}")
 
-        if t.content_type != content_type:
+        if t.upload.content_type != content_type:
             error(400, f"invalid content_type: {content_type}")
 
         chunk = await request.body()
@@ -148,8 +149,13 @@ def web():
             error(404, f'invalid id {transcription_id}')
 
         def generate():
-            for update in pipeline(transcription_id, language):
-                yield common.dataclass_to_event(update)
+            try:
+                for update in pipeline(transcription_id, language):
+                    logger.info(f"pipeline update: {update}")
+                    yield common.dataclass_to_event(update)
+            except Exception as e:
+                logger.error(e)
+                yield PipelineProgress(state="error")
 
         return StreamingResponse(
             generate(),
@@ -175,7 +181,7 @@ def web():
 
         try:
             transcription = common.db.select(transcription_id)
-            transcript = transcription.get('transcript')
+            transcript = transcription['transcript']
             content = formats.format(transcript, format)
             return Response(
                 content=content,
@@ -192,8 +198,9 @@ def web():
         if transcription_id not in stub.transcriptions:
             error(404, f'invalid id {transcription_id}')
 
-        path = common.MEDIA_PATH / transcription_id
-        content_type = stub.transcriptions[transcription_id].content_type
+        t = stub.transcriptions[transcription_id]
+        path = t.uploaded_file
+        content_type = t.upload.content_type
         total = path.stat().st_size
 
         try:

@@ -34,13 +34,20 @@ def test_upload(client):
 
 @patch('app.stub', new=MockedStub())
 def test_upload_chunk(client):
-    app.stub.transcriptions['abc'] = app.Transcription(
-        filename="file.name",
-        content_type="audio/mp3",
-        size_bytes=15
-    )
 
     with common.tmpdir_scope() as tmp_dir:
+        transcription_id = 'abc'
+        media_path = Path(tmp_dir)
+        app.stub.transcriptions[transcription_id] = common.Transcription(
+            transcription_id=transcription_id,
+            path=str(media_path / transcription_id),
+            upload=common.UploadInfo(
+                filename="file.name",
+                content_type="audio/mp3",
+                size_bytes=15
+            )
+        )
+
         with patch('common.MEDIA_PATH', new=Path(tmp_dir)):
             res = client.put(
                 "/upload/abc",
@@ -69,13 +76,18 @@ def test_upload_chunk(client):
 
 @patch('app.stub', new=MockedStub())
 def test_resume(client, transcription_id = 'abc'):
-    app.stub.transcriptions[transcription_id] = app.Transcription(
-        filename="file.name",
-        content_type="audio/mp3",
-        size_bytes=16
-    )
-
     with common.tmpdir_scope() as tmp_dir:
+        media_path = Path(tmp_dir)
+        app.stub.transcriptions[transcription_id] = common.Transcription(
+            transcription_id=transcription_id,
+            path=str(media_path / transcription_id),
+            upload=common.UploadInfo(
+                filename="file.name",
+                content_type="audio/mp3",
+                size_bytes=16
+            )
+        )
+
         with patch('common.MEDIA_PATH', new=Path(tmp_dir)):
 
             # upload a first chunk
@@ -140,14 +152,16 @@ def test_resume(client, transcription_id = 'abc'):
 @patch('app.stub', new=MockedStub())
 def test_export_srt(client, transcription_id = 'abc'):
 
-    # app.Transcription is api only
-    api_transcription = app.Transcription(
-        filename="file.name",
-        content_type="audio/mp3",
-        size_bytes=16
+    transcription = common.Transcription(
+        transcription_id=transcription_id,
+        upload=common.UploadInfo(
+            filename="file.name",
+            content_type="audio/mp3",
+            size_bytes=16
+        )
     )
 
-    app.stub.transcriptions[transcription_id] = api_transcription
+    app.stub.transcriptions[transcription_id] = transcription
     with common.tmpdir_scope() as tmp_dir:
         media_path = Path(tmp_dir)
         with patch('common.db', new=common.Store(media_path)):

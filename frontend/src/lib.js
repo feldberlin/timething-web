@@ -53,8 +53,10 @@ export const process = ({
   language = null,
   setTrack = t => {},
   setTranscript = t => {},
-  onStateChange = s => {},
-  onProgress = p => {},
+  setEta = e => {},
+  setShowEta = s => {},
+  setProgress = p => {},
+  showState = s => {},
   onComplete = () => {},
   onError = () => {}
 }) => {
@@ -66,6 +68,19 @@ export const process = ({
     url = `${url}?language=${language}`
   }
 
+  // eta timers
+  let transcodingStartedAt
+  let transcribingStartedAt
+  const eta = (stepStartedAt, percentDone) => {
+    const stepDuration = (Date.now() - stepStartedAt) / 1000
+    const secondsPerPoint = stepDuration / percentDone
+    const remaining = Math.round((100 - percentDone) * secondsPerPoint)
+    return [
+      remaining,
+      (remaining > 120) && (stepDuration > 60)
+    ]
+  }
+
   // create and event source and start processing
   const sse = new EventSource(url);
 
@@ -74,13 +89,19 @@ export const process = ({
     const data = JSON.parse(ev.data);
     const percentDone = data.percent_done;
     const track = data.track;
+    transcodingStartedAt = transcodingStartedAt || Date.now()
     if (track == null) {
       if (percentDone == 100) {
-        onProgress(null)
-        onStateChange(transcriptionStates.transcribing)
+        setProgress(null)
+        setEta(null)
+        setShowEta(false)
       } else {
-        onProgress(percentDone)
-        onStateChange(transcriptionStates.transcoding)
+        const [remaining, show] = eta(transcodingStartedAt, percentDone)
+        setProgress({ percent: percentDone })
+        setEta(remaining)
+        if (show) {
+          setShowEta(true)
+        }
       }
     } else {
       setTrack(track)
@@ -92,13 +113,41 @@ export const process = ({
     const data = JSON.parse(ev.data);
     const percentDone = data.percent_done;
     const transcript = data.transcript;
+    transcribingStartedAt = transcribingStartedAt || Date.now()
     if (transcript == null) {
-      onProgress(percentDone);
-      onStateChange(transcriptionStates.transcribing);
+      const [remaining, show] = eta(transcribingStartedAt, percentDone)
+      setProgress({ percent: percentDone });
+      setEta(remaining)
+      if (show) {
+        setShowEta(true)
+      }
     } else {
-      sse.close();
       setTranscript(transcript)
-      onComplete(transcript)
+    }
+  });
+
+  // overall pipeline
+  sse.addEventListener("PipelineProgress", (ev) => {
+    const data = JSON.parse(ev.data);
+    switch (data.state) {
+      case "transcoding":
+        showState(transcriptionStates.transcoding);
+        break;
+      case "transcribing":
+        showState(transcriptionStates.transcribing);
+        break;
+      case "completed":
+        sse.close();
+        onComplete()
+        break;
+      case "error":
+        sse.close();
+        onError()
+        break;
+      default:
+        sse.close();
+        onError()
+        break;
     }
   });
 
@@ -108,4 +157,3 @@ export const process = ({
     console.error("event source failed:", ev);
   };
 }
-

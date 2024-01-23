@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react'
+import React, { useState } from 'react'
 import PropTypes from 'prop-types';
 
 // third party components
@@ -219,8 +219,10 @@ export const Upload = ({
     process({
       transcriptionId: id,
       setTrack: setTrack,
-      onStateChange: showState,
-      onProgress: setProgress,
+      setEta: setEta,
+      setProgress: setProgress,
+      setShowEta: setShowEta,
+      showState: showState,
       onComplete: t => history.push(`/studio/${id}`),
       onError: setUploadError
     });
@@ -402,7 +404,8 @@ export const Upload = ({
   }
 
   function localUploadKey(hash) {
-    return `transcriptionId-${hash}`
+    const cacheBuster = 'vl8z'
+    return `transcriptionId-${cacheBuster}-${hash}`
   }
 
   function showState(state) {
@@ -471,7 +474,7 @@ export const Upload = ({
 
     const minutes = Math.floor(seconds % 3600 / 60);
     if (minutes === 0) {
-      return 'less than a minute';
+      return 'almost done';
     } else if (minutes === 1) {
       return '1 minute';
     }
