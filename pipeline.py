@@ -9,6 +9,7 @@ from transcribe import transcribe, TranscriptionProgress
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
+import common
 from common import stub
 
 
@@ -19,6 +20,7 @@ class PipelineError(Exception):
 @dataclass
 class PipelineProgress:
     state: str
+    transcription: common.Transcription = None
 
 
 def pipeline(
@@ -56,14 +58,14 @@ def pipeline(
                 match update:
                     case TranscodingProgress(x):
                         yield update
-                    case Exception as e:
+                    case Exception(e):
                         logger.error(e)
         else:
             logger.info(f"already transcoded. continuing")
 
 
         # transcribe
-        if not t.transcribed:
+        if not t.transcribed or language != t.language:
             logger.info(f"transcribing...")
             yield PipelineProgress(state="transcribing")
             for update in transcribe_fn(
@@ -76,16 +78,23 @@ def pipeline(
                     case dict(transcript):
                         # save results
                         align.piecewise_linear(transcript)
-                        t = replace(t, transcript=transcript)
+                        if not language:
+                            # save the detected language
+                            language = transcript.get("language")
+                        t = replace(t, transcript=transcript, language=language)
                         stub.transcriptions[transcription_id] = t
                         common.db.create(t)
                         yield TranscriptionProgress(transcript=t.transcript)
-                    case Exception as e:
+                    case Exception(e):
                         logger.error(e)
         else:
             logger.info(f"already transcribed. continuing")
 
-        yield PipelineProgress(state="completed")
+        yield PipelineProgress(
+            state="completed",
+            transcription=t
+        )
 
     except Exception as e:
+        logger.error(e)
         yield PipelineProgress(state="error")

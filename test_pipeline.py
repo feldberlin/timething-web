@@ -15,6 +15,25 @@ import transcribe
 fixtures = Path("fixtures")
 
 
+def test_encode_pipeline_progress():
+    transcription_id = "abc"
+    p = PipelineProgress(
+        state="completed",
+        transcription = common.Transcription(
+            transcription_id=transcription_id,
+            path="/tmp/abc",
+            upload=common.UploadInfo(
+                filename="file.name",
+                content_type="audio/mp3",
+                size_bytes=100
+            )
+        )
+    )
+
+    progress = common.dataclass_to_event(p)
+    assert transcription_id in progress
+
+
 @dataclass
 class MockedStub:
     transcriptions: dict = field(default_factory=dict)

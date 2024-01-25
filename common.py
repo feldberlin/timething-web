@@ -85,6 +85,7 @@ class Transcription:
     transcoded: bool = False
     transcript: str = None
     path: str = None
+    language: str = None
 
     @property
     def transcribed(self):

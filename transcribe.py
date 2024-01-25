@@ -98,7 +98,12 @@ def worker(q, audio, device, language):
         logger.info(f"transcribe loading model")
         model = whisper.load_model(common.MODEL_NAME, device=device)
         logger.info(f"transcribe loaded model")
-        transcript = model.transcribe(audio, language=language, fp16=use_gpu, verbose=False)
+        transcript = model.transcribe(
+            audio,
+            language=language,
+            fp16=use_gpu,
+            verbose=False
+        )
         q.put(transcript)
         q.put(None)
     except Exception as e:

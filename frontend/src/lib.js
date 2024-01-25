@@ -138,7 +138,7 @@ export const process = ({
         break;
       case "completed":
         sse.close();
-        onComplete()
+        onComplete(data.transcription);
         break;
       case "error":
         sse.close();

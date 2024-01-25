@@ -48,7 +48,7 @@ export default function StudioPage() {
   const [retranscribingState, setRetranscribingState] = useState(0);
 
   // User error, system error. Like 404 vs 500.
-  const [error, setError] = useState(null)
+  const [err, setErr] = useState(null)
   const [fatalError, setFatalError] = useState(null)
 
   /**
@@ -71,7 +71,7 @@ export default function StudioPage() {
             // identify the language of the audio, e.g. welsh instead of english
             // due to leading silence or music. we would like to be able to
             // display the language name in the select box.
-            const { language } = meta.transcript || {}
+            const { language } = meta || {}
             if (language && !languages.find(o => o.value === language)) {
               const names = new Intl.DisplayNames(['en'], { type: 'language' });
               languages.push({ value: language, label: names.of(language) })
@@ -164,22 +164,22 @@ export default function StudioPage() {
         process({
           language: value,
           transcriptionId: transcriptionId,
-          onProgress: (progress) => {
-            setRetranscribingProgress(Number(progress))
+          setProgress: ({percent}) => {
+            setRetranscribingProgress(Number(percent))
           },
-          onStateChange: (state) => {
+          showState: (state) => {
             setRetranscribingState(state)
           },
-          onError: (error) => {
+          onError: () => {
             setTranscript(oldTranscript)
             setRetranscribing(false)
-            setError("We couldn't process your audio.")
+            setErr("We couldn't process your audio.")
           },
-          onComplete: (transcript) => {
+          onComplete: (transcription) => {
             setRetranscribing(false)
             setRetranscribingProgress(null)
             setRetranscribingState(null)
-            setTranscript(transcript)
+            setTranscript(transcription.transcript)
           }
         })
       }
@@ -206,7 +206,7 @@ export default function StudioPage() {
         <div>
           <h1 className="mb-3">Something went wrong.</h1>
           <p className="mb-5">
-            It's not you, it's us. Please try again later.
+            Maybe try again later?
           </p>
           <ErrorMessage message={fatalError}/>
         </div>
@@ -276,12 +276,14 @@ export default function StudioPage() {
           />
           <h3 className="my-3 mx-8 font-bold">Transcripts</h3>
           <p className="my-3 mx-8">
-            {!retranscribing && "Auto Transcript" }
-            {retranscribing &&
-              <MiniProgress
-                state={retranscribingState}
-                progress={retranscribingProgress}
-              />
+            { retranscribing
+              ?
+                <MiniProgress
+                  state={retranscribingState}
+                  progress={retranscribingProgress}
+                />
+              :
+                "Auto Transcript"
             }
           </p>
         </div>
@@ -308,8 +310,8 @@ export default function StudioPage() {
         </div>
       </div>
       <div id="editor" className="bg-white">
-        {error &&
-          <Error message={error} />
+        {err &&
+          <ErrorMessage message={err} />
         }
         <Editor
           focus={focus}
