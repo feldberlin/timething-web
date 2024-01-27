@@ -7,9 +7,9 @@ import {
 } from 'react-router-dom';
 
 // components
-import StudioPage from './pages/StudioPage';
-import UploadPage from './pages/UploadPage';
-import HomePage from './pages/HomePage';
+import StudioPage from './pages/StudioPage.tsx';
+import UploadPage from './pages/UploadPage.tsx';
+import HomePage from './pages/HomePage.tsx';
 
 // styles
 import '../css/App.css';
@@ -36,6 +36,8 @@ export default function App() {
   );
 }
 
-ReactDOM.createRoot(
-  document.getElementById('root'),
-).render(<App />);
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+);

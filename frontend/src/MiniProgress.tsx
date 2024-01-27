@@ -1,8 +1,14 @@
+// @ts-expect-error keep react here
 import React from 'react';
-import PropTypes from 'prop-types';
 
 // lib
-import { textColors } from './lib';
+import { textColors, TextColorKey, TranscriptionState } from './lib.ts';
+
+// props
+type MiniProgressProps = {
+  state: TranscriptionState | null;
+  progress: number | null;
+};
 
 /**
  * Show transcribing, transcoding or alingment progress in a small format.
@@ -12,16 +18,17 @@ import { textColors } from './lib';
 export default function MiniProgress({
   state,
   progress,
-}) {
+} : MiniProgressProps) {
   const {
     color = 'neutral',
     shortText = 'Starting AI',
   } = state || {};
+  const progressTextColor: string = textColors[color as TextColorKey];
 
   let progressSpan;
   if (progress) {
     progressSpan = (
-      <span className={`ml-2 ${textColors[color]}`}>
+      <span className={`ml-2 ${progressTextColor}`}>
         {progress}
         %
       </span>
@@ -30,24 +37,11 @@ export default function MiniProgress({
 
   return (
     <>
-      <span className={`loading loading-dots loading-xs -mb-1 ${textColors[color]}`} />
-      <span className={`ml-2 ${textColors[color]}`}>
+      <span className={`loading loading-dots loading-xs -mb-1 ${progressTextColor}`} />
+      <span className={`ml-2 ${progressTextColor}`}>
         {shortText}
       </span>
       { progressSpan }
     </>
   );
 }
-
-MiniProgress.propTypes = {
-  state: PropTypes.shape({
-    color: PropTypes.string,
-    shortText: PropTypes.string,
-  }),
-  progress: PropTypes.number,
-};
-
-MiniProgress.defaultProps = {
-  state: null,
-  progress: null,
-};
