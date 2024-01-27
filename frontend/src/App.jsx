@@ -1,11 +1,10 @@
-import React from "react";
-import ReactDOM from "react-dom/client";
+import React from 'react';
+import ReactDOM from 'react-dom/client';
 import {
   BrowserRouter as Router,
   Switch,
   Route,
-  Link
-} from "react-router-dom";
+} from 'react-router-dom';
 
 // components
 import StudioPage from './pages/StudioPage';
@@ -13,7 +12,7 @@ import UploadPage from './pages/UploadPage';
 import HomePage from './pages/HomePage';
 
 // styles
-import "../css/App.css";
+import '../css/App.css';
 
 /**
  * Main application component. Handles routing.
@@ -38,5 +37,5 @@ export default function App() {
 }
 
 ReactDOM.createRoot(
-  document.getElementById("root")
+  document.getElementById('root'),
 ).render(<App />);

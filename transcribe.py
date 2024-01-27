@@ -61,6 +61,7 @@ def transcribe(transcription_id, language):
         target=worker,
         args=(q, str(t.transcoded_file), device, language)
     )
+    logger.info("spawning whisper process")
     p.start()
     while True:
         res = q.get()

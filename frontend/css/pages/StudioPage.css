@@ -17,7 +17,7 @@
   min-width: 640px;
   max-width: 640px;
   height: 100vh;
-  overflow: hidden;
+  overflow: auto;
   padding: 65px;
 }
 

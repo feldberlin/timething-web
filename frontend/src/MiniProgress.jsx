@@ -1,30 +1,31 @@
-import React from 'react'
+import React from 'react';
+import PropTypes from 'prop-types';
 
 // lib
-import { textColors } from './lib'
+import { textColors } from './lib';
 
 /**
  * Show transcribing, transcoding or alingment progress in a small format.
  * This could be used in a table or list, or in a card.
  *
  */
-export const MiniProgress = ({
+export default function MiniProgress({
   state,
-  progress
-}) => {
-
+  progress,
+}) {
   const {
-    color = "neutral",
-    shortText = "Starting AI"
-  } = state || {}
+    color = 'neutral',
+    shortText = 'Starting AI',
+  } = state || {};
 
-  let progressSpan
+  let progressSpan;
   if (progress) {
     progressSpan = (
       <span className={`ml-2 ${textColors[color]}`}>
-        {progress}%
+        {progress}
+        %
       </span>
-    )
+    );
   }
 
   return (
@@ -35,5 +36,18 @@ export const MiniProgress = ({
       </span>
       { progressSpan }
     </>
-  )
+  );
 }
+
+MiniProgress.propTypes = {
+  state: PropTypes.shape({
+    color: PropTypes.string,
+    shortText: PropTypes.string,
+  }),
+  progress: PropTypes.number,
+};
+
+MiniProgress.defaultProps = {
+  state: null,
+  progress: null,
+};

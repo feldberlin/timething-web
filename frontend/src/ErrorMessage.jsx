@@ -1,19 +1,30 @@
-import React from 'react'
+import React from 'react';
+import PropTypes from 'prop-types';
 
 /**
  * Displays an alert with the error message
  *
  */
-export const ErrorMessage = ({message}) => {
+export default function ErrorMessage({ message }) {
   return (
     <div role="alert" className="alert alert-error text-white mb-8">
       <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
-        <path strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="2"
+          d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+        />
       </svg>
       <p>{message}</p>
     </div>
-  )
+  );
 }
+
+ErrorMessage.propTypes = {
+  message: PropTypes.string,
+};
+
+ErrorMessage.defaultProps = {
+  message: '',
+};

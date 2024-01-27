@@ -13,7 +13,7 @@ import uuid
 from modal import Mount, NetworkFileSystem, asgi_app
 from pydantic import BaseModel
 
-from common import stub
+from common import stub, Transcription
 import common
 import formats
 from pipeline import pipeline, PipelineProgress
@@ -66,7 +66,7 @@ def web():
     @web_app.post("/upload")
     async def upload(media: MediaForm):
         transcription_id = str(uuid.uuid4())
-        stub.transcriptions[transcription_id] = common.Transcription(
+        stub.transcriptions[transcription_id] = Transcription(
             transcription_id=transcription_id,
             path=str(common.MEDIA_PATH / transcription_id),
             upload=common.UploadInfo(

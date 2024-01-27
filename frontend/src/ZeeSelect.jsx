@@ -1,62 +1,65 @@
-import React, { useState } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
-import Select from 'react-select'
-
+import Select from 'react-select';
 
 /**
  * Custom select.
  *
  */
-export const ZeeSelect = ({selected, disabled, options, onChange}) => {
-
+export default function ZeeSelect({
+  selected,
+  disabled,
+  options,
+  onChange,
+}) {
   /**
    * Styles
    *
    */
   const containerStyles = {
-    margin: '0 22px'
-  }
+    margin: '0 22px',
+  };
 
   const selectStyles = {
     control: (base, state) => ({
       ...base,
-      background: "#f5f3ed",
+      background: '#f5f3ed',
       // match with the menu
-      borderRadius: state.isFocused ? "3px 3px 0 0" : 3,
+      borderRadius: state.isFocused ? '3px 3px 0 0' : 3,
       // Overwrittes the different states of border
-      borderColor: state.isFocused ? "#d4d4d4" : "#d4d4d4",
+      borderColor: state.isFocused ? '#d4d4d4' : '#d4d4d4',
       // Removes weird border around container
       boxShadow: state.isFocused ? null : null,
-      "&:hover": {
+      '&:hover': {
         // Overwrittes the different states of border
-        borderColor: state.isFocused ? "#b4b4b4" : "#b4b4b4"
-      }
+        borderColor: state.isFocused ? '#b4b4b4' : '#b4b4b4',
+      },
     }),
-    menu: base => ({
+    menu: (base) => ({
       ...base,
       // override border radius to match the box
       borderRadius: 0,
       // kill the gap
       marginTop: 0,
     }),
-    menuList: base => ({
+    menuList: (base) => ({
       ...base,
       // kill the white space on first and last option
       padding: 0,
-      backgroundColor: "#f5f3ed"
+      backgroundColor: '#f5f3ed',
     }),
     option: (base, state) => ({
       ...base,
-      background: state.isSelected ? "#3a59ff" : "#f5f3ed",
-      "&:hover": {
-        color: "white",
-        background: "#3a59ff",
-        filter: "brightness(150%)"
-      }
+      background: state.isSelected ? '#3a59ff' : '#f5f3ed',
+      '&:hover': {
+        color: 'white',
+        background: '#3a59ff',
+        filter: 'brightness(150%)',
+      },
     }),
   };
 
-  const value = options.find(o => o.value === selected)
+  const value = options.find((o) => o.value === selected);
   return (
     <div style={containerStyles}>
       <Select
@@ -70,10 +73,16 @@ export const ZeeSelect = ({selected, disabled, options, onChange}) => {
       />
     </div>
   );
+}
+
+ZeeSelect.defaultProps = {
+  disabled: false,
+  onChange: () => {},
 };
 
 ZeeSelect.propTypes = {
-  // selected value
-  initialSelected: PropTypes.string.isRequired,
-
+  selected: PropTypes.string.isRequired,
+  disabled: PropTypes.bool,
+  options: PropTypes.array.isRequired, // eslint-disable-line react/forbid-prop-types
+  onChange: PropTypes.func,
 };

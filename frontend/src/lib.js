@@ -6,24 +6,24 @@ export const transcriptionStates = {
   preparing: { text: 'Preparing your file', shortText: 'Preparing', color: 'success' },
   uploading: { text: 'Uploading', shortText: 'Preparing', color: 'primary' },
   transcoding: { text: 'Processing audio', shortText: 'Processing', color: 'neutral' },
-  transcribing: { text: 'Converting audio to text', shortText: 'Recognising', color: 'success' }
-}
+  transcribing: { text: 'Converting audio to text', shortText: 'Recognising', color: 'success' },
+};
 
 // make it discoverable by tailwind
 export const progressColors = {
   neutral: 'progress-neutral',
   primary: 'progress-primary',
   secondary: 'progress-secondary',
-  success: 'progress-success'
-}
+  success: 'progress-success',
+};
 
 // make it discoverable by tailwind
 export const textColors = {
   neutral: 'text-neutral',
   primary: 'text-primary',
   secondary: 'text-secondary',
-  success: 'text-success'
-}
+  success: 'text-success',
+};
 
 /**
  * Supported langauges. Currently constrained by what timething can handle.
@@ -41,7 +41,7 @@ export const supportedLanguages = [
   { value: 'pl', label: 'Polish' },
   { value: 'ru', label: 'Russian' },
   { value: 'el', label: 'Greek' },
-  { value: 'ar', label: 'Arabic' }
+  { value: 'ar', label: 'Arabic' },
 ];
 
 /**
@@ -51,109 +51,105 @@ export const supportedLanguages = [
 export const process = ({
   transcriptionId,
   language = null,
-  setTrack = t => {},
-  setTranscript = t => {},
-  setEta = e => {},
-  setShowEta = s => {},
-  setProgress = p => {},
-  showState = s => {},
+  setTranscript = () => {},
+  setEta = () => {},
+  setShowEta = () => {},
+  setProgress = () => {},
+  showState = () => {},
   onComplete = () => {},
-  onError = () => {}
+  onError = () => {},
 }) => {
-  const id = encodeURIComponent(transcriptionId)
-  let url = `/transcribe/${id}`
+  const id = encodeURIComponent(transcriptionId);
+  let url = `/transcribe/${id}`;
 
   // add language if specified
   if (language != null) {
-    url = `${url}?language=${language}`
+    url = `${url}?language=${language}`;
   }
 
   // eta timers
-  let transcodingStartedAt
-  let transcribingStartedAt
+  let transcodingStartedAt;
+  let transcribingStartedAt;
   const eta = (stepStartedAt, percentDone) => {
-    const stepDuration = (Date.now() - stepStartedAt) / 1000
-    const secondsPerPoint = stepDuration / percentDone
-    const remaining = Math.round((100 - percentDone) * secondsPerPoint)
+    const stepDuration = (Date.now() - stepStartedAt) / 1000;
+    const secondsPerPoint = stepDuration / percentDone;
+    const remaining = Math.round((100 - percentDone) * secondsPerPoint);
     return [
       remaining,
-      (remaining > 120) && (stepDuration > 60)
-    ]
-  }
+      (remaining > 120) && (stepDuration > 60),
+    ];
+  };
 
   // create and event source and start processing
   const sse = new EventSource(url);
 
   // transcode
-  sse.addEventListener("TranscodingProgress", (ev) => {
+  sse.addEventListener('TranscodingProgress', (ev) => {
     const data = JSON.parse(ev.data);
     const percentDone = data.percent_done;
-    const track = data.track;
-    transcodingStartedAt = transcodingStartedAt || Date.now()
+    const { track } = data;
+    transcodingStartedAt = transcodingStartedAt || Date.now();
     if (track == null) {
-      if (percentDone == 100) {
-        setProgress(null)
-        setEta(null)
-        setShowEta(false)
+      if (percentDone === 100) {
+        setProgress(null);
+        setEta(null);
+        setShowEta(false);
       } else {
-        const [remaining, show] = eta(transcodingStartedAt, percentDone)
-        setProgress({ percent: percentDone })
-        setEta(remaining)
+        const [remaining, show] = eta(transcodingStartedAt, percentDone);
+        setProgress({ percent: percentDone });
+        setEta(remaining);
         if (show) {
-          setShowEta(true)
+          setShowEta(true);
         }
       }
-    } else {
-      setTrack(track)
     }
   });
 
   // transcribe
-  sse.addEventListener("TranscriptionProgress", (ev) => {
+  sse.addEventListener('TranscriptionProgress', (ev) => {
     const data = JSON.parse(ev.data);
     const percentDone = data.percent_done;
-    const transcript = data.transcript;
-    transcribingStartedAt = transcribingStartedAt || Date.now()
+    const { transcript } = data;
+    transcribingStartedAt = transcribingStartedAt || Date.now();
     if (transcript == null) {
-      const [remaining, show] = eta(transcribingStartedAt, percentDone)
+      const [remaining, show] = eta(transcribingStartedAt, percentDone);
       setProgress({ percent: percentDone });
-      setEta(remaining)
+      setEta(remaining);
       if (show) {
-        setShowEta(true)
+        setShowEta(true);
       }
     } else {
-      setTranscript(transcript)
+      setTranscript(transcript);
     }
   });
 
   // overall pipeline
-  sse.addEventListener("PipelineProgress", (ev) => {
+  sse.addEventListener('PipelineProgress', (ev) => {
     const data = JSON.parse(ev.data);
     switch (data.state) {
-      case "transcoding":
+      case 'transcoding':
         showState(transcriptionStates.transcoding);
         break;
-      case "transcribing":
+      case 'transcribing':
         showState(transcriptionStates.transcribing);
         break;
-      case "completed":
+      case 'completed':
         sse.close();
         onComplete(data.transcription);
         break;
-      case "error":
+      case 'error':
         sse.close();
-        onError()
+        onError();
         break;
       default:
         sse.close();
-        onError()
+        onError();
         break;
     }
   });
 
-  sse.onerror = (ev) => {
+  sse.onerror = () => {
     sse.close();
-    onError()
-    console.error("event source failed:", ev);
+    onError();
   };
-}
+};

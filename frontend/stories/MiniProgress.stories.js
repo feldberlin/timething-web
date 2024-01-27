@@ -1,4 +1,4 @@
-import { MiniProgress } from '../src/MiniProgress';
+import MiniProgress from '../src/MiniProgress';
 
 import { transcriptionStates as states } from '../src/lib';
 
