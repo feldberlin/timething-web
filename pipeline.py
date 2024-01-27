@@ -48,7 +48,7 @@ def pipeline(
             transcribe_fn = transcribe.local
 
         # transcode
-        if not t.transcoded:
+        if (not t.transcoded) or (not t.track):
             logger.info(f"transcoding...")
             yield PipelineProgress(state="transcoding")
             for update in transcode_fn(
@@ -56,17 +56,23 @@ def pipeline(
                 media_path=media_path
             ):
                 match update:
-                    case TranscodingProgress(x):
+                    case TranscodingProgress(percent_done, None):
                         yield update
-                    case Exception(e):
-                        logger.error(e)
+                    case TranscodingProgress(percent_done, track) if track is not None:
+                        logger.info(f"completed transcoding. {track}")
+                        t = replace(t, transcoded=True, track=track)
+                        stub.transcriptions[transcription_id] = t
+                        yield update
+                    case x:
+                        raise ValueError(f"cannot parse TranscodingProgress: {x}")
         else:
             logger.info(f"already transcoded. continuing")
 
 
         # transcribe
-        if not t.transcribed or language != t.language:
-            logger.info(f"transcribing...")
+        changing_language = (language and t.language and t.language != language)
+        if (not t.transcribed) or changing_language:
+            logger.info("transcribing...")
             yield PipelineProgress(state="transcribing")
             for update in transcribe_fn(
                 transcription_id,
@@ -81,15 +87,17 @@ def pipeline(
                         if not language:
                             # save the detected language
                             language = transcript.get("language")
+                        # completed
+                        logger.info(f"completed transcription. {transcript}")
                         t = replace(t, transcript=transcript, language=language)
                         stub.transcriptions[transcription_id] = t
-                        common.db.create(t)
-                        yield TranscriptionProgress(transcript=t.transcript)
-                    case Exception(e):
-                        logger.error(e)
+                        yield TranscriptionProgress(percent_done=100, transcript=t.transcript)
+                    case _:
+                        raise ValueError("cannot parse TranscriptionProgress")
         else:
             logger.info(f"already transcribed. continuing")
 
+        common.db.create(t)
         yield PipelineProgress(
             state="completed",
             transcription=t

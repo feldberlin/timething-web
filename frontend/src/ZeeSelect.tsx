@@ -1,17 +1,25 @@
+// @ts-expect-error keep react here
 import React from 'react';
-import PropTypes from 'prop-types';
-import Select from 'react-select';
+import Select, { SingleValue } from 'react-select';
+
+// select props
+type ZeeSelectProps = {
+  selected?: string | null;
+  disabled?: boolean;
+  options: Array<{ value: string; label: string }>;
+  onChange?: (value: SingleValue<{ value: string; label: string }>) => void;
+}
 
 /**
  * Custom select.
  *
  */
 export default function ZeeSelect({
-  selected,
-  disabled,
   options,
-  onChange,
-}) {
+  selected = null,
+  disabled = false,
+  onChange = () => {},
+}: ZeeSelectProps) {
   /**
    * Styles
    *
@@ -21,7 +29,7 @@ export default function ZeeSelect({
   };
 
   const selectStyles = {
-    control: (base, state) => ({
+    control: (base: any, state: any) => ({
       ...base,
       background: '#f5f3ed',
       // match with the menu
@@ -35,20 +43,20 @@ export default function ZeeSelect({
         borderColor: state.isFocused ? '#b4b4b4' : '#b4b4b4',
       },
     }),
-    menu: (base) => ({
+    menu: (base: any) => ({
       ...base,
       // override border radius to match the box
       borderRadius: 0,
       // kill the gap
       marginTop: 0,
     }),
-    menuList: (base) => ({
+    menuList: (base: any) => ({
       ...base,
       // kill the white space on first and last option
       padding: 0,
       backgroundColor: '#f5f3ed',
     }),
-    option: (base, state) => ({
+    option: (base: any, state: any) => ({
       ...base,
       background: state.isSelected ? '#3a59ff' : '#f5f3ed',
       '&:hover': {
@@ -74,15 +82,3 @@ export default function ZeeSelect({
     </div>
   );
 }
-
-ZeeSelect.defaultProps = {
-  disabled: false,
-  onChange: () => {},
-};
-
-ZeeSelect.propTypes = {
-  selected: PropTypes.string.isRequired,
-  disabled: PropTypes.bool,
-  options: PropTypes.array.isRequired, // eslint-disable-line react/forbid-prop-types
-  onChange: PropTypes.func,
-};

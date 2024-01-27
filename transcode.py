@@ -15,7 +15,7 @@ logging.basicConfig(level=logging.INFO)
 
 @dataclass
 class TranscodingProgress:
-    percent_done: int = None
+    percent_done: int
     track: common.Track = None
 
 
@@ -54,7 +54,7 @@ def transcode(
 
     # check if we've already transcoded this
     if t.transcoded and not force_reprocessing:
-        yield TranscodingProgress(track=t.track)
+        yield TranscodingProgress(percent_done=100, track=t.track)
         return
 
     # we haven't processed this yet. get the track metadata
@@ -88,9 +88,7 @@ def transcode(
             raise TranscodeError(f"ffmpeg failed : {return_code}")
 
     # completed
-    t = replace(t, transcoded=True, track=track)
-    stub.transcriptions[transcription_id] = t
-    yield TranscodingProgress(track=t.track)
+    yield TranscodingProgress(percent_done=100, track=track)
 
 
 def progress(sock, total_duration):

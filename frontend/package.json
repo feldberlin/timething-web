@@ -1,6 +1,8 @@
 {
   "name": "timething-web",
+  "private": "true",
   "version": "1.0.0",
+  "type": "module",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -8,14 +10,22 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "watch": "npx vite build --watch",
-    "lint": "eslint --ext .js,.jsx,.ts,.tsx src",
-    "dev": "npx vite preview"
+    "lint": "eslint --ext .js,.jsx,.ts,.tsx src --report-unused-disable-directives --max-warnings 0",
+    "dev": "npx vite preview",
+    "build": "tsc && vite build"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@types/react": "^18.2.43",
+    "@types/react-dom": "^18.2.17",
+    "@types/react-router-dom": "^5.3.3",
+    "@typescript-eslint/eslint-plugin": "^6.14.0",
+    "@typescript-eslint/parser": "^6.14.0",
+    "@vitejs/plugin-react-swc": "^3.5.0",
     "hash-wasm": "^4.11.0",
+    "loglevel": "^1.9.1",
     "prop-types": "^15.8.1",
     "react": "^18.2.0",
     "react-checkmark": "^2.0.0",
@@ -45,12 +55,13 @@
     "daisyui": "^4.4.20",
     "eslint": "^8.56.0",
     "eslint-config-airbnb": "^19.0.4",
+    "eslint-import-resolver-typescript": "^3.6.1",
     "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-react-hooks": "^4.6.0",
     "postcss": "^8.4.18",
     "storybook": "^7.6.5",
     "tailwindcss": "^3.3.7",
-    "typescript": "^4.6.4",
+    "typescript": "^5.2.2",
     "vite": "^4.2.0",
     "vite-plugin-eslint": "^1.8.1"
   }

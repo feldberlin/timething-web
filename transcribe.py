@@ -13,7 +13,7 @@ logging.basicConfig(level=logging.INFO)
 
 @dataclass
 class TranscriptionProgress:
-    percent_done: int = None
+    percent_done: int
     transcript: dict = None
 
 

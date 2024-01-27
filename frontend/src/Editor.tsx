@@ -1,11 +1,12 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 
 // images
 import downloadImg from '../download.svg';
 
 // styles
 import '../css/Editor.css';
+
+import { WhisperResult, Track } from './lib.ts';
 
 /**
  * The main document editor. Used to display and edit the transcript.
@@ -17,19 +18,26 @@ export default function Editor({
   focus,
   setFocus,
   initialTranscriptionId,
+} : {
+  transcript: WhisperResult | null,
+  track: Track | null,
+  focus: number,
+  setFocus: (f: number) => void,
+  initialTranscriptionId: string,
 }) {
   /**
    * Event handlers
    *
    */
-  function hClick(ev) {
-    const key = ev.target.getAttribute('data-key');
+  function hClick(ev: React.MouseEvent<HTMLDivElement>) {
+    const target = ev.target as HTMLElement;
+    const key = target.getAttribute('data-key');
     if (key) {
       setFocus(parseInt(key, 10));
     }
   }
 
-  function targets(text) {
+  function targets(text: string) {
     return text.trim().split(' ').map((word, index) => {
       if (index === focus) {
         return (
@@ -48,21 +56,29 @@ export default function Editor({
     });
   }
 
-  const { name: title = 'Transcript' } = track || {};
   return (
     <>
-      <h1 className="mb-5 flex justify-between">
-        {title}
-        <a
-          href={`/export/${initialTranscriptionId}?format=srt`}
-          className="editor-controls flex items-center text-sm text-secondary font-bold filter grayscale opacity-50 hover:filter-none hover:opacity-100"
-          download
-        >
-          <img src={downloadImg} className="w-6 h-6" alt="Download" />
-          <span className="ml-1">Download</span>
-        </a>
+      <h1 className="mb-10 flex justify-between">
+        {track !== null
+          ? (
+            <>
+              <span>{track.title || 'Transcript'}</span>
+              <a
+                href={`/export/${initialTranscriptionId}?format=srt`}
+                className="editor-controls flex items-center text-sm text-secondary font-bold filter grayscale opacity-50 hover:filter-none hover:opacity-100"
+                download
+              >
+                <img src={downloadImg} className="w-6 h-6" alt="Download" />
+                <span className="ml-1">Download</span>
+              </a>
+            </>
+          )
+          : (
+            <div className="flex flex-col w-full opacity-50">
+              <div className="skeleton h-5 w-28" />
+            </div>
+          )}
       </h1>
-      <div className="flex justify-end mb-5" />
 
       <article className={transcript ? 'article-loaded' : 'article-loading'}>
         { !transcript
@@ -85,22 +101,3 @@ export default function Editor({
     </>
   );
 }
-
-Editor.propTypes = {
-  transcript: PropTypes.shape({
-    text: PropTypes.string,
-  }),
-  track: PropTypes.shape({
-    name: PropTypes.string,
-  }),
-  focus: PropTypes.number,
-  setFocus: PropTypes.func,
-  initialTranscriptionId: PropTypes.string.isRequired,
-};
-
-Editor.defaultProps = {
-  transcript: null,
-  track: null,
-  focus: null,
-  setFocus: () => {},
-};

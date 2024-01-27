@@ -80,11 +80,11 @@ def test_pipeline():
 
             assert type(updates[1]) == TranscodingProgress
             assert updates[2].percent_done == 96
-            assert updates[5].percent_done is None
+            assert updates[5].percent_done is 100
             assert updates[5].track.duration > 1.4
 
             assert type(updates[-2]) == TranscriptionProgress
-            assert updates[-2].percent_done is None
+            assert updates[-2].percent_done is 100
             assert updates[-2].transcript['text'].strip() == "One."
 
             assert type(updates[-1]) == PipelineProgress

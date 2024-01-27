@@ -4,14 +4,13 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import PropTypes from 'prop-types';
 
 // thid party components
 import ReactPlayer from 'react-player/lazy';
 import screenfull from 'screenfull';
 
 // components
-import Timer from './Timer';
+import Timer from './Timer.tsx';
 
 // images
 import fullscreenImg from '../fullscreen.svg';
@@ -20,6 +19,20 @@ import popoutImg from '../popout.svg';
 // styles
 import '../css/Player.css';
 
+// types of seek offsets into the player
+type PlayerOffseTypes = 'seconds' | 'fraction' | undefined;
+
+// props
+interface PlayerProps {
+  playing: boolean,
+  setPlaying: (playing: boolean) => void,
+  elapsed: number,
+  setElapsed: (elapsed: number) => void,
+  initialUrl: string,
+  initialBuffering?: boolean,
+  initialReady?: boolean,
+}
+
 /**
  * A media player. Currently wraps ReactPlayer. This is just the main window,
  * play / pause and seek controls are separate components. The player
@@ -27,25 +40,27 @@ import '../css/Player.css';
  *
  */
 const Player = forwardRef(({
-  playing,
+  playing = false,
   setPlaying,
   elapsed,
   setElapsed,
   initialUrl,
-  initialBuffering,
-  initialReady,
-}, ref) => {
-  const [ready, setReady] = useState(initialReady);
-  const [buffering, setBuffering] = useState(initialBuffering);
-  const [seekTo, setSeekTo] = useState();
-  const [totalDuration, setTotalDuration] = useState(0);
-  const [pictureInPicture, setPictureInPicture] = useState(false);
-  const playerRef = useRef(null);
+  initialBuffering = false,
+  initialReady = true,
+} : PlayerProps, ref) => {
+  const [ready, setReady] = useState<boolean>(initialReady);
+  const [buffering, setBuffering] = useState<boolean>(initialBuffering);
+  const [seekTo, setSeekTo] = useState<number | null>();
+  const [totalDuration, setTotalDuration] = useState<number>(0);
+  const [pictureInPicture, setPictureInPicture] = useState<boolean>(false);
+  const playerRef = useRef<ReactPlayer>(null);
 
   // expose seekTo() to parent
   useImperativeHandle(ref, () => ({
-    seekTo: (offset, offsetType) => {
-      playerRef.current.seekTo(offset, offsetType);
+    seekTo: (offset: number, offsetType: PlayerOffseTypes) => {
+      if (playerRef.current) {
+        playerRef.current.seekTo(offset, offsetType);
+      }
     },
   }));
 
@@ -53,51 +68,59 @@ const Player = forwardRef(({
    * Event handlers
    *
    */
-  function hClickProgress(ev) {
+  function hClickProgress(ev: React.MouseEvent<HTMLProgressElement>) {
     ev.preventDefault();
-    const rect = ev.target.getBoundingClientRect();
+    const target = ev.target as HTMLProgressElement;
+    const rect = target.getBoundingClientRect();
     const x = ev.clientX - rect.left;
     const w = rect.right - rect.left;
     const p = x / w;
-    playerRef.current.seekTo(p, 'fraction');
-  }
-
-  function hMouseMoveProgress(ev) {
-    ev.preventDefault();
-    const total = playerRef.current.getDuration();
-    if (!total) {
-      return;
+    if (playerRef.current) {
+      playerRef.current.seekTo(p, 'fraction');
     }
-
-    const rect = ev.target.getBoundingClientRect();
-    const x = ev.clientX - rect.left;
-    const w = rect.right - rect.left;
-    const p = x / w;
-    const duration = p * total;
-
-    setSeekTo(duration);
   }
 
-  function hMouseOutProgress(ev) {
+  function hMouseMoveProgress(ev: React.MouseEvent<HTMLProgressElement>) {
+    ev.preventDefault();
+    if (playerRef.current) {
+      const total = playerRef.current.getDuration();
+      if (!total) {
+        return;
+      }
+
+      const target = ev.target as HTMLProgressElement;
+      const rect = target.getBoundingClientRect();
+      const x = ev.clientX - rect.left;
+      const w = rect.right - rect.left;
+      const p = x / w;
+      const duration = p * total;
+
+      setSeekTo(duration);
+    }
+  }
+
+  function hMouseOutProgress(ev: React.MouseEvent<HTMLProgressElement>) {
     ev.preventDefault();
     setSeekTo(null);
   }
 
   const hReady = () => {
-    setReady(true);
-    setTotalDuration(playerRef.current.getDuration());
+    if (playerRef.current) {
+      setReady(true);
+      setTotalDuration(playerRef.current.getDuration());
+    }
   };
 
-  const hOnProgress = ({ playedSeconds }) => {
+  const hOnProgress = ({ playedSeconds }: { playedSeconds: number }) => {
     setElapsed(playedSeconds);
   };
 
-  function hClickFullscreen(ev) {
+  function hClickFullscreen(ev: React.MouseEvent<HTMLDivElement>) {
     ev.preventDefault();
-    screenfull.request(document.querySelector('.react-player'));
+    screenfull.request(document.querySelector('.react-player') || undefined);
   }
 
-  function hClickPopout(ev) {
+  function hClickPopout(ev: React.MouseEvent<HTMLDivElement>) {
     ev.preventDefault();
     setPictureInPicture(true);
   }
@@ -172,27 +195,10 @@ const Player = forwardRef(({
       />
 
       { controlsJSX() }
-      <Timer elapsed={elapsed} secondaryElapsed={seekTo} />
+      <Timer elapsed={elapsed} secondaryElapsed={seekTo || null} />
     </div>
   );
 });
-
-Player.propTypes = {
-  playing: PropTypes.bool,
-  setPlaying: PropTypes.func.isRequired,
-  elapsed: PropTypes.number,
-  setElapsed: PropTypes.func.isRequired,
-  initialUrl: PropTypes.string.isRequired,
-  initialBuffering: PropTypes.bool,
-  initialReady: PropTypes.bool,
-};
-
-Player.defaultProps = {
-  playing: false,
-  elapsed: 0,
-  initialBuffering: false,
-  initialReady: false,
-};
 
 Player.displayName = 'Player';
 export default Player;

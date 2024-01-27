@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
-import PropTypes from 'prop-types';
 
 // third party components
+// @ts-expect-error no types package for react-checkmark
 import { Checkmark } from 'react-checkmark';
 import { createXXHash3 } from 'hash-wasm';
 import { useHistory } from 'react-router-dom';
+import * as log from 'loglevel';
 
 // components
-import ErrorMessage from './ErrorMessage';
+import ErrorMessage from './ErrorMessage.tsx';
 
 // styles
 import '../css/Upload.css';
@@ -20,13 +21,33 @@ import {
   process,
   transcriptionStates as states,
   progressColors,
-} from './lib';
+  TranscriptionState,
+  Progress,
+  ProgressColorKey,
+} from './lib.ts';
 
 // bounds the size of individual http requests.
 const uploadChunkSize = 1024 * 1024 * 16; // 16MB
 
 // bounds the memory usage of the hashing algorithm.
 const hashingChunkSize = 1024 * 1024 * 512; // 0.5GB
+
+// info log level for development
+log.setLevel(log.levels.INFO);
+
+// upload property types
+interface UploadProps {
+  initialUploading?: boolean;
+  initialPreparing?: boolean;
+  initialProgress?: Progress | null;
+  initialEta?: number | null;
+  initialBps?: number | null;
+  initialShowEta?: boolean;
+  initialError?: string | null;
+  initialProgressText?: string;
+  initialProgressColor?: ProgressColorKey;
+  initialDropping?: boolean;
+}
 
 /**
  * Upload component. Manages the upload process, including uploading,
@@ -36,27 +57,27 @@ const hashingChunkSize = 1024 * 1024 * 512; // 0.5GB
  *
  */
 export default function Upload({
-  initialUploading,
-  initialPreparing,
-  initialProgress,
-  initialEta,
-  initialBps,
-  initialShowEta,
-  initialError,
-  initialProgressText,
-  initialProgressColor,
-  initialDropping,
-}) {
-  const [uploading, setUploading] = useState(initialUploading);
-  const [preparing, setPreparing] = useState(initialPreparing);
-  const [progress, setProgress] = useState(initialProgress);
-  const [progressText, setProgressText] = useState(initialProgressText);
-  const [progressColor, setProgressColor] = useState(initialProgressColor);
-  const [dropping, setDropping] = useState(initialDropping);
-  const [eta, setEta] = useState(initialEta); // seconds
-  const [bps, setBps] = useState(initialBps); // bytes per second upload speed
-  const [showEta, setShowEta] = useState(initialShowEta);
-  const [error, setError] = useState(initialError);
+  initialUploading = false,
+  initialPreparing = false,
+  initialProgress = null,
+  initialEta = null,
+  initialBps = null,
+  initialShowEta = false,
+  initialError = null,
+  initialProgressText = 'Uploading',
+  initialProgressColor = 'primary',
+  initialDropping = false,
+} : UploadProps) {
+  const [uploading, setUploading] = useState<boolean>(initialUploading);
+  const [preparing, setPreparing] = useState<boolean>(initialPreparing);
+  const [progress, setProgress] = useState<Progress | null>(initialProgress);
+  const [progressText, setProgressText] = useState<string>(initialProgressText);
+  const [progressColor, setProgressColor] = useState<ProgressColorKey>(initialProgressColor);
+  const [dropping, setDropping] = useState<boolean>(initialDropping);
+  const [eta, setEta] = useState<number | null>(initialEta); // seconds
+  const [bps, setBps] = useState<number | null>(initialBps); // bps upload speed
+  const [showEta, setShowEta] = useState<boolean>(initialShowEta);
+  const [error, setError] = useState<string | null>(initialError);
   const history = useHistory();
 
   /**
@@ -71,36 +92,36 @@ export default function Upload({
 
   function setDrop() {
     setDropping(true);
-    document
-      .querySelector('#dropzone')
-      .classList
-      .add('dropping');
+    const dropzone = document.querySelector('#dropzone');
+    if (dropzone) {
+      dropzone.classList.add('dropping');
+    }
   }
 
   function setUndrop() {
     setDropping(false);
-    document
-      .querySelector('#dropzone')
-      .classList
-      .remove('dropping');
+    const dropzone = document.querySelector('#dropzone');
+    if (dropzone) {
+      dropzone.classList.remove('dropping');
+    }
   }
 
-  function localUploadKey(fileHash) {
+  function localUploadKey(fileHash: string): string {
     const cacheBuster = 'vl8z';
     return `transcriptionId-${cacheBuster}-${fileHash}`;
   }
 
-  function setTranscription(id, fileHash) {
+  function setTranscription(id: string, fileHash: string) {
     localStorage.setItem(localUploadKey(fileHash), id);
   }
 
-  function getTranscription(fileHash) {
+  function getTranscription(fileHash: string): string | null {
     return localStorage.getItem(localUploadKey(fileHash));
   }
 
   // show processing state
-  function showState(state) {
-    setProgressColor(state.color);
+  function showState(state: TranscriptionState) {
+    setProgressColor(state.color as ProgressColorKey);
     setProgressText(state.text);
   }
 
@@ -110,7 +131,10 @@ export default function Upload({
    */
 
   // fast hashing via xxhash3. around 1GB/s
-  async function hash({ file }) {
+  async function hash(
+    file: File,
+    hashingProgress: (p: Progress | null) => void,
+  ): Promise<string> {
     const nChunks = Math.floor(file.size / hashingChunkSize);
     const xx = await createXXHash3();
     xx.init();
@@ -121,13 +145,14 @@ export default function Upload({
         Math.min(hashingChunkSize * (i + 1), file.size),
       );
 
-      let chunk = new Uint8Array(await blob.arrayBuffer());
+      let chunk: Uint8Array | null;
+      chunk = new Uint8Array(await blob.arrayBuffer());
       xx.update(chunk);
-      chunk = null;
+      chunk = null; // does not free memory without this
 
       // display
       const percentDone = Math.round((100 * (i + 1)) / (nChunks + 1));
-      setProgress({
+      hashingProgress({
         percent: percentDone,
         currentBytes: hashingChunkSize * (i + 1),
         totalBytes: file.size,
@@ -138,28 +163,29 @@ export default function Upload({
   }
 
   // wait to get back online. fail after some time.
-  async function waitForInternet() {
+  async function waitForInternet(): Promise<boolean> {
     if (!navigator.onLine) {
       setError("You're offline - check your connection 🤔");
       for (let retries = 0; retries < 150; retries++) {
         if (navigator.onLine) {
           setError(null);
-          return;
+          return true;
         }
 
-        /* eslint-disable-next-line no-await-in-loop */
         await new Promise((r) => {
           setTimeout(r, 1000);
         });
       }
     }
+    return false;
   }
 
   /**
-   * Makes the intial request to start the upload.
+   * Makes the intial request to start the upload. Returns the transcription
+   * id
    *
    */
-  async function initUpload(file) {
+  async function initUpload(file: File): Promise<string> {
     const res = await fetch('/upload', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -177,11 +203,18 @@ export default function Upload({
    * Upload a single chunk of the media file.
    *
    */
-  function uploadChunk(id, chunk, start, end, total, contentType) {
+  function uploadChunk(
+    id: string,
+    chunk: Blob,
+    start: number,
+    end: number,
+    total: number,
+    contentType: string,
+  ): Promise<{ status: number }> {
     // manage progress
-    function hProgress(ev) {
-      const percentDone = Math.round((100 * (start + ev.loaded)) / total);
-      const currentBytes = start + ev.loaded;
+    function hProgress({ loaded }: { loaded: number }) {
+      const percentDone = Math.round((100 * (start + loaded)) / total);
+      const currentBytes = start + loaded;
       setUploading(true);
       setError(null);
       if (percentDone === 100) {
@@ -195,7 +228,10 @@ export default function Upload({
               currentBytes,
               totalBytes: total,
             };
-          } if (currentBytes > lastProgress.currentBytes) {
+          }
+
+          const lastBytes = lastProgress.currentBytes || 0;
+          if (currentBytes > lastBytes) {
             return {
               percent: percentDone,
               currentBytes,
@@ -207,20 +243,20 @@ export default function Upload({
       }
     }
 
-    return new Promise((resolve, reject) => {
+    return new Promise<{ status: number }>((resolve, reject) => {
       const xhr = new XMLHttpRequest();
 
       // handlers
       xhr.onload = () => resolve({ status: xhr.status });
-      xhr.onerror = () => reject(new Error({ status: xhr.status }));
-      xhr.onabort = () => reject(new Error({ status: xhr.status }));
+      xhr.onerror = () => reject(new Error(`Upload error. xhr status ${xhr.status}`));
+      xhr.onabort = () => reject(new Error(`Upload error. xhr status ${xhr.status}`));
       xhr.upload.onprogress = (ev) => hProgress(ev);
 
       // headers
       xhr.open('PUT', `/upload/${id}`);
       xhr.setRequestHeader('Content-Range', `bytes=${start}-${end - 1}/${total}`);
       xhr.setRequestHeader('Content-Type', contentType);
-      xhr.setRequestHeader('X-Content-Length', chunk.size);
+      xhr.setRequestHeader('X-Content-Length', chunk.size.toString(10));
 
       // send
       xhr.send(chunk);
@@ -230,10 +266,11 @@ export default function Upload({
   /**
    * Attempt to resume an upload.
    *
-   * Returns the start position in bytes to resume from.
+   * Returns the start position in bytes to resume from, or null if we cannot
+   * resume.
    *
    */
-  async function resume(id, file) {
+  async function resume(id: string, file: File): Promise<number | null> {
     try {
       const res = await fetch(`/upload/${id}`, {
         method: 'PUT',
@@ -250,7 +287,7 @@ export default function Upload({
         // Resume failed
         return null;
       }
-      const range = res.headers.get('Range');
+      const range = res.headers.get('Range') || '';
       const match = range.match(/^bytes=(\d+)-(\d+)$/);
       if (!match) {
         // resume failed
@@ -272,8 +309,11 @@ export default function Upload({
    * of 150 seconds for web requests.
    *
    */
-  async function upload(file) {
-    let start = 0;
+  async function upload(file: File) {
+    // for smaller files we don't want to flash hashing progress
+    const isLargeFile = file.size > 1024 * 1024 * 1024;
+    const showHashingProgress: boolean = isLargeFile;
+    let start: number | null = null;
     let nErrors = 0;
 
     // geometric backoff
@@ -288,9 +328,7 @@ export default function Upload({
     // reset any previous errors
     setError(null);
 
-    // for smaller files we don't want to flash hashing progress
-    const isLargeFile = file.size > 1024 * 1024 * 1024;
-    const showHashingProgress = isLargeFile;
+    // file hashing progress
     let hashingProgress;
     if (showHashingProgress) {
       hashingProgress = setProgress; // show progress
@@ -301,22 +339,19 @@ export default function Upload({
       hashingProgress = () => {}; // disable hashing progress
     }
 
-    // initialize or resume the upload
-    const mediaHash = await hash({
-      file,
-      setProgress: hashingProgress,
-    });
-
-    // check local storage for existing transcription for this file
+    // initialize or resume the upload based on local storage
+    const mediaHash = await hash(file, hashingProgress);
     let id = getTranscription(mediaHash);
     if (id) {
       start = await resume(id, file);
+      log.info(`Requested resume of ${id}: got ${start}`);
     }
 
-    // we don't have an id, or resume failed. start a new upload
-    if (!start || !id) {
-      id = await initUpload(file, mediaHash);
+    // this is a new file, or resume failed
+    if (!id || !start) {
+      id = await initUpload(file);
       start = 0;
+      log.info(`Initialized new transcription ${id}.`);
     }
 
     // some large files will still flash the hashing progress too quickly
@@ -351,7 +386,9 @@ export default function Upload({
           file.type,
         );
       } catch (e) {
+        log.info(`upload chunk failed. nErrors: ${nErrors}`, e);
         if (nErrors <= 3) {
+          log.info('backing off...');
           await backoff();
           continue;
         } else if (await waitForInternet()) {
@@ -413,45 +450,58 @@ export default function Upload({
    * Event handlers
    *
    */
-  function hDragOver(ev) {
+  function hDragOver(ev: React.DragEvent<HTMLDivElement>) {
     ev.preventDefault();
     setDrop();
   }
 
-  function hSelect(ev) {
-    upload(ev.target.files[0]);
-  }
-
-  function hDrop(ev) {
-    ev.preventDefault();
-    if (ev.dataTransfer.items) {
-      [...ev.dataTransfer.items].forEach((item) => {
-        if (item.kind === 'file') {
-          const file = item.getAsFile();
-          setUndrop();
-          upload(file);
-        }
-      });
-    } else {
-      [...ev.dataTransfer.files].forEach((file) => {
-        setUndrop();
-        upload(file);
-      });
+  function hSelect({ target } : { target: HTMLInputElement }) {
+    const { files } = target;
+    if (files && files.length > 0) {
+      upload(files[0]);
     }
   }
 
-  function hDragEnter(ev) {
+  function hDrop(ev: React.DragEvent<HTMLDivElement>): void {
+    ev.preventDefault();
+
+    if (ev.dataTransfer?.items) {
+      for (let i = 0; i < ev.dataTransfer.items.length; ++i) {
+        const item = ev.dataTransfer.items[i];
+        if (item.kind === 'file') {
+          const file = item.getAsFile();
+          if (file) {
+            setUndrop();
+            upload(file);
+          }
+        }
+      }
+    } else if (ev.dataTransfer?.files) {
+      for (let i = 0; i < ev.dataTransfer.files.length; i++) {
+        const file = ev.dataTransfer.files[i];
+        setUndrop();
+        upload(file);
+      }
+    }
+  }
+
+  function hDragEnter(ev: React.DragEvent<HTMLDivElement>) {
     ev.preventDefault();
     setDrop();
   }
 
-  function hDragLeave(ev) {
+  function hDragLeave(ev: React.DragEvent<HTMLDivElement>) {
     ev.preventDefault();
     setUndrop();
   }
 
+  /**
+   * Utils
+   *
+   */
+
   // e.g. 1.2MB
-  function formatBytes(bytes, decimals) {
+  function formatBytes(bytes: number, decimals: number): string {
     if (bytes === 0) {
       return '0 Bytes';
     }
@@ -463,7 +513,7 @@ export default function Upload({
   }
 
   // e.g. 2 minutes to go
-  function formatEta(seconds) {
+  function formatEta(seconds: number | null): string {
     if (seconds === null) {
       return '';
     }
@@ -490,6 +540,12 @@ export default function Upload({
     } = progress || {};
 
     if (preparing) {
+      const style: any = {
+        '--value': percentDone,
+        '--size': '96px',
+        '--thickness': '5px',
+      };
+
       return (
         <div id="uploader" className="flex flex-col items-center">
           <div className="text-2xl mt-5">
@@ -504,7 +560,7 @@ export default function Upload({
             : (
               <div
                 className="radial-progress text-success mt-5"
-                style={{ '--value': percentDone, '--size': '96px', '--thickness': '5px' }}
+                style={style}
                 role="progressbar"
               >
                 {percentDone}
@@ -518,6 +574,7 @@ export default function Upload({
     if (uploading) {
       const etaClass = showEta ? 'eta-active' : 'eta-hidden';
       const bpsText = bps !== null ? `${formatBytes(bps, 0)}/s` : null;
+      const currentProgressColor: string | null = progressColors[progressColor];
       const hourglassImgStyle = {
         width: 16,
         marginLeft: 5,
@@ -538,8 +595,8 @@ export default function Upload({
           </div>
           <progress
             id="progressbar"
-            className={`progress w-96 ${progressColors[progressColor]}`}
-            value={progress !== null ? progress.percent : null}
+            className={`progress w-96 ${currentProgressColor}`}
+            value={progress !== null ? progress.percent.toString(10) : undefined}
             max="100"
           />
           <div className="text-lg mt-2 flex justify-between">
@@ -549,7 +606,10 @@ export default function Upload({
                 : '\u00A0'}
             </div>
             <div className="flex">
-              {(totalBytes !== null && totalBytes >= (1024 * 1024 * 512) && percentDone != null)
+              {(currentBytes !== null
+                && totalBytes !== null
+                && totalBytes >= (1024 * 1024 * 512)
+                && percentDone != null)
                 ? (
                   <div className="filer opacity-40 text-right">
                     <span className="mr-1">{formatBytes(currentBytes, 2)}</span>
@@ -603,45 +663,3 @@ export default function Upload({
     </div>
   );
 }
-
-Upload.propTypes = {
-
-  // currently uploading?
-  initialUploading: PropTypes.bool,
-  // currently preparing locally?
-  initialPreparing: PropTypes.bool,
-  // progress markers
-  initialProgress: PropTypes.shape({
-    percent: PropTypes.number,
-    currentBytes: PropTypes.number,
-    totalBytes: PropTypes.number,
-  }),
-  // eta in seconds
-  initialEta: PropTypes.number,
-  // bytes per second
-  initialBps: PropTypes.number,
-  // show the eta?
-  initialShowEta: PropTypes.bool,
-  // error message
-  initialError: PropTypes.string,
-  // progress bar color
-  initialProgressColor: PropTypes.string,
-  // progress txt
-  initialProgressText: PropTypes.string,
-  // currently dropping a file?
-  initialDropping: PropTypes.bool,
-
-};
-
-Upload.defaultProps = {
-  initialBps: null,
-  initialDropping: false,
-  initialError: null,
-  initialEta: null,
-  initialPreparing: false,
-  initialProgress: null,
-  initialProgressColor: 'primary',
-  initialProgressText: null,
-  initialShowEta: false,
-  initialUploading: false,
-};

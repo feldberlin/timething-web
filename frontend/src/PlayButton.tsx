@@ -1,9 +1,15 @@
+// @ts-expect-error keep react here
 import React from 'react';
-import PropTypes from 'prop-types';
 
 // images
 import playImg from '../play.svg';
 import pauseImg from '../pause.svg';
+
+// props
+interface PlayButtonProps {
+  playing: boolean;
+  setPlaying: (playing: boolean) => void;
+}
 
 /**
  * PlayButton. This is a button that can be used to play or pause a video.
@@ -11,9 +17,9 @@ import pauseImg from '../pause.svg';
  *
  */
 export default function PlayButton({
-  playing,
-  setPlaying,
-}) {
+  playing = false,
+  setPlaying = () => {},
+} : PlayButtonProps) {
   const styles = {
     width: 63,
     borderRadius: '50%',
@@ -48,8 +54,3 @@ export default function PlayButton({
     </div>
   );
 }
-
-PlayButton.propTypes = {
-  playing: PropTypes.bool.isRequired,
-  setPlaying: PropTypes.func.isRequired,
-};

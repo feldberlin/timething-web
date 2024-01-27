@@ -51,7 +51,7 @@ def test_transcode():
             assert len(updates) >= 3
             assert updates[0].percent_done == 0
             assert updates[-2].percent_done == 100
-            assert updates[-1].percent_done == None
+            assert updates[-1].percent_done == 100
 
             track = updates[-1].track
             assert track.title == "Keanu Reeves"

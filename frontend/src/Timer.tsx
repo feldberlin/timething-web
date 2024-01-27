@@ -1,5 +1,13 @@
+// @ts-expect-error keep react here
 import React from 'react';
-import PropTypes from 'prop-types';
+
+// formatted time
+type FormattedTime = {
+  hours: string,
+  minutes: string,
+  seconds: string,
+  deciseconds: string,
+}
 
 /**
  * Displays a timer in hh:mm:ss:dd format. Supports two timers, one is
@@ -9,25 +17,28 @@ import PropTypes from 'prop-types';
 export default function Timer({
   elapsed,
   secondaryElapsed,
+} : {
+  elapsed: number,
+  secondaryElapsed: number | null,
 }) {
-  const styles = {
+  const styles: any = {
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    borderRadius: '2px',
+    borderRadius: 2,
     color: 'white',
     display: 'block',
-    marginLeft: '215px',
-    marginTop: '-80px',
+    marginLeft: 215,
+    marginTop: -80,
     padding: '0 15px',
     position: 'fixed',
     textAlign: 'center',
-    fontWeight: 500,
+    fontWeight: '500',
   };
 
   /**
    * Return hours, minutes, seconds, given a duration in seconds
    *
    */
-  function durationToHoursMinutesSeconds(duration) {
+  function durationToHoursMinutesSeconds(duration: number): FormattedTime {
     let deciseconds = Math.floor((duration * 100) % 100).toString();
     let seconds = Math.floor(duration % 60).toString();
     let minutes = Math.floor(Math.floor(duration / 60) % 60).toString();
@@ -41,7 +52,7 @@ export default function Timer({
 
     return {
       hours, minutes, seconds, deciseconds,
-    };
+    } as FormattedTime;
   }
 
   const time = durationToHoursMinutesSeconds(secondaryElapsed || elapsed);
@@ -57,15 +68,3 @@ export default function Timer({
     </span>
   );
 }
-
-Timer.propTypes = {
-  // time elapsed in seconds
-  elapsed: PropTypes.number,
-  // secondary timer elapsed in seconds
-  secondaryElapsed: PropTypes.number,
-};
-
-Timer.defaultProps = {
-  elapsed: 0,
-  secondaryElapsed: 0,
-};

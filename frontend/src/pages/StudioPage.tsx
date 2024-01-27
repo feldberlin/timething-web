@@ -1,17 +1,23 @@
+// @ts-expect-error keep react here
 import React, {
   useEffect,
   useRef,
   useState,
 } from 'react';
 import { useParams } from 'react-router-dom';
+import { SingleValue } from 'react-select';
+
+// third party
+import ReactPlayer from 'react-player/lazy';
+import * as log from 'loglevel';
 
 // components
-import Editor from '../Editor';
-import ErrorMessage from '../ErrorMessage';
-import MiniProgress from '../MiniProgress';
-import PlayButton from '../PlayButton';
-import Player from '../Player';
-import ZeeSelect from '../ZeeSelect';
+import Editor from '../Editor.tsx';
+import ErrorMessage from '../ErrorMessage.tsx';
+import MiniProgress from '../MiniProgress.tsx';
+import PlayButton from '../PlayButton.tsx';
+import Player from '../Player.tsx';
+import ZeeSelect from '../ZeeSelect.tsx';
 
 // images
 import logoImg from '../../timething.svg';
@@ -24,7 +30,19 @@ import '../../css/pages/StudioPage.css';
 import {
   supportedLanguages as languages,
   process,
-} from '../lib';
+  WhisperResult,
+  Transcription,
+  TranscriptionState,
+  Track,
+} from '../lib.ts';
+
+// info log level for development
+log.setLevel(log.levels.INFO);
+
+// route parameters
+type StudioParams = {
+  transcriptionId: string;
+}
 
 /**
  * Studio page, mounted at /studio/:transcriptionId. This is the main editing
@@ -32,25 +50,25 @@ import {
  *
  */
 export default function StudioPage() {
-  const { transcriptionId } = useParams();
-  const playerRef = useRef(null);
-  const [playing, setPlaying] = useState(false);
-  const [transcript, setTranscript] = useState(null);
-  const [language, setLanguage] = useState(null);
-  const [track, setTrack] = useState(null);
-  const [focus, setFocus] = useState(0);
-  const [elapsed, setElapsed] = useState(0);
-  const [modalMessage, setModalMessage] = useState(0);
-  const [modalButtons, setModalButtons] = useState(0);
+  const { transcriptionId } = useParams<StudioParams>();
+  const playerRef = useRef<ReactPlayer>(null);
+  const [playing, setPlaying] = useState<boolean>(false);
+  const [transcript, setTranscript] = useState<WhisperResult | null>(null);
+  const [language, setLanguage] = useState<string | null>(null);
+  const [requestedLanguage, setRequestedLanguage] = useState<string | null>(null);
+  const [track, setTrack] = useState<Track | null>(null);
+  const [focus, setFocus] = useState<number>(0);
+  const [elapsed, setElapsed] = useState<number>(0);
+  const [modalMessage, setModalMessage] = useState<string | null>(null);
 
   // retranscription
-  const [retranscribing, setRetranscribing] = useState(false);
-  const [retranscribingProgress, setRetranscribingProgress] = useState(0);
-  const [retranscribingState, setRetranscribingState] = useState(0);
+  const [retranscribing, setRetranscribing] = useState<boolean>(false);
+  const [retranscribingProgress, setRetranscribingProgress] = useState<number | null>(null);
+  const [retranscribingState, setRetranscribingState] = useState<TranscriptionState | null>(null);
 
   // User error, system error. Like 404 vs 500.
-  const [err, setErr] = useState(null);
-  const [fatalError, setFatalError] = useState(null);
+  const [err, setError] = useState<string | null>(null);
+  const [fatalError, setFatalError] = useState<string | null>(null);
 
   /**
    * Fetch the transcription metadata.
@@ -75,7 +93,14 @@ export default function StudioPage() {
             const { language: detectedLanguage } = meta.transcript || {};
             if (detectedLanguage && !languages.find((o) => o.value === detectedLanguage)) {
               const names = new Intl.DisplayNames(['en'], { type: 'language' });
-              languages.push({ value: detectedLanguage, label: names.of(detectedLanguage) });
+              const label = names.of(detectedLanguage);
+              if (label) {
+                log.info(`adding ${detectedLanguage}, ${label} to source languages`);
+                languages.push({
+                  value: detectedLanguage,
+                  label,
+                });
+              }
             }
 
             setLanguage(detectedLanguage);
@@ -92,6 +117,12 @@ export default function StudioPage() {
     getTranscription();
   }, [transcriptionId]);
 
+  if (!transcriptionId) {
+    return (
+      <ErrorMessage message="No transcription ID provided." />
+    );
+  }
+
   /**
    * State
    *
@@ -99,20 +130,22 @@ export default function StudioPage() {
 
   // editor will get this callback to set the focused word. side effect is
   // that the player will seek to the elapsed time of the focused word.
-  const setFocusFromEditor = (editorFocus) => {
+  const setFocusFromEditor = (editorFocus: number) => {
     // convert focused word (editor knows this)
     // to elapsed seconds (player knows this)
-    const findElapsed = (f) => (transcript ? transcript.alignment[f] : 0);
+    const findElapsed = (f: number) => (
+      transcript ? transcript.alignment[f] : 0
+    );
 
     const e = findElapsed(editorFocus);
     setFocus(editorFocus);
     setElapsed(e);
-    playerRef.current.seekTo(e, 'seconds');
+    playerRef?.current?.seekTo(e, 'seconds');
   };
 
   // player will get this callback to set the elapsed time. side effect is
   // that the editor will set the focused word.
-  const setElapsedFromPlayer = (playerElapsed) => {
+  const setElapsedFromPlayer = (playerElapsed: number) => {
     // convert elapsed seconds (player knows this)
     // to foussed word (editor knows this)
     const findFocus = () => {
@@ -130,80 +163,66 @@ export default function StudioPage() {
       return arr.length - 1;
     };
 
-    const f = findFocus(playerElapsed);
+    const f = findFocus();
     setElapsed(playerElapsed);
     setFocus(f);
+  };
+
+  const hRetranscribe = () => {
+    const oldTranscript = transcript;
+    setLanguage(requestedLanguage);
+    setRetranscribing(true);
+    setTranscript(null);
+    process({
+      language: requestedLanguage,
+      transcriptionId,
+      showState: (state) => {
+        log.info('Transitioned retranscribing state.', state);
+        setRetranscribingProgress(null);
+        setRetranscribingState(state);
+      },
+      setProgress: (progress) => {
+        log.info('Retranscription progress.', progress);
+        const { percent } = progress || {};
+        if (percent) {
+          setRetranscribingProgress(Number(percent));
+        }
+      },
+      onError: () => {
+        log.error('Retranscription error.');
+        setTranscript(oldTranscript);
+        setRetranscribing(false);
+        setError("We couldn't process your audio.");
+      },
+      onComplete: (transcription: Transcription) => {
+        log.info('Retranscription complete', transcription);
+        setRetranscribing(false);
+        setRetranscribingProgress(null);
+        setRetranscribingState(null);
+        setTranscript(transcription.transcript);
+      },
+    });
   };
 
   /**
    * Event handlers
    *
    */
-  const hChange = ({ value, label }) => {
-    if (language) {
+  const hChange = (s: SingleValue<{ value: string; label: string }>) => {
+    if (s && language) {
       // very modal
       setPlaying(false);
-
-      // message
+      setRequestedLanguage(s.value);
       setModalMessage(
-        <p className="py-4">
-          😬 Looks like we got the source language wrong.
-          Would you like to generate a new automatic transcription
-          in
-          {' '}
-          {label}
-          ?
-        </p>,
-
+        '😬 Looks like we got the source language wrong.'
+        + ' Would you like to generate a new automatic transcription'
+        + ` in ${s.label}?`,
       );
 
-      const hRetranscribe = () => {
-        // eslint-disable-next-line no-console
-        console.log('clicked retranscribe. running');
-        const oldTranscript = transcript;
-        setLanguage(value);
-        setRetranscribing(true);
-        setTranscript(null);
-        process({
-          language: value,
-          transcriptionId,
-          setProgress: (progress) => {
-            const { percent } = progress || {};
-            if (percent) {
-              setRetranscribingProgress(Number(percent));
-            }
-          },
-          showState: (state) => {
-            setRetranscribingState(state);
-          },
-          onError: () => {
-            setTranscript(oldTranscript);
-            setRetranscribing(false);
-            setErr("We couldn't process your audio.");
-          },
-          onComplete: (transcription) => {
-            setRetranscribing(false);
-            setRetranscribingProgress(null);
-            setRetranscribingState(null);
-            setTranscript(transcription.transcript);
-          },
-        });
-      };
-
-      // buttons
-      setModalButtons(
-        <form method="dialog">
-          <button className="btn mr-2" type="submit">Cancel</button>
-          <button className="btn bg-black text-white" type="submit" onClick={hRetranscribe}>
-            Change to
-            {' '}
-            {label}
-          </button>
-        </form>,
-      );
-
-      const modal = document.querySelector('#change-language-modal');
-      modal.showModal();
+      const modal = document.querySelector('#change-language-modal') as HTMLFormElement;
+      if (modal) {
+        modal.showModal();
+      }
     }
   };
 
@@ -227,9 +246,17 @@ export default function StudioPage() {
         <dialog id="change-language-modal" className="modal">
           <div className="modal-box">
             <h3 className="font-bold text-lg">Changing Language</h3>
-            {modalMessage}
+            <p className="py-4">
+              {modalMessage}
+            </p>
             <div className="modal-action">
-              {modalButtons}
+              <form method="dialog">
+                <button className="btn mr-2" type="submit">Cancel</button>
+                <button className="btn bg-black text-white" type="submit" onClick={hRetranscribe}>
+                  Change to
+                  { requestedLanguage }
+                </button>
+              </form>
             </div>
           </div>
         </dialog>
@@ -335,7 +362,6 @@ export default function StudioPage() {
           elapsed={elapsed}
           setElapsed={setElapsedFromPlayer}
           initialUrl={`/media/${transcriptionId}`}
-          initialTrack={track}
         />
       </div>
       <div id="play-button" className="fixed bottom-16 w-full flex justify-center">
