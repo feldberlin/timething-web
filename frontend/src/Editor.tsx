@@ -15,12 +15,14 @@ import { WhisperResult, Track } from './lib.ts';
 export default function Editor({
   transcript,
   track,
+  title = null,
   focus,
   setFocus,
   initialTranscriptionId,
 } : {
   transcript: WhisperResult | null,
   track: Track | null,
+  title: string | null,
   focus: number,
   setFocus: (f: number) => void,
   initialTranscriptionId: string,
@@ -62,7 +64,7 @@ export default function Editor({
         {track !== null
           ? (
             <>
-              <span>{track.title || 'Transcript'}</span>
+              <span>{title || 'Transcript'}</span>
               <a
                 href={`/export/${initialTranscriptionId}?format=srt`}
                 className="editor-controls flex items-center text-sm text-secondary font-bold filter grayscale opacity-50 hover:filter-none hover:opacity-100"

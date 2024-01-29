@@ -20,6 +20,7 @@
     "no-await-in-loop": "off",
     "no-plusplus": [ "error", { "allowForLoopAfterthoughts": true } ],
     "no-continue": "off",
+    "no-alert": "off",
     "react/jsx-filename-extension": "off",
     "@typescript-eslint/no-explicit-any": "off",
     // keeps triggering for no reason i can see

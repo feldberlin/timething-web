@@ -9,6 +9,7 @@ import { SingleValue } from 'react-select';
 
 // third party
 import ReactPlayer from 'react-player/lazy';
+import TextareaAutosize from 'react-textarea-autosize';
 import * as log from 'loglevel';
 
 // components
@@ -61,6 +62,10 @@ export default function StudioPage() {
   const [elapsed, setElapsed] = useState<number>(0);
   const [modalMessage, setModalMessage] = useState<string | null>(null);
 
+  // sidebar fields
+  const [title, setTitle] = useState<string | null>(null);
+  const [editingTitle, setEditingTitle] = useState<boolean>(false);
+
   // retranscription
   const [retranscribing, setRetranscribing] = useState<boolean>(false);
   const [retranscribingProgress, setRetranscribingProgress] = useState<number | null>(null);
@@ -81,6 +86,7 @@ export default function StudioPage() {
         if (res.ok) {
           const meta = JSON.parse(await res.text());
           setTrack(meta.track);
+          setTitle(meta.track.title);
           if (meta.transcript) {
             setTranscript(meta.transcript);
 
@@ -271,16 +277,38 @@ export default function StudioPage() {
             alt="Logo"
           />
         </div>
-        <div className="section border-b border-base-200 py-1">
-          <img
-            src={addImg}
-            width="27px"
-            height="27px"
-            className="float-right m-3 mr-5"
-            alt="Add title"
-          />
+        <div className="section section-add-title border-b border-base-200 py-1">
+          { !title && (
+            <img
+              src={addImg}
+              width="27px"
+              height="27px"
+              className="studio-add-title float-right m-3 mr-5"
+              onClick={() => setEditingTitle(true)}
+              alt="Add title"
+            />
+          )}
           <h3 className="my-3 mx-8 font-bold">Title</h3>
-          <p className="my-3 mx-8">{track ? track.title : ''}</p>
+          { editingTitle
+            ? (
+              <TextareaAutosize
+                autoFocus
+                autoComplete="off"
+                autoCorrect="off"
+                autoCapitalize="off"
+                spellCheck="false"
+                className="my-3 mx-8"
+                onChange={(ev) => setTitle(ev.target.value)}
+                onKeyDown={(ev) => {
+                  if (ev.keyCode === 13) {
+                    setEditingTitle(false);
+                  }
+                }}
+                value={title || undefined}
+              />
+            ) : (
+              <p className="my-3 mx-8" onClick={() => setEditingTitle(true)}>{title}</p>
+            )}
         </div>
         <div className="section border-b border-base-200 py-1 pb-7">
           <h3 className="my-3 mb-4 mx-8 font-bold">Source Language</h3>
@@ -356,6 +384,7 @@ export default function StudioPage() {
           focus={focus}
           setFocus={setFocusFromEditor}
           transcript={transcript}
+          title={title}
           initialTranscriptionId={transcriptionId}
           track={track}
         />
