@@ -289,26 +289,26 @@ export default function StudioPage() {
             />
           )}
           <h3 className="my-3 mx-8 font-bold">Title</h3>
-          { editingTitle
-            ? (
-              <TextareaAutosize
-                autoFocus
-                autoComplete="off"
-                autoCorrect="off"
-                autoCapitalize="off"
-                spellCheck="false"
-                className="my-3 mx-8"
-                onChange={(ev) => setTitle(ev.target.value)}
-                onKeyDown={(ev) => {
-                  if (ev.keyCode === 13) {
-                    setEditingTitle(false);
-                  }
-                }}
-                value={title || undefined}
-              />
-            ) : (
-              <p className="my-3 mx-8" onClick={() => setEditingTitle(true)}>{title}</p>
-            )}
+          { (editingTitle || title) && (
+            <TextareaAutosize
+              autoFocus
+              autoComplete="off"
+              autoCorrect="off"
+              autoCapitalize="off"
+              spellCheck="false"
+              readOnly={!editingTitle}
+              className="my-3 mx-8"
+              onChange={(ev) => setTitle(ev.target.value)}
+              onClick={() => setEditingTitle(true)}
+              onBlur={() => setEditingTitle(false)}
+              onKeyDown={(ev) => {
+                if (ev.keyCode === 13) {
+                  setEditingTitle(false);
+                }
+              }}
+              value={title || undefined}
+            />
+          )}
         </div>
         <div className="section border-b border-base-200 py-1 pb-7">
           <h3 className="my-3 mb-4 mx-8 font-bold">Source Language</h3>

@@ -67,11 +67,11 @@ export default function Editor({
               <span>{title || 'Transcript'}</span>
               <a
                 href={`/export/${initialTranscriptionId}?format=srt`}
-                className="editor-controls flex items-center text-sm text-secondary font-bold filter grayscale opacity-50 hover:filter-none hover:opacity-100"
+                className="editor-controls flex items-start ml-4 text-sm text-secondary font-bold filter grayscale opacity-50 hover:filter-none hover:opacity-100"
                 download
               >
                 <img src={downloadImg} className="w-6 h-6" alt="Download" />
-                <span className="ml-1">Download</span>
+                <span className="ml-1 mt-1">Download</span>
               </a>
             </>
           )
