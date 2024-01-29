@@ -1,0 +1,15 @@
+.editable-text {
+  width: stretch;
+}
+
+.editable-text textarea {
+  background: transparent;
+  resize: none;
+  caret-color: #ff3434;
+  margin-top: 0;
+  width: stretch;
+}
+
+.editable-text textarea:focus {
+  outline: none;
+}

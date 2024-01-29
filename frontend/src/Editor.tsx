@@ -6,6 +6,10 @@ import downloadImg from '../download.svg';
 // styles
 import '../css/Editor.css';
 
+// components
+import EditableText from './EditableText.tsx';
+
+// lib
 import { WhisperResult, Track } from './lib.ts';
 
 /**
@@ -13,19 +17,27 @@ import { WhisperResult, Track } from './lib.ts';
  *
  */
 export default function Editor({
+  initialTranscriptionId,
   transcript,
   track,
-  title = null,
+  // focus
   focus,
   setFocus,
-  initialTranscriptionId,
+  // title
+  title = null,
+  editingTitle,
+  setEditingTitle,
+  setTitle,
 } : {
   transcript: WhisperResult | null,
   track: Track | null,
-  title: string | null,
   focus: number,
   setFocus: (f: number) => void,
   initialTranscriptionId: string,
+  title: string | null,
+  editingTitle: boolean,
+  setEditingTitle: (e: boolean) => void,
+  setTitle: (t: string) => void,
 }) {
   /**
    * Event handlers
@@ -64,7 +76,12 @@ export default function Editor({
         {track !== null
           ? (
             <>
-              <span>{title || 'Transcript'}</span>
+              <EditableText
+                editing={editingTitle}
+                setEditing={setEditingTitle}
+                setValue={setTitle}
+                value={title || 'Transcript'}
+              />
               <a
                 href={`/export/${initialTranscriptionId}?format=srt`}
                 className="editor-controls flex items-start ml-4 text-sm text-secondary font-bold filter grayscale opacity-50 hover:filter-none hover:opacity-100"

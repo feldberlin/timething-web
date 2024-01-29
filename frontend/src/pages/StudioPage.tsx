@@ -9,11 +9,11 @@ import { SingleValue } from 'react-select';
 
 // third party
 import ReactPlayer from 'react-player/lazy';
-import TextareaAutosize from 'react-textarea-autosize';
 import * as log from 'loglevel';
 
 // components
 import Editor from '../Editor.tsx';
+import EditableText from '../EditableText.tsx';
 import ErrorMessage from '../ErrorMessage.tsx';
 import MiniProgress from '../MiniProgress.tsx';
 import PlayButton from '../PlayButton.tsx';
@@ -278,7 +278,7 @@ export default function StudioPage() {
           />
         </div>
         <div className="section section-add-title border-b border-base-200 py-1">
-          { !title && (
+          { (!title && !editingTitle) && (
             <img
               src={addImg}
               width="27px"
@@ -290,23 +290,12 @@ export default function StudioPage() {
           )}
           <h3 className="my-3 mx-8 font-bold">Title</h3>
           { (editingTitle || title) && (
-            <TextareaAutosize
-              autoFocus
-              autoComplete="off"
-              autoCorrect="off"
-              autoCapitalize="off"
-              spellCheck="false"
-              readOnly={!editingTitle}
+            <EditableText
               className="my-3 mx-8"
-              onChange={(ev) => setTitle(ev.target.value)}
-              onClick={() => setEditingTitle(true)}
-              onBlur={() => setEditingTitle(false)}
-              onKeyDown={(ev) => {
-                if (ev.keyCode === 13) {
-                  setEditingTitle(false);
-                }
-              }}
-              value={title || undefined}
+              editing={editingTitle}
+              setEditing={setEditingTitle}
+              setValue={setTitle}
+              value={title}
             />
           )}
         </div>
@@ -385,6 +374,9 @@ export default function StudioPage() {
           setFocus={setFocusFromEditor}
           transcript={transcript}
           title={title}
+          editingTitle={editingTitle}
+          setEditingTitle={setEditingTitle}
+          setTitle={setTitle}
           initialTranscriptionId={transcriptionId}
           track={track}
         />
