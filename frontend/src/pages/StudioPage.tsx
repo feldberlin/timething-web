@@ -291,6 +291,7 @@ export default function StudioPage() {
             disabled={!language}
           />
         </div>
+        {/*
         <div className="section border-b border-base-200 py-1">
           <img
             src={addImg}
@@ -301,6 +302,7 @@ export default function StudioPage() {
           />
           <h3 className="my-3 mx-8 font-bold">Translations</h3>
         </div>
+        */}
         <div className="section border-b border-base-200 py-1">
           <img
             src={addImg}
@@ -321,6 +323,7 @@ export default function StudioPage() {
               : 'Auto Transcript'}
           </p>
         </div>
+        {/*
         <div className="section border-b border-base-200 py-1">
           <img
             src={addImg}
@@ -342,6 +345,7 @@ export default function StudioPage() {
           />
           <h3 className="my-3 mx-8 font-bold">Speakers</h3>
         </div>
+        */}
       </div>
       <div id="editor" className="bg-white">
         {err
