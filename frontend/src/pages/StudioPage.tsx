@@ -304,6 +304,7 @@ export default function StudioPage() {
         </div>
         */}
         <div className="section border-b border-base-200 py-1">
+          {/*
           <img
             src={addImg}
             width="27px"
@@ -311,6 +312,7 @@ export default function StudioPage() {
             className="float-right m-3 mr-5"
             alt="Add transcript"
           />
+          */}
           <h3 className="my-3 mx-8 font-bold">Transcripts</h3>
           <p className="my-3 mx-8">
             { retranscribing
