@@ -200,7 +200,17 @@ def web():
 
         t = stub.transcriptions[transcription_id]
         path = t.uploaded_file
-        content_type = t.upload.content_type
+
+        # RK(XXX): I moved the path from track to transcript. This caused the
+        # old transcript.track.path attribute stored in the modal distributed
+        # dictionary to be dropped. the following is a fix for those old files
+        # and it should be removed at some point soon.
+        if not path:
+            t.path = common.MEDIA_PATH / transcription_id
+            stub.transcriptions[transcription_id] = t
+            path = t.path
+
+        content_type = t.content_type or "video/mp4"
         total = path.stat().st_size
 
         try:
