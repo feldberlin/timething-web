@@ -64,6 +64,7 @@ class Track:
     comment: str = None
     date: str = None
     duration: float = None
+    path: str = None
 
     def from_probe(probe):
         tags = probe.get("format", {}).get("tags", {})
@@ -92,8 +93,13 @@ class Transcription:
         return self.transcript is not None
 
     @property
+    def track_path(self):
+        """Deprecated. Old files include the path on self.track"""
+        return self.track.path if self.track else None
+
+    @property
     def uploaded_file(self):
-        return Path(self.path)
+        return Path(self.path or self.track_path)
 
     @property
     def transcoded_file(self):
