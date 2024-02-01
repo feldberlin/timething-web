@@ -1,4 +1,4 @@
-import { PlayButton } from '../src/PlayButton';
+import PlayButton from '../src/PlayButton';
 
 export default {
   title: 'PlayButton',

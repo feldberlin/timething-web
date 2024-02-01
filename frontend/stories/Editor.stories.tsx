@@ -1,8 +1,23 @@
-import { Editor } from '../src/Editor';
+import { useState } from 'react';
+import Editor from '../src/Editor';
+
+// wrapper
+const EditorWrapper = (props) => {
+  let [editing, setEditing] = useState(false);
+  let [text, setText] = useState();
+  return (
+    <Editor
+      {...props}
+      editingTitle={editing}
+      setEditingTitle={setEditing}
+      title={text}
+      setTitle={setText} />
+  );
+};
 
 export default {
   title: 'Editor',
-  component: Editor,
+  component: EditorWrapper,
   parameters: {
     layout: 'centered',
   },
@@ -27,7 +42,7 @@ export const Focussed = {
   args: {
     transcript: transcript,
     setFocus: (ev) => { console.log('focus', ev) },
-    initialFocus: 3,
+    focus: 3,
   },
 };
 

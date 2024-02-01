@@ -1,4 +1,4 @@
-import { Player } from '../src/Player';
+import Player from '../src/Player';
 
 const sampleMp4 = 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4'
 

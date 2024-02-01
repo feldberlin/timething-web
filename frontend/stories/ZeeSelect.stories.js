@@ -1,4 +1,4 @@
-import { ZeeSelect } from '../src/ZeeSelect';
+import ZeeSelect from '../src/ZeeSelect';
 
 export default {
   title: 'ZeeSelect',

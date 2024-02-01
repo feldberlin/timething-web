@@ -37,6 +37,9 @@ import {
   Track,
 } from '../lib.ts';
 
+// data
+import { getTranscription, debouncedPutTitle } from '../data.ts';
+
 // info log level for development
 log.setLevel(log.levels.INFO);
 
@@ -80,9 +83,9 @@ export default function StudioPage() {
    *
    */
   useEffect(() => {
-    const getTranscription = async () => {
+    const get = async () => {
       try {
-        const res = await fetch(`/transcription/${transcriptionId}`, {});
+        const res = await getTranscription(transcriptionId);
         if (res.ok) {
           const meta = JSON.parse(await res.text());
           setTrack(meta.track);
@@ -120,7 +123,7 @@ export default function StudioPage() {
       }
     };
 
-    getTranscription();
+    get();
   }, [transcriptionId]);
 
   if (!transcriptionId) {
@@ -296,6 +299,7 @@ export default function StudioPage() {
               setEditing={setEditingTitle}
               setValue={setTitle}
               value={title}
+              onUpdate={(x: string) => debouncedPutTitle(x)}
             />
           )}
         </div>

@@ -80,7 +80,7 @@ export default function Editor({
                 editing={editingTitle}
                 setEditing={setEditingTitle}
                 setValue={setTitle}
-                value={title || 'Transcript'}
+                value={title === null ? 'Transcript' : title}
               />
               <a
                 href={`/export/${initialTranscriptionId}?format=srt`}

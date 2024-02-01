@@ -14,6 +14,7 @@ type EditableTextProps = {
   value: string | null;
   setEditing: (editing: boolean) => void;
   setValue: (value: string) => void;
+  onUpdate?: (value: string) => void;
 };
 
 /**
@@ -26,6 +27,7 @@ export default function EditableText({
   value = null,
   setEditing = () => {},
   setValue = () => {},
+  onUpdate = () => {},
 } : EditableTextProps) {
   return (
     <div className="editable-text">
@@ -37,11 +39,15 @@ export default function EditableText({
         spellCheck="false"
         readOnly={!editing}
         className={className || undefined}
-        onChange={(ev) => setValue(ev.target.value)}
+        onChange={(ev) => {
+          const val = ev.target.value;
+          setValue(val);
+          onUpdate(val);
+        }}
         onClick={() => setEditing(true)}
         onBlur={() => setEditing(false)}
         onKeyDown={(ev) => {
-          if (ev.keyCode === 13) {
+          if (ev.key === 'Enter' || ev.key === 'Escape') {
             setEditing(false);
           }
         }}

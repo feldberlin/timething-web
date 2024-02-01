@@ -1,4 +1,4 @@
-import { Upload } from '../src/Upload';
+import Upload from '../src/Upload';
 
 export default {
   title: 'Upload',
