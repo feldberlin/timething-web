@@ -8,6 +8,8 @@ import { useParams } from 'react-router-dom';
 import { SingleValue } from 'react-select';
 
 // third party
+// @ts-expect-error no types
+import * as _ from 'underscore';
 import ReactPlayer from 'react-player/lazy';
 import * as log from 'loglevel';
 
@@ -30,15 +32,21 @@ import '../../css/pages/StudioPage.css';
 // lib
 import {
   supportedLanguages as languages,
+  languageLongName,
   process,
   WhisperResult,
   Transcription,
   TranscriptionState,
   Track,
+  help,
 } from '../lib.ts';
 
 // data
-import { getTranscription, debouncedPutTitle } from '../data.ts';
+import {
+  getTranscription,
+  debouncedPutTitle,
+  debouncedPutDescription,
+} from '../data.ts';
 
 // info log level for development
 log.setLevel(log.levels.INFO);
@@ -68,6 +76,8 @@ export default function StudioPage() {
   // sidebar fields
   const [title, setTitle] = useState<string | null>(null);
   const [editingTitle, setEditingTitle] = useState<boolean>(false);
+  const [description, setDescription] = useState<string | null>(null);
+  const [editingDescription, setEditingDescription] = useState<boolean>(false);
 
   // retranscription
   const [retranscribing, setRetranscribing] = useState<boolean>(false);
@@ -90,6 +100,7 @@ export default function StudioPage() {
           const meta = JSON.parse(await res.text());
           setTrack(meta.track);
           setTitle(meta.track.title);
+          setDescription(meta.track.description);
           if (meta.transcript) {
             setTranscript(meta.transcript);
 
@@ -263,7 +274,8 @@ export default function StudioPage() {
                 <button className="btn mr-2" type="submit">Cancel</button>
                 <button className="btn bg-black text-white" type="submit" onClick={hRetranscribe}>
                   Change to
-                  { requestedLanguage }
+                  {' '}
+                  { languageLongName(requestedLanguage) }
                 </button>
               </form>
             </div>
@@ -271,6 +283,7 @@ export default function StudioPage() {
         </dialog>
       </div>
       <div id="sidebar" className="h-screen bg-base-100 w-72 text-base">
+        { /* Logo */ }
         <div className="section border-b border-base-200">
           <img
             src={logoImg}
@@ -280,16 +293,19 @@ export default function StudioPage() {
             alt="Logo"
           />
         </div>
-        <div className="section section-add-title border-b border-base-200 py-1">
+        { /* Title */ }
+        <div className="section border-b border-base-200 py-1">
           { (!title && !editingTitle) && (
-            <img
-              src={addImg}
-              width="27px"
-              height="27px"
-              className="studio-add-title float-right m-3 mr-5"
-              onClick={() => setEditingTitle(true)}
-              alt="Add title"
-            />
+            <div className="tt-add float-right tooltip tooltip-top" data-tip={help.trackTitle}>
+              <img
+                src={addImg}
+                width="27px"
+                height="27px"
+                className="m-3 mr-5"
+                onClick={() => setEditingTitle(true)}
+                alt="Add title"
+              />
+            </div>
           )}
           <h3 className="my-3 mx-8 font-bold">Title</h3>
           { (editingTitle || title) && (
@@ -299,10 +315,37 @@ export default function StudioPage() {
               setEditing={setEditingTitle}
               setValue={setTitle}
               value={title}
-              onUpdate={(x: string) => debouncedPutTitle(x)}
+              onUpdate={_.partial(debouncedPutTitle, transcriptionId)}
             />
           )}
         </div>
+        { /* Description */ }
+        <div className="section border-b border-base-200 py-1">
+          { (!description && !editingDescription) && (
+            <div className="tt-add float-right tooltip tooltip-top" data-tip={help.trackDescription}>
+              <img
+                src={addImg}
+                width="27px"
+                height="27px"
+                className="m-3 mr-5"
+                onClick={() => setEditingDescription(true)}
+                alt="Add description"
+              />
+            </div>
+          )}
+          <h3 className="my-3 mx-8 font-bold">Description</h3>
+          { (editingDescription || description) && (
+            <EditableText
+              className="my-3 mx-8"
+              editing={editingDescription}
+              setEditing={setEditingDescription}
+              setValue={setDescription}
+              value={description}
+              onUpdate={_.partial(debouncedPutDescription, transcriptionId)}
+            />
+          )}
+        </div>
+        { /* Source Language */ }
         <div className="section border-b border-base-200 py-1 pb-7">
           <h3 className="my-3 mb-4 mx-8 font-bold">Source Language</h3>
           <ZeeSelect

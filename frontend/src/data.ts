@@ -1,6 +1,9 @@
 // @ts-expect-error no types
 import * as _ from 'underscore';
 
+// how long to debounce for
+const debounceTimeSeconds = 5;
+
 /**
  * Get transcription
  *
@@ -24,4 +27,20 @@ export async function putTitle(transcriptionId: string, title: string) {
   });
 }
 
-export const debouncedPutTitle = _.debounce(putTitle, 5000);
+/**
+ * Put description
+ *
+ */
+export async function putDescription(transcriptionId: string, description: string) {
+  return fetch(`/transcription/${transcriptionId}/track`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      description,
+    }),
+  });
+}
+
+// debounced funcitons
+export const debouncedPutTitle = _.debounce(putTitle, debounceTimeSeconds * 1000);
+export const debouncedPutDescription = _.debounce(putDescription, debounceTimeSeconds * 1000);

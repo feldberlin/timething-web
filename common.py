@@ -1,4 +1,5 @@
 from dataclasses import dataclass, asdict
+import inspect
 from pathlib import Path
 import contextlib
 import json
@@ -7,6 +8,8 @@ import shutil
 import tempfile
 
 from modal import Stub, Dict, NetworkFileSystem
+
+import llm
 
 # directory to store media on the volume
 MEDIA_PATH = Path("/media")
@@ -43,9 +46,16 @@ class UploadInfo:
     Original file metadata for a file uploaded by the user.
     """
 
-    filename: str
-    content_type: str
-    size_bytes: int
+    filename: str = None
+    content_type: str = None
+    size_bytes: int = None
+
+    def from_dict(d):
+        return UploadInfo(**{
+            k: v for k, v in d.items()
+            if k in inspect.signature(UploadInfo).parameters
+        })
+
 
 
 @dataclass
@@ -62,8 +72,15 @@ class Track:
     artist: str = None
     album: str = None
     comment: str = None
+    description: str = None
     date: str = None
     duration: float = None
+
+    def from_dict(d):
+        return Track(**{
+            k: v for k, v in d.items()
+            if k in inspect.signature(Track).parameters
+        })
 
     def from_probe(probe):
         tags = probe.get("format", {}).get("tags", {})
@@ -110,13 +127,32 @@ class Transcription:
             if self.upload:
                 return self.upload.content_type
 
+    def from_dict(d):
+        track = Track()
+        if 'track' in d:
+            track = Track.from_dict(d['track'])
+
+        ui = UploadInfo()
+        if 'upload' in d:
+            ui = UploadInfo.from_dict(d['upload'])
+
+        return Transcription(
+            transcription_id=d['transcription_id'],
+            upload=ui,
+            track=track,
+            transcoded=d.get('transcoded', False),
+            transcript=d.get('transcript', {}),
+            path=d.get('path'),
+            language=d.get('language')
+        )
+
 
 # Modal abstractions
 #
 #
 
 class Store:
-    """Keep a data layer here so we can move it out of modal later
+    """Keep a data layer here so we can move it out of modal later.
     """
 
     def __init__(self, media_path: Path):
@@ -126,9 +162,15 @@ class Store:
         if not t.transcription_id:
             raise Exception(f'id not specified')
 
+        content = json.dumps(asdict(t))
         with open(t.transcribed_file, 'w') as f:
-            content = json.dumps(asdict(t))
             f.write(content)
+
+    def update_track(self, transcription_id: str, track: Track):
+        t_dict = self.select(transcription_id)
+        t = Transcription.from_dict(t_dict)
+        t.track = track
+        self.create(t)
 
     def select(self, transcription_id: str):
         if not transcription_id:
@@ -145,6 +187,14 @@ class Store:
 
 # store on nfs
 db = Store(MEDIA_PATH)
+
+
+# whisper gpt
+def whisper_gpt():
+    return llm.ChatGPT(
+        llm.WHISPER_SYSTEM_PROMPT,
+        llm.WHISPER_MAX_TOKENS
+    )
 
 
 # Utils

@@ -1,16 +1,23 @@
 import React from 'react';
 
+// third party
+// @ts-expect-error no types
+import * as _ from 'underscore';
+
+// components
+import EditableText from './EditableText.tsx';
+
 // images
 import downloadImg from '../download.svg';
 
 // styles
 import '../css/Editor.css';
 
-// components
-import EditableText from './EditableText.tsx';
-
 // lib
 import { WhisperResult, Track } from './lib.ts';
+
+// data
+import { debouncedPutTitle } from './data.ts';
 
 /**
  * The main document editor. Used to display and edit the transcript.
@@ -81,6 +88,7 @@ export default function Editor({
                 setEditing={setEditingTitle}
                 setValue={setTitle}
                 value={title === null ? 'Transcript' : title}
+                onUpdate={_.partial(debouncedPutTitle, initialTranscriptionId)}
               />
               <a
                 href={`/export/${initialTranscriptionId}?format=srt`}

@@ -3,14 +3,14 @@ Main web application service. Serves the static frontend as well as
 API routes for transcription and alignment.
 """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 import logging
 import json
 import re
 import uuid
 
-from modal import Mount, NetworkFileSystem, asgi_app
+from modal import Mount, NetworkFileSystem, asgi_app, Image, Secret
 from pydantic import BaseModel
 
 from common import stub, Transcription
@@ -33,6 +33,13 @@ remote_path = Path('/assets')
 # mount
 mount = Mount.from_local_dir(static_path, remote_path=remote_path)
 
+# image
+app_image = (
+    Image
+        .debian_slim(python_version="3.10.8")
+        .pip_install("openai")
+)
+
 
 class MediaForm(BaseModel):
     """
@@ -46,9 +53,13 @@ class MediaForm(BaseModel):
 
 @stub.function(
     mounts=[mount],
+    image=app_image,
     network_file_systems=common.nfs,
     container_idle_timeout=300,
     timeout=1800,
+    secrets=[
+        Secret.from_name("openai-secret"),
+    ],
 )
 @asgi_app()
 def web():
@@ -148,6 +159,16 @@ def web():
         if transcription_id not in stub.transcriptions:
             error(404, f'invalid id {transcription_id}')
 
+        # get the transcription
+        t = stub.transcriptions.get(transcription_id)
+
+        prompt = None
+        if t.track and t.track.description:
+            gpt = common.whisper_gpt()
+            logger.info("calling llm for whisper prompt")
+            prompt = gpt.complete(t.track.description)
+            logger.info(f"prompt generated: {prompt}")
+
         def generate():
             try:
                 for update in pipeline(transcription_id, language):
@@ -173,6 +194,41 @@ def web():
         except Exception as e:
             error(404, f'id is still processing: {e}')
         return JSONResponse(content=content)
+
+    @web_app.put("/transcription/{transcription_id}/track")
+    async def put_track(request: Request, transcription_id: str):
+        if transcription_id not in stub.transcriptions:
+            error(404, f'invalid id {transcription_id}')
+
+        t = stub.transcriptions.get(transcription_id)
+
+        # XXX(rk): backport old stuff. remove asap
+        if not t.track:
+            t.track = common.Track()
+            stub.transcriptions[transcription_id] = t
+        # RK(XXX): I moved the path from track to transcript. This caused the
+        # old transcript.track.path attribute stored in the modal distributed
+        # dictionary to be dropped. the following is a fix for those old files
+        # and it should be removed at some point soon.
+        if not 'path' in common.db.select(transcription_id):
+            print(f"t.path: {t.path} is null")
+            t_dict = common.db.select(transcription_id)
+            t = Transcription.from_dict(t_dict)
+            t.path = str(common.MEDIA_PATH / transcription_id)
+            stub.transcriptions[transcription_id] = t
+            common.db.create(t)
+
+        # update and save
+        track_dict = await request.json()
+        # XXX(rk): test vs not
+        if isinstance(track_dict, str):
+            track_dict = json.loads(track_dict)
+
+        t.track = replace(t.track, **track_dict)
+        stub.transcriptions[transcription_id] = t
+        common.db.update_track(transcription_id, t.track)
+
+        return 200
 
     @web_app.get("/export/{transcription_id}")
     async def export(transcription_id: str, format: str):

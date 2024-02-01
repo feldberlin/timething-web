@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+import json
 import os
 from pathlib import Path
 from unittest.mock import patch
@@ -147,6 +148,43 @@ def test_resume(client, transcription_id = 'abc'):
             # check the file
             with open(common.MEDIA_PATH / transcription_id, 'rb') as f:
                 assert f.read() == b'0123456789abcdef'
+
+
+@patch('app.stub', new=MockedStub())
+def test_update_track(client):
+    transcription_id = "abc"
+    with common.tmpdir_scope() as tmp_dir:
+        media_path = Path(tmp_dir)
+
+        t = common.Transcription(
+            transcription_id=transcription_id,
+            path=str(media_path / transcription_id),
+            track=common.Track(title="my track"),
+            upload=common.UploadInfo(
+                filename="file.name",
+                content_type="audio/mp3",
+                size_bytes=16
+            )
+        )
+
+        app.stub.transcriptions[transcription_id] = t
+        common.db.create(t)
+
+        media_path = Path(tmp_dir)
+        with patch('common.db', new=common.Store(media_path)):
+
+            # upload a first chunk
+            res = client.put(
+                f"/transcription/{transcription_id}/track",
+                json=json.dumps({
+                    "description": "it's a new day"
+                }),
+            )
+
+            assert res.status_code == 200, res.text
+            got = common.db.select(transcription_id)
+            got = common.Transcription.from_dict(got)
+            assert got.track.description == "it's a new day"
 
 
 @patch('app.stub', new=MockedStub())

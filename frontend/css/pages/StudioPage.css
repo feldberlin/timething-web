@@ -12,11 +12,16 @@
   min-width: 250px;
 }
 
-#sidebar .section-add-title img {
+#sidebar textarea {
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+#sidebar .tt-add img {
   cursor: pointer;
 }
 
-#sidebar .section-add-title img:hover {
+#sidebar .tt-add img:hover {
   filter: brightness(1.05);
 }
 

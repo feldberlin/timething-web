@@ -26,6 +26,7 @@ class PipelineProgress:
 def pipeline(
     transcription_id: str,
     language: str = None,
+    prompt: str = None,
     media_path: str = common.MEDIA_PATH,
     local_mode: bool = False
 ):
@@ -71,12 +72,14 @@ def pipeline(
 
         # transcribe
         changing_language = (language and t.language and t.language != language)
+        logger.info(f"changing_language: {changing_language}")
         if (not t.transcribed) or changing_language:
             logger.info("transcribing...")
             yield PipelineProgress(state="transcribing")
             for update in transcribe_fn(
                 transcription_id,
-                language
+                language,
+                prompt
             ):
                 match update:
                     case int(percent_done):

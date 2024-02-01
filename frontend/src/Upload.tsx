@@ -47,6 +47,7 @@ interface UploadProps {
   initialProgressText?: string;
   initialProgressColor?: ProgressColorKey;
   initialDropping?: boolean;
+  children?: any;
 }
 
 /**
@@ -67,6 +68,7 @@ export default function Upload({
   initialProgressText = 'Uploading',
   initialProgressColor = 'primary',
   initialDropping = false,
+  children = null,
 } : UploadProps) {
   const [uploading, setUploading] = useState<boolean>(initialUploading);
   const [preparing, setPreparing] = useState<boolean>(initialPreparing);
@@ -621,6 +623,7 @@ export default function Upload({
                 : '\u00A0'}
             </div>
           </div>
+          <div>{ children }</div>
         </div>
       );
     }

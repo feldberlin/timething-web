@@ -61,6 +61,7 @@ export type Track = {
   artist: string | null;
   album: string | null;
   comment: string | null;
+  description: string | null;
   date: string | null;
   duration: number;
   path: string;
@@ -130,6 +131,35 @@ export const supportedLanguages = [
   { value: 'ru', label: 'Russian' },
   { value: 'el', label: 'Greek' },
 ];
+
+// get the long name given the short code
+export function languageLongName(langaugeCode: string | null): string | null {
+  if (langaugeCode == null) {
+    return null;
+  }
+
+  const lang = supportedLanguages.find((l) => l.value === langaugeCode);
+  if (lang) {
+    return lang.label;
+  }
+
+  return null;
+}
+
+/**
+ * Help
+ *
+ */
+
+export const help = {
+  trackTitle: [
+    'Keep it short and descriptive.',
+  ].join(' '),
+  trackDescription: [
+    'What is happening in this clip.',
+    'Be specific and include names and any special terms.',
+  ].join(' '),
+};
 
 /**
  * Process audio. Transcodes and transcribes the media file.

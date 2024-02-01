@@ -45,7 +45,7 @@ transcriber_image = (
     network_file_systems=common.nfs,
     timeout=1200
 )
-def transcribe(transcription_id, language):
+def transcribe(transcription_id, language, prompt=None):
     import torch.multiprocessing as mp
 
     if transcription_id not in stub.transcriptions:
@@ -59,7 +59,7 @@ def transcribe(transcription_id, language):
     q = mp.Queue()
     p = mp.Process(
         target=worker,
-        args=(q, str(t.transcoded_file), device, language)
+        args=(q, str(t.transcoded_file), device, language, prompt)
     )
     logger.info("spawning whisper process")
     p.start()
@@ -71,7 +71,7 @@ def transcribe(transcription_id, language):
     p.join()
 
 
-def worker(q, audio, device, language):
+def worker(q, audio, device, language, prompt):
     import tqdm
     import whisper
     import whisper.transcribe
@@ -102,6 +102,7 @@ def worker(q, audio, device, language):
         transcript = model.transcribe(
             audio,
             language=language,
+            prompt=prompt,
             fp16=use_gpu,
             verbose=False
         )
