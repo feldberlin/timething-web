@@ -48,11 +48,9 @@ transcriber_image = (
 def transcribe(transcription_id, language, prompt=None):
     import torch.multiprocessing as mp
 
-    if transcription_id not in stub.transcriptions:
+    t = common.db.select(transcription_id)
+    if not t:
         raise TranscriptionError(f"invalid id : {transcription_id}")
-
-    # path is safe after validation. we created the id
-    t = stub.transcriptions.get(transcription_id)
 
     device = common.get_device()
     mp.set_start_method("spawn", force=True)

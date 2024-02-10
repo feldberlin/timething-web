@@ -15,28 +15,28 @@ class MockedStub:
     transcriptions: dict = field(default_factory=dict)
 
 
-@patch('transcribe.stub', new=MockedStub())
-def test_transcribe():
+transcribe_stub = MockedStub()
+@patch('transcribe.stub', new=transcribe_stub)
+@patch('common.stub', new=transcribe_stub)
+def test_transcribe(transcription_id = "abc"):
     with common.tmpdir_scope() as tmp:
-
-        # set it up
         media_path = Path(tmp)
-        transcription_id = "abc"
-        from_file = fixtures / "one.wav"
-        to_file = media_path / transcription_id
-        shutil.copyfile(from_file, to_file.with_suffix(".wav"))
-        t = common.Transcription(
-            transcription_id=transcription_id,
-            path=str(to_file),
-            upload=common.UploadInfo(
-                filename="file.name",
-                content_type="audio/mp3",
-                size_bytes=15
-            )
-        )
-
-        transcribe.stub.transcriptions[transcription_id] = t
         with patch('common.db', new=common.Store(media_path)):
+            from_file = fixtures / "one.wav"
+            to_file = media_path / transcription_id
+            shutil.copyfile(from_file, to_file.with_suffix(".wav"))
+            common.db.create(
+                common.Transcription(
+                    transcription_id=transcription_id,
+                    path=str(to_file),
+                    upload=common.UploadInfo(
+                        filename="file.name",
+                        content_type="audio/mp3",
+                        size_bytes=15
+                    )
+                )
+            )
+
             transcript = None
             for update in transcribe.transcribe.local(transcription_id, "en"):
                 match update:

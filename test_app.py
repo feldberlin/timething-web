@@ -33,25 +33,25 @@ def test_upload(client):
     assert res.status_code == 200
 
 
-@patch('app.stub', new=MockedStub())
-def test_upload_chunk(client):
-
+@patch('common.stub', new=MockedStub())
+def test_upload_chunk(client, transcription_id = 'abc'):
     with common.tmpdir_scope() as tmp_dir:
-        transcription_id = 'abc'
         media_path = Path(tmp_dir)
-        app.stub.transcriptions[transcription_id] = common.Transcription(
-            transcription_id=transcription_id,
-            path=str(media_path / transcription_id),
-            upload=common.UploadInfo(
-                filename="file.name",
-                content_type="audio/mp3",
-                size_bytes=15
+        with patch('common.db', new=common.Store(media_path)):
+            common.db.create(
+                common.Transcription(
+                    transcription_id=transcription_id,
+                    path=media_path / transcription_id,
+                    upload=common.UploadInfo(
+                        filename="file.name",
+                        content_type="audio/mp3",
+                        size_bytes=15
+                    )
+                )
             )
-        )
 
-        with patch('common.MEDIA_PATH', new=Path(tmp_dir)):
             res = client.put(
-                "/upload/abc",
+                f"/upload/{transcription_id}",
                 content=b'0123456789',
                 headers={
                     "Content-Range": "bytes=0-9/15",
@@ -63,7 +63,7 @@ def test_upload_chunk(client):
             assert res.status_code == 308, res.text
 
             res = client.put(
-                "/upload/abc",
+                f"/upload/{transcription_id}",
                 data=b'01234',
                 headers={
                     "Content-Range": "bytes=10-14/15",
@@ -75,25 +75,28 @@ def test_upload_chunk(client):
             assert res.status_code == 200, res.text
 
 
-@patch('app.stub', new=MockedStub())
+resume_stub = MockedStub()
+@patch('app.stub', new=resume_stub)
+@patch('common.stub', new=resume_stub)
 def test_resume(client, transcription_id = 'abc'):
     with common.tmpdir_scope() as tmp_dir:
         media_path = Path(tmp_dir)
-        with patch('common.MEDIA_PATH', new=media_path):
-            app.stub.transcriptions[transcription_id] = common.Transcription(
-                transcription_id=transcription_id,
-                path=str(media_path / transcription_id),
-                upload=common.UploadInfo(
-                    filename="file.name",
-                    content_type="audio/mp3",
-                    size_bytes=16
+        with patch('common.db', new=common.Store(media_path)):
+            common.db.create(
+                common.Transcription(
+                    transcription_id=transcription_id,
+                    path=media_path / transcription_id,
+                    upload=common.UploadInfo(
+                        filename="file.name",
+                        content_type="audio/mp3",
+                        size_bytes=16
+                    )
                 )
             )
 
-
             # upload a first chunk
             res = client.put(
-                "/upload/abc",
+                f"/upload/{transcription_id}",
                 content=b'0123456789',
                 headers={
                     "Content-Range": "bytes=0-9/16",
@@ -106,7 +109,7 @@ def test_resume(client, transcription_id = 'abc'):
 
             # now ask to resume
             res = client.put(
-                "/upload/abc",
+                f"/upload/{transcription_id}",
                 content=None,
                 headers={
                     "Content-Range": "bytes=*/16",
@@ -120,7 +123,7 @@ def test_resume(client, transcription_id = 'abc'):
 
             # resume invalid
             res = client.put(
-                "/upload/abc",
+                f"/upload/{transcription_id}",
                 content=b'abcd',
                 headers={
                     "Content-Range": "bytes=12-15/16",
@@ -134,7 +137,7 @@ def test_resume(client, transcription_id = 'abc'):
 
             # resume valid
             res = client.put(
-                "/upload/abc",
+                f"/upload/{transcription_id}",
                 content=b'abcdef',
                 headers={
                     "Content-Range": "bytes=10-15/16",
@@ -146,7 +149,7 @@ def test_resume(client, transcription_id = 'abc'):
             assert res.status_code == 200, res.text
 
             # check the file
-            with open(common.MEDIA_PATH / transcription_id, 'rb') as f:
+            with open(media_path / transcription_id, 'rb') as f:
                 assert f.read() == b'0123456789abcdef'
 
 

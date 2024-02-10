@@ -46,11 +46,9 @@ def transcode(
 ):
     import ffmpeg
 
-    if transcription_id not in stub.transcriptions:
+    t = common.db.select(transcription_id)
+    if not t:
         raise TranscodeError(f"invalid id : {transcription_id}")
-
-    # path is safe after validation. we created the id
-    t = stub.transcriptions.get(transcription_id)
 
     # check if we've already transcoded this
     if t.transcoded and not force_reprocessing:

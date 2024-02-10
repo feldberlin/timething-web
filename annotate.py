@@ -51,11 +51,7 @@ def annotate(transcription_id):
     from pyannote.audio import Pipeline
     import torch
 
-    if transcription_id not in stub.transcriptions:
-        raise AnnotationError(f"invalid id : {transcription_id}")
-
-    # path is safe after validation. we created the id
-    t = stub.transcriptions.get(transcription_id)
+    t = common.db.select(transcription_id)
 
     hf_token = os.getenv['HF_TOKEN']
     pipeline = Pipeline.from_pretrained(

@@ -6,6 +6,7 @@ import json
 import logging
 import shutil
 import tempfile
+import typing
 
 from modal import Stub, Dict, NetworkFileSystem
 
@@ -122,10 +123,8 @@ class Transcription:
 
     @property
     def content_type(self):
-        # RK(XXX )supports old uploads. remove as soon as possible.
-        if hasattr(self, 'upload'):
-            if self.upload:
-                return self.upload.content_type
+        if self.upload:
+            return self.upload.content_type
 
     def from_dict(d: dict):
         track = Track()
@@ -167,9 +166,13 @@ class Store:
         with open(t.transcribed_file, 'w') as f:
             f.write(content)
 
-    def select(self, transcription_id: str) -> Transcription:
+    def select(self, transcription_id: str) -> typing.Optional[Transcription]:
         if not transcription_id:
             raise Exception(f'id not specified')
+
+        # guard against path traversal attacks
+        if transcription_id not in stub.transcriptions:
+            return None
 
         path = self.media_path / transcription_id
         meta = path.with_suffix('.json')

@@ -35,13 +35,11 @@ def pipeline(
     The media processing pipeline
     """
 
-    if transcription_id not in stub.transcriptions:
+    t = common.db.select(transcription_id)
+    if not t:
         raise PipelineError(f"invalid id : {transcription_id}")
 
     try:
-        # path is safe after validation. we created the id
-        t = stub.transcriptions.get(transcription_id)
-
         # bit awkward. supports local modal tests
         transcode_fn = transcode.remote_gen
         transcribe_fn = transcribe.remote_gen

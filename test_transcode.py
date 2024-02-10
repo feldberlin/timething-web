@@ -18,28 +18,27 @@ class MockedStub:
     transcriptions: dict = field(default_factory=dict)
 
 
-@patch('transcode.stub', new=MockedStub())
-def test_transcode():
+transcode_stub = MockedStub()
+@patch('transcode.stub', new=transcode_stub)
+@patch('common.stub', new=transcode_stub)
+def test_transcode(transcription_id = "keanu.mp3"):
     with common.tmpdir_scope() as tmp:
-
-        # set it up
-        transcription_id = "keanu.mp3"
         media_path = Path(tmp)
-        from_file = fixtures / transcription_id
-        to_file = media_path / transcription_id
-        shutil.copyfile(from_file, to_file)
-        t = common.Transcription(
-            transcription_id=transcription_id,
-            path=str(to_file),
-            upload=common.UploadInfo(
-                filename="file.name",
-                content_type="audio/mp3",
-                size_bytes=15
-            )
-        )
-
-        transcode.stub.transcriptions[transcription_id] = t
         with patch('common.db', new=common.Store(media_path)):
+            from_file = fixtures / transcription_id
+            to_file = media_path / transcription_id
+            shutil.copyfile(from_file, to_file)
+            t = common.Transcription(
+                transcription_id=transcription_id,
+                path=to_file,
+                upload=common.UploadInfo(
+                    filename="file.name",
+                    content_type="audio/mp3",
+                    size_bytes=15
+                )
+            )
+            common.db.create(t)
+
             updates = list(
                 transcode.transcode.local(
                     transcription_id,

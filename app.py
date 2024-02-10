@@ -99,11 +99,9 @@ def web():
         content_type: str = Header(None),
         content_length: int = Header(None)
     ):
-        if transcription_id not in stub.transcriptions:
+        t = common.db.select(transcription_id)
+        if not t:
             error(404, f'invalid id {transcription_id}')
-
-        # path is safe after validation. we created the id
-        t = stub.transcriptions.get(transcription_id)
         path = t.uploaded_file
 
         # get the current file size
@@ -158,11 +156,9 @@ def web():
 
     @web_app.get("/transcribe/{transcription_id}")
     async def transcribe(transcription_id: str, language: str = None):
-        if transcription_id not in stub.transcriptions:
+        t = common.db.select(transcription_id)
+        if not t:
             error(404, f'invalid id {transcription_id}')
-
-        # get the transcription
-        t = stub.transcriptions.get(transcription_id)
 
         prompt = None
         if t.track and t.track.description:
@@ -186,62 +182,40 @@ def web():
 
     @web_app.get("/transcription/{transcription_id}")
     async def transcription(transcription_id: str):
-        if transcription_id not in stub.transcriptions:
+        t = common.db.select(transcription_id)
+        if not t:
             error(404, f'invalid id {transcription_id}')
 
-        # safe after validation. we created the id
-        try:
-            transcription = common.db.select(transcription_id)
-            content = json.dumps(asdict(transcription), cls=common.JSONEncoder)
-            return Response(
-                media_type="application/json",
-                content=content.encode('utf-8')
-            )
-        except Exception as e:
-            error(404, f'id is still processing: {e}')
+        content = json.dumps(asdict(t), cls=common.JSONEncoder)
+        return Response(
+            media_type="application/json",
+            content=content.encode('utf-8')
+        )
 
 
     @web_app.put("/transcription/{transcription_id}/track")
     async def put_track(request: Request, transcription_id: str):
-        if transcription_id not in stub.transcriptions:
+        t = common.db.select(transcription_id)
+        if not t:
             error(404, f'invalid id {transcription_id}')
 
-        t = stub.transcriptions.get(transcription_id)
-
-        # XXX(rk): backport old stuff. remove asap
-        if not t.track:
-            t.track = common.Track()
-            common.db.create(t)
-
-        # RK(XXX): I moved the path from track to transcript. This caused the
-        # old transcript.track.path attribute stored in the modal distributed
-        # dictionary to be dropped. the following is a fix for those old files
-        # and it should be removed at some point soon.
-        if not common.db.select(transcription_id).path:
-            print(f"t.path: {t.path} is null")
-            t = common.db.select(transcription_id)
-            t.path = common.MEDIA_PATH / transcription_id
-            common.db.create(t)
-
-        # update and save
         track_dict = await request.json()
-        # XXX(rk): test vs not
         if isinstance(track_dict, str):
             track_dict = json.loads(track_dict)
 
-        t.track = replace(t.track, **track_dict)
+        t.track = replace(t.track or common.Track(), **track_dict)
         common.db.create(t)
 
         return 200
 
     @web_app.get("/export/{transcription_id}")
     async def export(transcription_id: str, format: str):
-        if transcription_id not in stub.transcriptions:
+        t = common.db.select(transcription_id)
+        if not t:
             error(404, f'invalid id {transcription_id}')
 
         try:
-            transcription = common.db.select(transcription_id)
-            content = formats.format(transcription.transcript, format)
+            content = formats.format(t.transcript, format)
             return Response(
                 content=content,
                 media_type="text/plain"
@@ -254,21 +228,11 @@ def web():
         transcription_id: str,
         range: str = Header(None)
     ):
-        if transcription_id not in stub.transcriptions:
+        t = common.db.select(transcription_id)
+        if not t:
             error(404, f'invalid id {transcription_id}')
 
-        t = stub.transcriptions[transcription_id]
         path = t.uploaded_file
-
-        # RK(XXX): I moved the path from track to transcript. This caused the
-        # old transcript.track.path attribute stored in the modal distributed
-        # dictionary to be dropped. the following is a fix for those old files
-        # and it should be removed at some point soon.
-        if not path:
-            t.path = common.MEDIA_PATH / transcription_id
-            path = t.path
-            common.db.create(t)
-
         content_type = t.content_type or "video/mp4"
         total = path.stat().st_size
 
