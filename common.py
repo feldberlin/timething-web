@@ -181,7 +181,9 @@ class Store:
 
         with open(meta, 'r') as f:
             t_dict = json.load(f)
-            return Transcription.from_dict(t_dict)
+            t = Transcription.from_dict(t_dict)
+            stub.transcriptions[transcription_id] = t
+            return t
 
 
 # store on nfs
