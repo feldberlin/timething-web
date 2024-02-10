@@ -39,32 +39,32 @@ class MockedStub:
     transcriptions: dict = field(default_factory=dict)
 
 
-@patch('pipeline.stub', new=MockedStub())
-@patch('transcribe.stub', new=MockedStub())
-@patch('transcode.stub', new=MockedStub())
-def test_pipeline():
+pipeline_stub = MockedStub()
+@patch('common.stub', new=pipeline_stub)
+@patch('pipeline.stub', new=pipeline_stub)
+@patch('transcode.stub', new=pipeline_stub)
+@patch('transcribe.stub', new=pipeline_stub)
+def test_pipeline(transcription_id = "abc"):
     with common.tmpdir_scope() as tmp:
-
-        # set it up
         media_path = Path(tmp)
-        transcription_id = "abc"
-        from_file = fixtures / "one.mp3"
-        to_file = media_path / transcription_id
-        shutil.copyfile(from_file, to_file)
-        t = common.Transcription(
-            transcription_id=transcription_id,
-            path=str(to_file),
-            upload=common.UploadInfo(
-                filename="file.name",
-                content_type="audio/mp3",
-                size_bytes=15
-            )
-        )
-
-        pipeline.stub.transcriptions[transcription_id] = t
-        transcribe.stub.transcriptions[transcription_id] = t
-        transcode.stub.transcriptions[transcription_id] = t
         with patch('common.db', new=common.Store(media_path)):
+            from_file = fixtures / "one.mp3"
+            to_file = media_path / transcription_id
+            shutil.copyfile(from_file, to_file)
+
+            # create the transcription metadata
+            common.db.create(
+                common.Transcription(
+                    transcription_id=transcription_id,
+                    path=to_file,
+                    upload=common.UploadInfo(
+                        filename="file.name",
+                        content_type="audio/mp3",
+                        size_bytes=15
+                    )
+                )
+            )
+
             updates = list(
                pipeline.pipeline(
                     transcription_id,

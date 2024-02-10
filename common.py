@@ -127,13 +127,13 @@ class Transcription:
             if self.upload:
                 return self.upload.content_type
 
-    def from_dict(d):
+    def from_dict(d: dict):
         track = Track()
-        if 'track' in d:
+        if 'track' in d and d['track']:
             track = Track.from_dict(d['track'])
 
         ui = UploadInfo()
-        if 'upload' in d:
+        if 'upload' in d and d['upload']:
             ui = UploadInfo.from_dict(d['upload'])
 
         return Transcription(
@@ -162,17 +162,12 @@ class Store:
         if not t.transcription_id:
             raise Exception(f'id not specified')
 
-        content = json.dumps(asdict(t))
+        stub.transcriptions[t.transcription_id] = t
+        content = json.dumps(asdict(t), cls=JSONEncoder)
         with open(t.transcribed_file, 'w') as f:
             f.write(content)
 
-    def update_track(self, transcription_id: str, track: Track):
-        t_dict = self.select(transcription_id)
-        t = Transcription.from_dict(t_dict)
-        t.track = track
-        self.create(t)
-
-    def select(self, transcription_id: str):
+    def select(self, transcription_id: str) -> Transcription:
         if not transcription_id:
             raise Exception(f'id not specified')
 
@@ -182,7 +177,8 @@ class Store:
             raise Exception(f'id not found')
 
         with open(meta, 'r') as f:
-            return json.load(f)
+            t_dict = json.load(f)
+            return Transcription.from_dict(t_dict)
 
 
 # store on nfs
@@ -219,3 +215,10 @@ def tmpdir_scope():
         yield tmpdir
     finally:
         shutil.rmtree(tmpdir)
+
+
+class JSONEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, Path):
+            return str(obj)
+        return json.JSONEncoder.default(self, obj)

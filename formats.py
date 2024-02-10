@@ -29,6 +29,9 @@ def srt(transcription, n_columns=80):
     and what stays off.
     """
 
+    if not transcription:
+        return ""
+
     blocks = []
     for (i, segment) in enumerate(transcription['segments']):
         text = segment['text'].strip()

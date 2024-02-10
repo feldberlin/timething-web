@@ -1,5 +1,6 @@
 from dataclasses import dataclass, replace
 import logging
+import typing
 
 import align
 import common
@@ -20,7 +21,7 @@ class PipelineError(Exception):
 @dataclass
 class PipelineProgress:
     state: str
-    transcription: common.Transcription = None
+    transcription: typing.Optional[common.Transcription] = None
 
 
 def pipeline(
@@ -62,7 +63,7 @@ def pipeline(
                     case TranscodingProgress(percent_done, track) if track is not None:
                         logger.info(f"completed transcoding. {track}")
                         t = replace(t, transcoded=True, track=track)
-                        stub.transcriptions[transcription_id] = t
+                        common.db.create(t)
                         yield update
                     case x:
                         raise ValueError(f"cannot parse TranscodingProgress: {x}")
@@ -71,8 +72,7 @@ def pipeline(
 
 
         # transcribe
-        changing_language = (language and t.language and t.language != language)
-        logger.info(f"changing_language: {changing_language}")
+        changing_language = (language and language != t.language)
         if (not t.transcribed) or changing_language:
             logger.info("transcribing...")
             yield PipelineProgress(state="transcribing")
@@ -91,9 +91,9 @@ def pipeline(
                             # save the detected language
                             language = transcript.get("language")
                         # completed
-                        logger.info(f"completed transcription. {transcript}")
+                        logger.info(f"completed transcription.")
                         t = replace(t, transcript=transcript, language=language)
-                        stub.transcriptions[transcription_id] = t
+                        common.db.create(t)
                         yield TranscriptionProgress(percent_done=100, transcript=t.transcript)
                     case _:
                         raise ValueError("cannot parse TranscriptionProgress")
@@ -107,5 +107,8 @@ def pipeline(
         )
 
     except Exception as e:
+        import traceback
+        print(traceback.format_exc())
+        print(e)
         logger.error(e)
         yield PipelineProgress(state="error")

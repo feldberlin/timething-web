@@ -79,17 +79,17 @@ def test_upload_chunk(client):
 def test_resume(client, transcription_id = 'abc'):
     with common.tmpdir_scope() as tmp_dir:
         media_path = Path(tmp_dir)
-        app.stub.transcriptions[transcription_id] = common.Transcription(
-            transcription_id=transcription_id,
-            path=str(media_path / transcription_id),
-            upload=common.UploadInfo(
-                filename="file.name",
-                content_type="audio/mp3",
-                size_bytes=16
+        with patch('common.MEDIA_PATH', new=media_path):
+            app.stub.transcriptions[transcription_id] = common.Transcription(
+                transcription_id=transcription_id,
+                path=str(media_path / transcription_id),
+                upload=common.UploadInfo(
+                    filename="file.name",
+                    content_type="audio/mp3",
+                    size_bytes=16
+                )
             )
-        )
 
-        with patch('common.MEDIA_PATH', new=Path(tmp_dir)):
 
             # upload a first chunk
             res = client.put(
@@ -150,28 +150,25 @@ def test_resume(client, transcription_id = 'abc'):
                 assert f.read() == b'0123456789abcdef'
 
 
-@patch('app.stub', new=MockedStub())
-def test_update_track(client):
-    transcription_id = "abc"
+update_track_stub = MockedStub()
+@patch('app.stub', new=update_track_stub)
+@patch('common.stub', new=update_track_stub)
+def test_update_track(client, transcription_id = "abc"):
     with common.tmpdir_scope() as tmp_dir:
         media_path = Path(tmp_dir)
-
-        t = common.Transcription(
-            transcription_id=transcription_id,
-            path=str(media_path / transcription_id),
-            track=common.Track(title="my track"),
-            upload=common.UploadInfo(
-                filename="file.name",
-                content_type="audio/mp3",
-                size_bytes=16
-            )
-        )
-
-        app.stub.transcriptions[transcription_id] = t
-        common.db.create(t)
-
-        media_path = Path(tmp_dir)
         with patch('common.db', new=common.Store(media_path)):
+            common.db.create(
+                common.Transcription(
+                    transcription_id=transcription_id,
+                    path=media_path / transcription_id,
+                    track=common.Track(title="my track"),
+                    upload=common.UploadInfo(
+                        filename="file.name",
+                        content_type="audio/mp3",
+                        size_bytes=16
+                    )
+                )
+            )
 
             # upload a first chunk
             res = client.put(
@@ -183,31 +180,32 @@ def test_update_track(client):
 
             assert res.status_code == 200, res.text
             got = common.db.select(transcription_id)
-            got = common.Transcription.from_dict(got)
             assert got.track.description == "it's a new day"
 
 
-@patch('app.stub', new=MockedStub())
+export_stub = MockedStub()
+@patch('app.stub', new=export_stub)
+@patch('common.stub', new=export_stub)
 def test_export_srt(client, transcription_id = 'abc'):
+    with open("fixtures/meta.json") as f:
+        meta = json.loads(f.read())
+        transcript = meta['transcript']
 
-    transcription = common.Transcription(
-        transcription_id=transcription_id,
-        upload=common.UploadInfo(
-            filename="file.name",
-            content_type="audio/mp3",
-            size_bytes=16
-        )
-    )
-
-    app.stub.transcriptions[transcription_id] = transcription
     with common.tmpdir_scope() as tmp_dir:
         media_path = Path(tmp_dir)
         with patch('common.db', new=common.Store(media_path)):
-
-            # copy over fixture
-            src = Path("fixtures/meta.json")
-            dst = (media_path / transcription_id).with_suffix(".json")
-            dst.write_text(src.read_text())
+            common.db.create(
+                common.Transcription(
+                    transcription_id=transcription_id,
+                    path=media_path / transcription_id,
+                    transcript=transcript,
+                    upload=common.UploadInfo(
+                        filename="file.name",
+                        content_type="audio/mp3",
+                        size_bytes=16
+                    ),
+                )
+             )
 
             # get the srt file
             res = client.get(f"/export/{transcription_id}?format=srt")

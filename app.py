@@ -3,7 +3,7 @@ Main web application service. Serves the static frontend as well as
 API routes for transcription and alignment.
 """
 
-from dataclasses import dataclass, replace
+from dataclasses import dataclass, replace, asdict
 from pathlib import Path
 import logging
 import json
@@ -65,7 +65,7 @@ class MediaForm(BaseModel):
 def web():
 
     from fastapi import FastAPI, HTTPException, Request, Header, UploadFile, File
-    from fastapi.responses import Response, FileResponse, JSONResponse, StreamingResponse
+    from fastapi.responses import Response, FileResponse, StreamingResponse
     from fastapi.staticfiles import StaticFiles
 
     web_app = FastAPI()
@@ -77,13 +77,15 @@ def web():
     @web_app.post("/upload")
     async def upload(media: MediaForm):
         transcription_id = str(uuid.uuid4())
-        stub.transcriptions[transcription_id] = Transcription(
-            transcription_id=transcription_id,
-            path=str(common.MEDIA_PATH / transcription_id),
-            upload=common.UploadInfo(
-                filename=media.filename,
-                content_type=media.content_type,
-                size_bytes=media.size_bytes
+        common.db.create(
+            Transcription(
+                transcription_id=transcription_id,
+                path=str(common.MEDIA_PATH / transcription_id),
+                upload=common.UploadInfo(
+                    filename=media.filename,
+                    content_type=media.content_type,
+                    size_bytes=media.size_bytes
+                )
             )
         )
 
@@ -172,7 +174,6 @@ def web():
         def generate():
             try:
                 for update in pipeline(transcription_id, language):
-                    logger.info(f"pipeline update: {update}")
                     yield common.dataclass_to_event(update)
             except Exception as e:
                 logger.error(e)
@@ -190,10 +191,15 @@ def web():
 
         # safe after validation. we created the id
         try:
-            content = common.db.select(transcription_id)
+            transcription = common.db.select(transcription_id)
+            content = json.dumps(asdict(transcription), cls=common.JSONEncoder)
+            return Response(
+                media_type="application/json",
+                content=content.encode('utf-8')
+            )
         except Exception as e:
             error(404, f'id is still processing: {e}')
-        return JSONResponse(content=content)
+
 
     @web_app.put("/transcription/{transcription_id}/track")
     async def put_track(request: Request, transcription_id: str):
@@ -205,17 +211,16 @@ def web():
         # XXX(rk): backport old stuff. remove asap
         if not t.track:
             t.track = common.Track()
-            stub.transcriptions[transcription_id] = t
+            common.db.create(t)
+
         # RK(XXX): I moved the path from track to transcript. This caused the
         # old transcript.track.path attribute stored in the modal distributed
         # dictionary to be dropped. the following is a fix for those old files
         # and it should be removed at some point soon.
-        if not 'path' in common.db.select(transcription_id):
+        if not common.db.select(transcription_id).path:
             print(f"t.path: {t.path} is null")
-            t_dict = common.db.select(transcription_id)
-            t = Transcription.from_dict(t_dict)
-            t.path = str(common.MEDIA_PATH / transcription_id)
-            stub.transcriptions[transcription_id] = t
+            t = common.db.select(transcription_id)
+            t.path = common.MEDIA_PATH / transcription_id
             common.db.create(t)
 
         # update and save
@@ -225,8 +230,7 @@ def web():
             track_dict = json.loads(track_dict)
 
         t.track = replace(t.track, **track_dict)
-        stub.transcriptions[transcription_id] = t
-        common.db.update_track(transcription_id, t.track)
+        common.db.create(t)
 
         return 200
 
@@ -237,8 +241,7 @@ def web():
 
         try:
             transcription = common.db.select(transcription_id)
-            transcript = transcription['transcript']
-            content = formats.format(transcript, format)
+            content = formats.format(transcription.transcript, format)
             return Response(
                 content=content,
                 media_type="text/plain"
@@ -263,8 +266,8 @@ def web():
         # and it should be removed at some point soon.
         if not path:
             t.path = common.MEDIA_PATH / transcription_id
-            stub.transcriptions[transcription_id] = t
             path = t.path
+            common.db.create(t)
 
         content_type = t.content_type or "video/mp4"
         total = path.stat().st_size
