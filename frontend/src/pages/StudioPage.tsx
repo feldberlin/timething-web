@@ -36,6 +36,7 @@ import {
   process,
   WhisperResult,
   Transcription,
+  Alignment,
   TranscriptionState,
   Track,
   help,
@@ -66,6 +67,7 @@ export default function StudioPage() {
   const playerRef = useRef<ReactPlayer>(null);
   const [playing, setPlaying] = useState<boolean>(false);
   const [transcript, setTranscript] = useState<WhisperResult | null>(null);
+  const [alignment, setAlignment] = useState<Alignment | null>(null);
   const [language, setLanguage] = useState<string | null>(null);
   const [requestedLanguage, setRequestedLanguage] = useState<string | null>(null);
   const [track, setTrack] = useState<Track | null>(null);
@@ -101,6 +103,13 @@ export default function StudioPage() {
           setTrack(meta.track);
           setTitle(meta.track.title);
           setDescription(meta.track.description);
+
+          // alignment
+          if (meta.alignment) {
+            setAlignment(meta.alignment);
+          }
+
+          // whisper transcript
           if (meta.transcript) {
             setTranscript(meta.transcript);
 
@@ -153,9 +162,11 @@ export default function StudioPage() {
   const setFocusFromEditor = (editorFocus: number) => {
     // convert focused word (editor knows this)
     // to elapsed seconds (player knows this)
-    const findElapsed = (f: number) => (
-      transcript ? transcript.alignment[f] : 0
-    );
+    const findElapsed = (f: number) => {
+      const { words = [] } = alignment || {};
+      const word = words[f];
+      return word ? word.start : 0
+    };
 
     const e = findElapsed(editorFocus);
     setFocus(editorFocus);
@@ -173,14 +184,14 @@ export default function StudioPage() {
         return 0;
       }
 
-      const arr = transcript.alignment;
-      for (let i = 0; i < arr.length; i++) {
-        if (arr[i] >= playerElapsed) {
+      const { words = [] } = alignment || {};
+      for (let i = 0; i < words.length; i++) {
+        if (words[i].start >= playerElapsed) {
           return i;
         }
       }
 
-      return arr.length - 1;
+      return words.length - 1;
     };
 
     const f = findFocus();

@@ -1,4 +1,4 @@
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass, asdict, field
 import inspect
 from pathlib import Path
 import contextlib
@@ -92,17 +92,96 @@ class Track:
 
 
 @dataclass
+class Turn:
+    """
+    Diarization information
+    """
+    # name of the speaker
+    speaker: str
+    # time in seconds
+    start: float
+    # time in seconds
+    end: float
+
+
+@dataclass
+class Diarization:
+    """
+    Diarization of this transcript
+    """
+
+    # speaker turns
+    turns: typing.List[Turn]
+
+    def from_dict(d):
+        return Diarization(**{
+            k: v for k, v in d.items()
+            if k in inspect.signature(Diarization).parameters
+        })
+
+
+@dataclass
+class Segment:
+    """
+    A single alignment segment
+    """
+    # token
+    label: str
+    # time in seconds
+    start: float
+    # time in seconds
+    end: float
+    # likelihood of this alignment
+    score: float
+
+
+@dataclass
+class Alignment:
+    """
+    A single word level alignment
+    """
+
+    # original word segments
+    words: typing.List[Segment] = field(default_factory=list)
+
+    def from_dict(d):
+        return Alignment(**{
+            k: v for k, v in d.items()
+            if k in inspect.signature(Alignment).parameters
+        })
+
+
+@dataclass
 class Transcription:
     """
     A complete transcription and metadata of a processed Upload.
     """
 
+    # canonical id
     transcription_id: str
+
+    # initial upload information
     upload: UploadInfo
+
+    # track metadta
     track: Track = None
-    transcoded: bool = False
+
+    # transcript
     transcript: str = None
+
+    # diarization
+    diarization: typing.Optional[Diarization] = None
+
+    # alignment
+    alignment: typing.Optional[Alignment] = None
+
+    # is it already transcoded
+    transcoded: bool = False
+
+    # path to the original upload
     path: str = None
+
+    # source language
     language: str = None
 
     @property
@@ -131,14 +210,24 @@ class Transcription:
         if 'track' in d and d['track']:
             track = Track.from_dict(d['track'])
 
-        ui = UploadInfo()
+        upload_info = UploadInfo()
         if 'upload' in d and d['upload']:
-            ui = UploadInfo.from_dict(d['upload'])
+            upload_info = UploadInfo.from_dict(d['upload'])
+
+        alignment = Alignment()
+        if 'alignment' in d and d['alignment']:
+            alignment = Alignment.from_dict(d['alignment'])
+
+        diarization = Diarization(turns=[])
+        if 'diarization' in d and d['diarization']:
+            diarization = Diarization.from_dict(d['diarization'])
 
         return Transcription(
             transcription_id=d['transcription_id'],
-            upload=ui,
             track=track,
+            upload=upload_info,
+            alignment=alignment,
+            diarization=diarization,
             transcoded=d.get('transcoded', False),
             transcript=d.get('transcript', {}),
             path=d.get('path'),
@@ -210,7 +299,7 @@ def dataclass_to_event(x):
 
 def get_device():
     import torch
-    return "cuda" if torch.cuda.is_available() else "cpu"
+    return "cuda:0" if torch.cuda.is_available() else "cpu"
 
 
 @contextlib.contextmanager

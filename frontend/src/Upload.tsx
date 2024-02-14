@@ -339,6 +339,8 @@ export default function Upload({
     } else {
       // pretend to upload. hashing will be fast
       hashingProgress = () => {}; // disable hashing progress
+      setUploading(true);
+      showState(states.uploading);
     }
 
     // initialize or resume the upload based on local storage

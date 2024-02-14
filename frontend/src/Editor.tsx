@@ -14,7 +14,7 @@ import downloadImg from '../download.svg';
 import '../css/Editor.css';
 
 // lib
-import { WhisperResult, Track } from './lib.ts';
+import { WhisperResult, Track, Turn } from './lib.ts';
 
 // data
 import { debouncedPutTitle } from './data.ts';
@@ -27,6 +27,7 @@ export default function Editor({
   initialTranscriptionId,
   transcript,
   track,
+  turns = [],
   // focus
   focus,
   setFocus,
@@ -38,6 +39,7 @@ export default function Editor({
 } : {
   transcript: WhisperResult | null,
   track: Track | null,
+  turns?: Turn[],
   focus: number,
   setFocus: (f: number) => void,
   initialTranscriptionId: string,
@@ -59,6 +61,7 @@ export default function Editor({
   }
 
   function targets(text: string) {
+    console.log(turns);
     return text.trim().split(' ').map((word, index) => {
       if (index === focus) {
         return (
@@ -122,7 +125,7 @@ export default function Editor({
           </div>
           )}
         <div className="contents" onClick={hClick}>
-          {targets(transcript ? transcript.text : '')}
+          { transcript !== null && targets(transcript.text) }
         </div>
       </article>
     </>

@@ -47,10 +47,28 @@ type WhisperSegment = {
  */
 export type WhisperResult = {
     text: string;
-    alignment: number[];
     segments: WhisperSegment[];
     language: string;
 };
+
+/**
+ * Segment of the alignment
+ *
+ */
+type AlignmentSegment = {
+  label: string;
+  start: number;
+  end: number;
+  score: number;
+}
+
+/**
+ * Complete alignment
+ *
+ */
+export type Alignment = {
+  words: AlignmentSegment[];
+}
 
 /**
  * Track metadata
@@ -68,12 +86,32 @@ export type Track = {
 }
 
 /**
+ * A turn in the diarization
+ *
+ */
+export type Turn = {
+  speaker: string;
+  start: number;
+  end: number;
+}
+
+/**
+ * Diarization
+ *
+ */
+export type Diarization = {
+  turns: Turn[];
+}
+
+/**
  * The main transcription object
  *
  */
 export type Transcription = {
   transcription_id: string;
   transcript: WhisperResult;
+  diarization: Diarization | null;
+  alignment: Alignment | null;
   track: Track;
   language: string;
 }
@@ -87,6 +125,7 @@ export const transcriptionStates = {
   uploading: { text: 'Uploading', shortText: 'Preparing', color: 'primary' },
   transcoding: { text: 'Processing audio', shortText: 'Processing', color: 'neutral' },
   transcribing: { text: 'Converting audio to text', shortText: 'Recognising', color: 'secondary' },
+  annotating: { text: 'Detecting speakers', shortText: 'Detect speakers', color: 'secondary' },
 };
 
 // make it discoverable by tailwind
@@ -255,17 +294,25 @@ export const process = ({
     const data = JSON.parse(ev.data);
     switch (data.state) {
       case 'transcoding':
+        setProgress(null);
         showState(transcriptionStates.transcoding);
         break;
       case 'transcribing':
+        setProgress(null);
         showState(transcriptionStates.transcribing);
+        break;
+      case 'annotating':
+        setProgress(null);
+        showState(transcriptionStates.annotating);
         break;
       case 'completed':
         sse.close();
+        setProgress(null);
         onComplete(data.transcription);
         break;
       case 'error':
         sse.close();
+        setProgress(null);
         onError();
         break;
       default:

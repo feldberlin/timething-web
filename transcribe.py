@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 import logging
 import sys
+import traceback
 
 from modal import Image
 
@@ -40,6 +41,7 @@ transcriber_image = (
 
 @stub.function(
     gpu="A10G",
+    cpu=8.0,
     container_idle_timeout=180,
     image=transcriber_image,
     network_file_systems=common.nfs,
@@ -107,5 +109,6 @@ def worker(q, audio, device, language, prompt):
         q.put(transcript)
         q.put(None)
     except Exception as e:
+        traceback.print_exc()
         q.put(e)
         q.put(None)

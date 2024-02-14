@@ -11,6 +11,7 @@ import common
 import pipeline
 import transcode
 import transcribe
+import annotate
 
 fixtures = Path("fixtures")
 
@@ -40,6 +41,7 @@ class MockedStub:
 
 
 pipeline_stub = MockedStub()
+@patch('annotate.stub', new=pipeline_stub)
 @patch('common.stub', new=pipeline_stub)
 @patch('pipeline.stub', new=pipeline_stub)
 @patch('transcode.stub', new=pipeline_stub)
@@ -83,9 +85,12 @@ def test_pipeline(transcription_id = "abc"):
             assert updates[5].percent_done is 100
             assert updates[5].track.duration > 1.4
 
-            assert type(updates[-2]) == TranscriptionProgress
-            assert updates[-2].percent_done is 100
-            assert updates[-2].transcript['text'].strip() == "One."
+            assert type(updates[-3]) == TranscriptionProgress
+            assert updates[-3].percent_done is 100
+            assert updates[-3].transcript['text'].strip() == "One."
+
+            assert type(updates[-2]) == PipelineProgress
+            assert updates[-2].state == "annotating"
 
             assert type(updates[-1]) == PipelineProgress
             assert updates[-1].state == "completed"

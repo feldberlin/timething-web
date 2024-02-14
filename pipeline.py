@@ -6,6 +6,7 @@ import align
 import common
 from transcode import transcode, TranscodingProgress
 from transcribe import transcribe, TranscriptionProgress
+from annotate import annotate, AnnotationProgress
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -43,9 +44,11 @@ def pipeline(
         # bit awkward. supports local modal tests
         transcode_fn = transcode.remote_gen
         transcribe_fn = transcribe.remote_gen
+        annotate_fn = annotate.remote
         if local_mode:
             transcode_fn = transcode.local
             transcribe_fn = transcribe.local
+            annotate_fn = annotate.local
 
         # transcode
         if (not t.transcoded) or (not t.track):
@@ -84,21 +87,29 @@ def pipeline(
                         yield TranscriptionProgress(percent_done=percent_done)
                     case dict(transcript):
                         # save results
-                        align.piecewise_linear(transcript)
                         if not language:
                             # save the detected language
                             language = transcript.get("language")
                         # completed
                         logger.info(f"completed transcription.")
                         t = replace(t, transcript=transcript, language=language)
+                        align.piecewise_linear(t)
                         common.db.create(t)
                         yield TranscriptionProgress(percent_done=100, transcript=t.transcript)
                     case _:
-                        raise ValueError("cannot parse TranscriptionProgress")
+                        update_str = f"{update} ({type(update)})"
+                        raise ValueError(
+                            f"cannot parse TranscriptionProgress: {update_str}")
         else:
             logger.info(f"already transcribed. continuing")
 
+        # diarize
+        logger.info("diarizing...")
+        yield PipelineProgress(state="annotating")
+        t.diarization = annotate_fn(transcription_id)
         common.db.create(t)
+        logger.info("diarized.")
+
         yield PipelineProgress(
             state="completed",
             transcription=t
@@ -107,6 +118,5 @@ def pipeline(
     except Exception as e:
         import traceback
         print(traceback.format_exc())
-        print(e)
         logger.error(e)
         yield PipelineProgress(state="error")

@@ -14,16 +14,9 @@ logging.basicConfig(level=logging.INFO)
 
 
 @dataclass
-class Turn:
-    speaker: str
-    start: float
-    end: float
-
-
-@dataclass
 class AnnotationProgress:
     percent_done: int
-    annotations: typing.List[Turn] = None
+    annotations: typing.List[common.Turn] = None
 
 
 class AnnotationError(Exception):
@@ -33,12 +26,24 @@ class AnnotationError(Exception):
 annotation_image = (
     Image
         .debian_slim(python_version="3.10.8")
-        .pip_install("pyannote.audio")
+        .pip_install("pyannote.audio===3.1.1")
 )
+
+
+class Progress:
+    def __call__(
+        self,
+        step_name,
+        step_artifact,
+        file = None,
+        total: typing.Optional[int] = None,
+        completed: typing.Optional[int] = None):
+        pass
 
 
 @stub.function(
     gpu="A10G",
+    cpu=8.0,
     container_idle_timeout=180,
     image=annotation_image,
     network_file_systems=common.nfs,
@@ -48,26 +53,39 @@ annotation_image = (
     ],
 )
 def annotate(transcription_id):
+    from pyannote.audio.pipelines.utils.hook import ProgressHook
     from pyannote.audio import Pipeline
+    import torchaudio
     import torch
 
     t = common.db.select(transcription_id)
+    if not t:
+        raise AnnotationError(f"invalid id : {transcription_id}")
 
-    hf_token = os.getenv['HF_TOKEN']
+    hf_token = os.getenv('HF_TOKEN')
     pipeline = Pipeline.from_pretrained(
         "pyannote/speaker-diarization-3.1",
-        use_auth_token=hf_token)
+        use_auth_token=hf_token,
+    )
 
-    # send pipeline to GPU (when available)
-    pipeline.to(torch.device("cuda"))
+    device = torch.device(common.get_device())
+    pipeline.to(device)
+    logger.info(f"pipeline loaded onto {device}")
 
-    # apply pretrained pipeline
-    diarization = pipeline(t.transcoded_file)
+    with ProgressHook() as hook:
+        # load audio. https://github.com/m-bain/whisperX/issues/399
+        waveform, sample_rate = torchaudio.load(t.transcoded_file)
+        logger.info(f"loaded waveform {waveform.size()}")
+        diarization = pipeline({
+            "waveform": waveform,
+            "sample_rate": sample_rate,
+            "hook": hook
+        })
 
-    # print the result
-    turns = []
-    for turn, _, speaker in diarization.itertracks(yield_label=True):
-        turns.append(Turn(speaker, turn.start, tun.end))
-        print(f"start={turn.start:.1f}s stop={turn.end:.1f}s speaker_{speaker}")
+        turns = []
+        for turn, _, speaker in diarization.itertracks(yield_label=True):
+            turns.append(common.Turn(speaker, turn.start, turn.end))
 
-    return turns
+        return common.Diarization(
+            turns=turns
+        )
