@@ -61,7 +61,6 @@ export default function Editor({
   }
 
   function targets(text: string) {
-    console.log(turns);
     return text.trim().split(' ').map((word, index) => {
       if (index === focus) {
         return (

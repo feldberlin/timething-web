@@ -16,7 +16,6 @@ const EditableTextWrapper = () => {
         value={text === null ? 'Default' : text}
         onSave={
           (newValue: string) => {
-            console.log("onSave")
             setDisplay(newValue)
           }
         }
