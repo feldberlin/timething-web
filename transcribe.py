@@ -98,7 +98,7 @@ def worker(q, audio, device, language, prompt):
         use_gpu = device == "gpu"
         logger.info(f"transcribe loading model")
         model = whisper.load_model(common.MODEL_NAME, device=device)
-        logger.info(f"transcribe loaded model")
+        logger.info(f"transcribe {language} (gpu:{use_gpu}). prompt: {prompt}")
         transcript = model.transcribe(
             audio,
             language=language,

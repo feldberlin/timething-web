@@ -31,15 +31,16 @@ import '../../css/pages/StudioPage.css';
 
 // lib
 import {
-  supportedLanguages as languages,
+  Alignment,
+  Transcription,
+  TranscriptionState,
+  WhisperResult,
+  ZDocument,
+  help,
   languageLongName,
   process,
-  WhisperResult,
-  Transcription,
-  Alignment,
-  TranscriptionState,
-  Track,
-  help,
+  supportedLanguages as languages,
+  transcriptionToDocument,
 } from '../lib.ts';
 
 // data
@@ -70,10 +71,10 @@ export default function StudioPage() {
   const [alignment, setAlignment] = useState<Alignment | null>(null);
   const [language, setLanguage] = useState<string | null>(null);
   const [requestedLanguage, setRequestedLanguage] = useState<string | null>(null);
-  const [track, setTrack] = useState<Track | null>(null);
   const [focus, setFocus] = useState<number>(0);
   const [elapsed, setElapsed] = useState<number>(0);
   const [modalMessage, setModalMessage] = useState<string | null>(null);
+  const [zDocument, setZDocument] = useState<ZDocument | null>(null);
 
   // sidebar fields
   const [title, setTitle] = useState<string | null>(null);
@@ -100,9 +101,11 @@ export default function StudioPage() {
         const res = await getTranscription(transcriptionId);
         if (res.ok) {
           const meta = JSON.parse(await res.text());
-          setTrack(meta.track);
           setTitle(meta.track.title);
           setDescription(meta.track.description);
+
+          const zDocument = transcriptionToDocument(meta);
+          setZDocument(zDocument);
 
           // alignment
           if (meta.alignment) {
@@ -430,13 +433,12 @@ export default function StudioPage() {
         <Editor
           focus={focus}
           setFocus={setFocusFromEditor}
-          transcript={transcript}
+          zDocument={zDocument}
           title={title}
           editingTitle={editingTitle}
           setEditingTitle={setEditingTitle}
           setTitle={setTitle}
           initialTranscriptionId={transcriptionId}
-          track={track}
         />
       </div>
       <div id="player" className="flex justify-center items-center h-screen bg-images-right">

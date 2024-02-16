@@ -1,0 +1,542 @@
+{
+  "transcription_id": "b553c259-d499-426f-b843-30f7c8764fe7",
+  "upload": {
+    "filename": "Movie on 30.11.23 at 15.58.mov",
+    "content_type": "video/quicktime",
+    "size_bytes": 33845037
+  },
+  "track": {
+    "title": null,
+    "artist": null,
+    "album": null,
+    "comment": null,
+    "description": null,
+    "date": null,
+    "duration": 23.189864
+  },
+  "transcript": {
+    "text": " Hi, my name is Rani and my name is Alexei and I would like you to translate what we're speaking about which is We're speaking a very about very complicated things. So they're very hard to dub. Yeah, I'd like to translate them into German French Spanish and Spanish. Yeah, please do this",
+    "segments": [
+      {
+        "id": 0,
+        "seek": 0,
+        "start": 0,
+        "end": 10,
+        "text": " Hi, my name is Rani and my name is Alexei and I would like you to translate what we're speaking about which is",
+        "tokens": [
+          50364,
+          2421,
+          11,
+          452,
+          1315,
+          307,
+          497,
+          3782,
+          293,
+          452,
+          1315,
+          307,
+          5202,
+          17067,
+          293,
+          286,
+          576,
+          411,
+          291,
+          281,
+          13799,
+          437,
+          321,
+          434,
+          4124,
+          466,
+          597,
+          307,
+          50864
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.43496982471362966,
+        "compression_ratio": 1.615819209039548,
+        "no_speech_prob": 0.03024068847298622
+      },
+      {
+        "id": 1,
+        "seek": 0,
+        "start": 10.88,
+        "end": 17.080000000000002,
+        "text": " We're speaking a very about very complicated things. So they're very hard to dub. Yeah, I'd like to translate them into",
+        "tokens": [
+          50908,
+          492,
+          434,
+          4124,
+          257,
+          588,
+          466,
+          588,
+          6179,
+          721,
+          13,
+          407,
+          436,
+          434,
+          588,
+          1152,
+          281,
+          18540,
+          13,
+          865,
+          11,
+          286,
+          1116,
+          411,
+          281,
+          13799,
+          552,
+          666,
+          51218
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.43496982471362966,
+        "compression_ratio": 1.615819209039548,
+        "no_speech_prob": 0.03024068847298622
+      },
+      {
+        "id": 2,
+        "seek": 0,
+        "start": 17.88,
+        "end": 19.88,
+        "text": " German French",
+        "tokens": [
+          51258,
+          6521,
+          5522,
+          51358
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.43496982471362966,
+        "compression_ratio": 1.615819209039548,
+        "no_speech_prob": 0.03024068847298622
+      },
+      {
+        "id": 3,
+        "seek": 0,
+        "start": 20,
+        "end": 22.7,
+        "text": " Spanish and Spanish. Yeah, please do this",
+        "tokens": [
+          51364,
+          8058,
+          293,
+          8058,
+          13,
+          865,
+          11,
+          1767,
+          360,
+          341,
+          51499
+        ],
+        "temperature": 0,
+        "avg_logprob": -0.43496982471362966,
+        "compression_ratio": 1.615819209039548,
+        "no_speech_prob": 0.03024068847298622
+      }
+    ],
+    "language": "en"
+  },
+  "diarization": {
+    "turns": [
+      {
+        "speaker": "SPEAKER_00",
+        "start": 0.008488964346349746,
+        "end": 0.025466893039049237
+      },
+      {
+        "speaker": "SPEAKER_00",
+        "start": 0.500848896434635,
+        "end": 1.8590831918505943
+      },
+      {
+        "speaker": "SPEAKER_01",
+        "start": 1.061120543293718,
+        "end": 1.162988115449915
+      },
+      {
+        "speaker": "SPEAKER_01",
+        "start": 1.8590831918505943,
+        "end": 2.2495755517826828
+      },
+      {
+        "speaker": "SPEAKER_01",
+        "start": 3.2173174872665538,
+        "end": 3.3531409168081496
+      },
+      {
+        "speaker": "SPEAKER_00",
+        "start": 3.3531409168081496,
+        "end": 3.7775891341256367
+      },
+      {
+        "speaker": "SPEAKER_01",
+        "start": 3.7775891341256367,
+        "end": 4.439728353140916
+      },
+      {
+        "speaker": "SPEAKER_01",
+        "start": 5.084889643463498,
+        "end": 10.263157894736842
+      },
+      {
+        "speaker": "SPEAKER_00",
+        "start": 11.264855687606113,
+        "end": 20.246179966044146
+      },
+      {
+        "speaker": "SPEAKER_01",
+        "start": 15.441426146010187,
+        "end": 15.747028862478778
+      },
+      {
+        "speaker": "SPEAKER_01",
+        "start": 20.246179966044146,
+        "end": 20.483870967741936
+      },
+      {
+        "speaker": "SPEAKER_00",
+        "start": 20.483870967741936,
+        "end": 21.33276740237691
+      },
+      {
+        "speaker": "SPEAKER_01",
+        "start": 21.468590831918505,
+        "end": 22.894736842105267
+      }
+    ]
+  },
+  "alignment": {
+    "words": [
+      {
+        "label": "Hi,",
+        "start": 0,
+        "end": 0.43478260869565216,
+        "score": 1
+      },
+      {
+        "label": "my",
+        "start": 0.43478260869565216,
+        "end": 0.8695652173913043,
+        "score": 1
+      },
+      {
+        "label": "name",
+        "start": 0.8695652173913043,
+        "end": 1.3043478260869565,
+        "score": 1
+      },
+      {
+        "label": "is",
+        "start": 1.3043478260869565,
+        "end": 1.7391304347826086,
+        "score": 1
+      },
+      {
+        "label": "Rani",
+        "start": 1.7391304347826086,
+        "end": 2.1739130434782608,
+        "score": 1
+      },
+      {
+        "label": "and",
+        "start": 2.1739130434782608,
+        "end": 2.608695652173913,
+        "score": 1
+      },
+      {
+        "label": "my",
+        "start": 2.608695652173913,
+        "end": 3.0434782608695654,
+        "score": 1
+      },
+      {
+        "label": "name",
+        "start": 3.0434782608695654,
+        "end": 3.4782608695652173,
+        "score": 1
+      },
+      {
+        "label": "is",
+        "start": 3.4782608695652173,
+        "end": 3.9130434782608696,
+        "score": 1
+      },
+      {
+        "label": "Alexei",
+        "start": 3.9130434782608696,
+        "end": 4.3478260869565215,
+        "score": 1
+      },
+      {
+        "label": "and",
+        "start": 4.3478260869565215,
+        "end": 4.782608695652174,
+        "score": 1
+      },
+      {
+        "label": "I",
+        "start": 4.782608695652174,
+        "end": 5.217391304347826,
+        "score": 1
+      },
+      {
+        "label": "would",
+        "start": 5.217391304347826,
+        "end": 5.6521739130434785,
+        "score": 1
+      },
+      {
+        "label": "like",
+        "start": 5.6521739130434785,
+        "end": 6.086956521739131,
+        "score": 1
+      },
+      {
+        "label": "you",
+        "start": 6.086956521739131,
+        "end": 6.521739130434782,
+        "score": 1
+      },
+      {
+        "label": "to",
+        "start": 6.521739130434782,
+        "end": 6.956521739130435,
+        "score": 1
+      },
+      {
+        "label": "translate",
+        "start": 6.956521739130435,
+        "end": 7.391304347826087,
+        "score": 1
+      },
+      {
+        "label": "what",
+        "start": 7.391304347826087,
+        "end": 7.826086956521739,
+        "score": 1
+      },
+      {
+        "label": "we're",
+        "start": 7.826086956521739,
+        "end": 8.26086956521739,
+        "score": 1
+      },
+      {
+        "label": "speaking",
+        "start": 8.26086956521739,
+        "end": 8.695652173913043,
+        "score": 1
+      },
+      {
+        "label": "about",
+        "start": 8.695652173913043,
+        "end": 9.130434782608695,
+        "score": 1
+      },
+      {
+        "label": "which",
+        "start": 9.130434782608695,
+        "end": 9.565217391304348,
+        "score": 1
+      },
+      {
+        "label": "is",
+        "start": 9.565217391304348,
+        "end": 10,
+        "score": 1
+      },
+      {
+        "label": "We're",
+        "start": 10.88,
+        "end": 11.175238095238097,
+        "score": 1
+      },
+      {
+        "label": "speaking",
+        "start": 11.175238095238097,
+        "end": 11.470476190476191,
+        "score": 1
+      },
+      {
+        "label": "a",
+        "start": 11.470476190476191,
+        "end": 11.765714285714287,
+        "score": 1
+      },
+      {
+        "label": "very",
+        "start": 11.765714285714287,
+        "end": 12.060952380952383,
+        "score": 1
+      },
+      {
+        "label": "about",
+        "start": 12.060952380952383,
+        "end": 12.356190476190477,
+        "score": 1
+      },
+      {
+        "label": "very",
+        "start": 12.356190476190477,
+        "end": 12.651428571428573,
+        "score": 1
+      },
+      {
+        "label": "complicated",
+        "start": 12.651428571428573,
+        "end": 12.946666666666667,
+        "score": 1
+      },
+      {
+        "label": "things.",
+        "start": 12.946666666666667,
+        "end": 13.241904761904763,
+        "score": 1
+      },
+      {
+        "label": "So",
+        "start": 13.241904761904763,
+        "end": 13.537142857142857,
+        "score": 1
+      },
+      {
+        "label": "they're",
+        "start": 13.537142857142857,
+        "end": 13.832380952380953,
+        "score": 1
+      },
+      {
+        "label": "very",
+        "start": 13.832380952380953,
+        "end": 14.12761904761905,
+        "score": 1
+      },
+      {
+        "label": "hard",
+        "start": 14.12761904761905,
+        "end": 14.422857142857143,
+        "score": 1
+      },
+      {
+        "label": "to",
+        "start": 14.422857142857143,
+        "end": 14.71809523809524,
+        "score": 1
+      },
+      {
+        "label": "dub.",
+        "start": 14.71809523809524,
+        "end": 15.013333333333335,
+        "score": 1
+      },
+      {
+        "label": "Yeah,",
+        "start": 15.013333333333335,
+        "end": 15.30857142857143,
+        "score": 1
+      },
+      {
+        "label": "I'd",
+        "start": 15.30857142857143,
+        "end": 15.603809523809526,
+        "score": 1
+      },
+      {
+        "label": "like",
+        "start": 15.603809523809526,
+        "end": 15.899047619047622,
+        "score": 1
+      },
+      {
+        "label": "to",
+        "start": 15.899047619047622,
+        "end": 16.194285714285716,
+        "score": 1
+      },
+      {
+        "label": "translate",
+        "start": 16.194285714285716,
+        "end": 16.48952380952381,
+        "score": 1
+      },
+      {
+        "label": "them",
+        "start": 16.48952380952381,
+        "end": 16.784761904761908,
+        "score": 1
+      },
+      {
+        "label": "into",
+        "start": 16.784761904761908,
+        "end": 17.080000000000002,
+        "score": 1
+      },
+      {
+        "label": "German",
+        "start": 17.88,
+        "end": 18.88,
+        "score": 1
+      },
+      {
+        "label": "French",
+        "start": 18.88,
+        "end": 19.88,
+        "score": 1
+      },
+      {
+        "label": "Spanish",
+        "start": 20,
+        "end": 20.385714285714286,
+        "score": 1
+      },
+      {
+        "label": "and",
+        "start": 20.385714285714286,
+        "end": 20.771428571428572,
+        "score": 1
+      },
+      {
+        "label": "Spanish.",
+        "start": 20.771428571428572,
+        "end": 21.15714285714286,
+        "score": 1
+      },
+      {
+        "label": "Yeah,",
+        "start": 21.15714285714286,
+        "end": 21.54285714285714,
+        "score": 1
+      },
+      {
+        "label": "please",
+        "start": 21.54285714285714,
+        "end": 21.928571428571427,
+        "score": 1
+      },
+      {
+        "label": "do",
+        "start": 21.928571428571427,
+        "end": 22.314285714285713,
+        "score": 1
+      },
+      {
+        "label": "this",
+        "start": 22.314285714285713,
+        "end": 22.7,
+        "score": 1
+      }
+    ]
+  },
+  "transcoded": true,
+  "path": "/media/b553c259-d499-426f-b843-30f7c8764fe7",
+  "language": "en"
+}

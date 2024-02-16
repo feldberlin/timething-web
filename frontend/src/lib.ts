@@ -327,3 +327,53 @@ export const process = ({
     onError();
   };
 };
+
+/**
+ * Document representation for the editor
+ *
+ */
+export type ZDocument = {
+  // an array of words, W long
+  words: string[];
+  // an array of scores, W long.
+  scores: number[];
+  // speakers, an array of speaker ids, S long
+  speakers: string[];
+  // an array of [speaker id, word index], T long
+  turns: [number, number][];
+}
+
+/**
+ * Construct ZDocument from Transcription
+ *
+ */
+export function transcriptionToDocument(t: Transcription): ZDocument {
+  const words = t.alignment ? t.alignment.words.map(w => w.label) : []
+  const scores = t.alignment ? t.alignment.words.map(w => w.score) : []
+  const speakers = t.diarization ? t.diarization.turns.map(w => w.speaker) : []
+  const uniqueSpeakers = Array.from(new Set(speakers)).sort()
+
+  // map from speaker names to speaker indices
+  let turns: [number, number][] = []
+  if (t.diarization) {
+     turns = t.diarization.turns.map(w => [
+       uniqueSpeakers.indexOf(w.speaker),
+       w.start
+    ])
+  }
+
+  // dedupe e.g. 0, 0, 1, 0 => 0, 1, 0
+  const dedupedTurns = turns.reduce<[number, number][]>((acc, [speaker, start]) => {
+    if (!acc.length || acc[acc.length - 1][0] !== speaker) {
+      acc.push([speaker, start]);
+    }
+    return acc;
+  }, []);
+
+  return {
+    words,
+    scores,
+    speakers: uniqueSpeakers,
+    turns: dedupedTurns,
+  };
+}

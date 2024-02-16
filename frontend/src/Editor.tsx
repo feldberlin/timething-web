@@ -14,7 +14,7 @@ import downloadImg from '../download.svg';
 import '../css/Editor.css';
 
 // lib
-import { WhisperResult, Track, Turn } from './lib.ts';
+import { ZDocument } from './lib.ts';
 
 // data
 import { debouncedPutTitle } from './data.ts';
@@ -25,9 +25,7 @@ import { debouncedPutTitle } from './data.ts';
  */
 export default function Editor({
   initialTranscriptionId,
-  transcript,
-  track,
-  turns = [],
+  zDocument,
   // focus
   focus,
   setFocus,
@@ -37,10 +35,8 @@ export default function Editor({
   setEditingTitle,
   setTitle,
 } : {
-  transcript: WhisperResult | null,
-  track: Track | null,
-  turns?: Turn[],
   focus: number,
+  zDocument: ZDocument | null,
   setFocus: (f: number) => void,
   initialTranscriptionId: string,
   title: string | null,
@@ -60,8 +56,8 @@ export default function Editor({
     }
   }
 
-  function targets(text: string) {
-    return text.trim().split(' ').map((word, index) => {
+  function targets(zDoc: ZDocument) {
+    return zDoc.words.map((word, index) => {
       if (index === focus) {
         return (
           <>
@@ -82,7 +78,7 @@ export default function Editor({
   return (
     <>
       <h1 className="mb-10 flex justify-between">
-        {track !== null
+        {zDocument !== null
           ? (
             <>
               <EditableText
@@ -109,8 +105,8 @@ export default function Editor({
           )}
       </h1>
 
-      <article className={transcript ? 'article-loaded' : 'article-loading'}>
-        { !transcript
+      <article className={zDocument ? 'article-loaded' : 'article-loading'}>
+        { !zDocument
           && (
           <div className="flex flex-col gap-4 w-full opacity-50">
             <div className="skeleton h-3 w-16 mt-5" />
@@ -124,7 +120,7 @@ export default function Editor({
           </div>
           )}
         <div className="contents" onClick={hClick}>
-          { transcript !== null && targets(transcript.text) }
+          { zDocument !== null && targets(zDocument) }
         </div>
       </article>
     </>
