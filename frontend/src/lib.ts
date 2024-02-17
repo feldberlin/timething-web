@@ -370,6 +370,7 @@ export function zDocumentToZTokens(z: ZDocument): ZTokens[] {
     wordIndex: null
   }]
 
+  let currentWordIndex = 0
   for (let i = 0; i < z.words.length; i++) {
 
     // word is in the next or last turn
@@ -388,8 +389,10 @@ export function zDocumentToZTokens(z: ZDocument): ZTokens[] {
     zTokens.push({
       type: 'content',
       value: z.words[i],
-      wordIndex: 0
+      wordIndex: currentWordIndex
     })
+
+    currentWordIndex = currentWordIndex + 1
   }
 
   return zTokens

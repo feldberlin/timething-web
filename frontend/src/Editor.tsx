@@ -70,7 +70,7 @@ export default function Editor({
       if (token.type == 'speaker-index') {
           const iSpeaker = Number(token.value);
           return (
-            <h3 className="-mb-2 mt-2">
+            <h3 className="-mb-2 mt-1">
               <EditableText
                 className="pl-1 mt-4 font-semibold text-base-300"
                 value={speakers[iSpeaker]}

@@ -399,7 +399,7 @@ export default function StudioPage() {
           <h3 className="my-3 mx-8 font-bold">Speakers</h3>
           {speakers.map((_, iSpeaker) => (
             <EditableText
-              className="mx-8"
+              className="sidebar-speaker mx-8"
               value={speakers[iSpeaker]}
               setValue={(name) => {
                 const newSpeakers = [...speakers]
