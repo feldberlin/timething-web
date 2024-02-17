@@ -408,7 +408,7 @@ export function transcriptionToZDocument(t: Transcription): ZDocument {
   const speakers = t.diarization ? t.diarization.turns.map(w => w.speaker) : []
   const uniqueSpeakers = Array.from(new Set(speakers)).sort()
 
-  // map from speaker names to speaker indices
+  // map from speaker names to starting offset in seconds
   let turns: [number, number][] = []
   if (t.diarization) {
      turns = t.diarization.turns.map(w => [
@@ -424,6 +424,21 @@ export function transcriptionToZDocument(t: Transcription): ZDocument {
     }
     return acc;
   }, []);
+
+  // replace start times with word indices
+  for (let i = 0; i < dedupedTurns.length; i++) {
+    const [speaker, start] = dedupedTurns[i];
+    // find word index for start
+    let wordIndex = 0;
+    for (let j = 0; j < t.alignment.words.length; j++) {
+      if (t.alignment.words[j].start >= start) {
+        wordIndex = j;
+        break;
+      }
+    }
+
+    dedupedTurns[i][1] = wordIndex;
+  }
 
   return {
     words,
