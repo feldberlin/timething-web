@@ -2,6 +2,7 @@ from dataclasses import dataclass
 import typing
 import logging
 import os
+import re
 import sys
 
 from modal import Image, Secret
@@ -26,7 +27,7 @@ class AnnotationError(Exception):
 annotation_image = (
     Image
         .debian_slim(python_version="3.10.8")
-        .pip_install("pyannote.audio===3.1.1")
+        .pip_install("pyannote.audio===3.1.1", "num2words")
 )
 
 
@@ -53,6 +54,7 @@ class Progress:
     ],
 )
 def annotate(transcription_id):
+    from num2words import num2words
     from pyannote.audio.pipelines.utils.hook import ProgressHook
     from pyannote.audio import Pipeline
     import torchaudio
@@ -84,7 +86,11 @@ def annotate(transcription_id):
 
         turns = []
         for turn, _, speaker in diarization.itertracks(yield_label=True):
-            turns.append(common.Turn(speaker, turn.start, turn.end))
+            if not re.match(r"SPEAKER_\d+", speaker):
+                raise AnnotationError(f"unexpected speaker format: {speaker}")
+            number = int(speaker.split("_")[1]) + 1
+            name = f"speaker {num2words(number)}".title()
+            turns.append(common.Turn(name, turn.start, turn.end))
 
         return common.Diarization(
             turns=turns

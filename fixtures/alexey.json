@@ -148,67 +148,67 @@
   "diarization": {
     "turns": [
       {
-        "speaker": "SPEAKER_00",
+        "speaker": "Rany",
         "start": 0.008488964346349746,
         "end": 0.025466893039049237
       },
       {
-        "speaker": "SPEAKER_00",
+        "speaker": "Rany",
         "start": 0.500848896434635,
         "end": 1.8590831918505943
       },
       {
-        "speaker": "SPEAKER_01",
+        "speaker": "Alexey",
         "start": 1.061120543293718,
         "end": 1.162988115449915
       },
       {
-        "speaker": "SPEAKER_01",
+        "speaker": "Alexey",
         "start": 1.8590831918505943,
         "end": 2.2495755517826828
       },
       {
-        "speaker": "SPEAKER_01",
+        "speaker": "Alexey",
         "start": 3.2173174872665538,
         "end": 3.3531409168081496
       },
       {
-        "speaker": "SPEAKER_00",
+        "speaker": "Rany",
         "start": 3.3531409168081496,
         "end": 3.7775891341256367
       },
       {
-        "speaker": "SPEAKER_01",
+        "speaker": "Alexey",
         "start": 3.7775891341256367,
         "end": 4.439728353140916
       },
       {
-        "speaker": "SPEAKER_01",
+        "speaker": "Alexey",
         "start": 5.084889643463498,
         "end": 10.263157894736842
       },
       {
-        "speaker": "SPEAKER_00",
+        "speaker": "Rany",
         "start": 11.264855687606113,
         "end": 20.246179966044146
       },
       {
-        "speaker": "SPEAKER_01",
+        "speaker": "Alexey",
         "start": 15.441426146010187,
         "end": 15.747028862478778
       },
       {
-        "speaker": "SPEAKER_01",
+        "speaker": "Alexey",
         "start": 20.246179966044146,
         "end": 20.483870967741936
       },
       {
-        "speaker": "SPEAKER_00",
+        "speaker": "Rany",
         "start": 20.483870967741936,
         "end": 21.33276740237691
       },
       {
-        "speaker": "SPEAKER_01",
+        "speaker": "Alexey",
         "start": 21.468590831918505,
         "end": 22.894736842105267
       }

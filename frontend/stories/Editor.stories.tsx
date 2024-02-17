@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import Editor from '../src/Editor';
+import fixtureData from '../../fixtures/alexey.json';
+import { transcriptionToZDocument } from '../src/lib';
 
 // wrapper
 const EditorWrapper = (props) => {
@@ -28,7 +30,7 @@ export default {
   },
 };
 
-// example data
+// hello world data
 const helloWorldDoc: ZDocument = {
   words: ["Hello", "world,", "this", "is", "a", "test!"],
   scores: [0.9, 0.8, 0.95, 0.7, 0.85, 0.6],
@@ -40,6 +42,10 @@ const helloWorldDoc: ZDocument = {
     [1, 4], // Alexey said "a test"
   ],
 };
+
+const realZDocument = transcriptionToZDocument(fixtureData);
+
+// more realistic data from file
 
 export const Primary = {
   args: {
@@ -59,6 +65,14 @@ export const Focussed = {
 export const Named = {
   args: {
     zDocument: helloWorldDoc,
+    title: 'Hello World',
+    setFocus: (ev) => { console.log('focus', ev) },
+  },
+};
+
+export const RealData = {
+  args: {
+    zDocument: realZDocument,
     title: 'Hello World',
     setFocus: (ev) => { console.log('focus', ev) },
   },

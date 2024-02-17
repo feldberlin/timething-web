@@ -60,7 +60,7 @@ export default function Editor({
     return zDocumentToZTokens(zDoc).map((token) => {
       if (token.type == 'speaker-name') {
           return (
-            <h3 className="pl-1 mt-8 mb-2 font-semibold text-base-300">
+            <h3 className="pl-1 mt-4 font-semibold text-base-300">
               {token.value}
             </h3>
           );
@@ -87,7 +87,7 @@ export default function Editor({
 
   return (
     <>
-      <h1 className="mb-10 flex justify-between">
+      <h1 className="mb-8 flex justify-between">
         {zDocument !== null
           ? (
             <>

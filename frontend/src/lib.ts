@@ -337,7 +337,7 @@ export type ZDocument = {
   words: string[];
   // an array of scores, W long.
   scores: number[];
-  // speakers, an array of speaker ids, S long
+  // speakers, an array of speaker names, S long
   speakers: string[];
   // an array of [speaker id, word index], T long
   turns: [number, number][];

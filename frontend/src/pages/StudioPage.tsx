@@ -66,21 +66,25 @@ type StudioParams = {
 export default function StudioPage() {
   const { transcriptionId } = useParams<StudioParams>();
   const playerRef = useRef<ReactPlayer>(null);
-  const [playing, setPlaying] = useState<boolean>(false);
-  const [transcript, setTranscript] = useState<WhisperResult | null>(null);
+
+  // basic data
   const [alignment, setAlignment] = useState<Alignment | null>(null);
   const [language, setLanguage] = useState<string | null>(null);
   const [requestedLanguage, setRequestedLanguage] = useState<string | null>(null);
+  const [transcript, setTranscript] = useState<WhisperResult | null>(null);
+  const [zDocument, setZDocument] = useState<ZDocument | null>(null);
+
+  // playing and skipping
   const [focus, setFocus] = useState<number>(0);
   const [elapsed, setElapsed] = useState<number>(0);
-  const [modalMessage, setModalMessage] = useState<string | null>(null);
-  const [zDocument, setZDocument] = useState<ZDocument | null>(null);
+  const [playing, setPlaying] = useState<boolean>(false);
 
   // sidebar fields
   const [title, setTitle] = useState<string | null>(null);
   const [editingTitle, setEditingTitle] = useState<boolean>(false);
   const [description, setDescription] = useState<string | null>(null);
   const [editingDescription, setEditingDescription] = useState<boolean>(false);
+  const [speakers, setSpeakers] = useState<string[]>([]);
 
   // retranscription
   const [retranscribing, setRetranscribing] = useState<boolean>(false);
@@ -90,6 +94,9 @@ export default function StudioPage() {
   // User error, system error. Like 404 vs 500.
   const [err, setError] = useState<string | null>(null);
   const [fatalError, setFatalError] = useState<string | null>(null);
+
+  // other ui
+  const [modalMessage, setModalMessage] = useState<string | null>(null);
 
   /**
    * Fetch the transcription metadata.
@@ -106,6 +113,10 @@ export default function StudioPage() {
 
           const zDocument = transcriptionToZDocument(meta);
           setZDocument(zDocument);
+
+          // speakers
+          setSpeakers(zDocument.speakers);
+          console.log(zDocument.speakers)
 
           // alignment
           if (meta.alignment) {
@@ -369,28 +380,8 @@ export default function StudioPage() {
             disabled={!language}
           />
         </div>
-        {/*
+        { /* Transcripts */ }
         <div className="section border-b border-base-200 py-1">
-          <img
-            src={addImg}
-            width="27px"
-            height="27px"
-            className="float-right m-3 mr-5"
-            alt="Add translation"
-          />
-          <h3 className="my-3 mx-8 font-bold">Translations</h3>
-        </div>
-        */}
-        <div className="section border-b border-base-200 py-1">
-          {/*
-          <img
-            src={addImg}
-            width="27px"
-            height="27px"
-            className="float-right m-3 mr-5"
-            alt="Add transcript"
-          />
-          */}
           <h3 className="my-3 mx-8 font-bold">Transcripts</h3>
           <p className="my-3 mx-8">
             { retranscribing
@@ -403,29 +394,13 @@ export default function StudioPage() {
               : 'Auto Transcript'}
           </p>
         </div>
-        {/*
-        <div className="section border-b border-base-200 py-1">
-          <img
-            src={addImg}
-            width="27px"
-            height="27px"
-            className="float-right m-3 mr-5"
-            alt="Add caption"
-          />
-          <h3 className="my-3 mx-8 font-bold">Captions</h3>
-          <p className="my-3 mx-8">Auto Captions</p>
-        </div>
+        { /* Speakers */ }
         <div className="section border-b border-base-200 pt-1 pb-5">
-          <img
-            src={addImg}
-            width="27px"
-            height="27px"
-            className="float-right m-3 mr-5"
-            alt="Add speaker"
-          />
           <h3 className="my-3 mx-8 font-bold">Speakers</h3>
+          {speakers.map((speaker) => (
+            <p className="mx-8">{speaker}</p>
+          ))}
         </div>
-        */}
       </div>
       <div id="editor" className="bg-white">
         {err
