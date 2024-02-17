@@ -7,14 +7,21 @@ import { transcriptionToZDocument } from '../src/lib';
 const EditorWrapper = (props) => {
   let [editing, setEditing] = useState(false);
   let [text, setText] = useState(props.title);
+  let [speakers, setSpeakers] = useState(props.zDocument.speakers);
+  let [editingSpeaker, setEditingSpeaker] = useState(null);
 
   return (
     <Editor
       {...props}
+      title={text}
+      setTitle={setText}
       editingTitle={editing}
       setEditingTitle={setEditing}
-      title={text}
-      setTitle={setText} />
+      speakers={speakers}
+      setSpeakers={setSpeakers}
+      editingSpeaker={editingSpeaker}
+      setEditingSpeaker={setEditingSpeaker}
+    />
   );
 };
 

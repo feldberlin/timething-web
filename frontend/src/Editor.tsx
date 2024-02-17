@@ -31,18 +31,27 @@ export default function Editor({
   setFocus,
   // title
   title = null,
+  setTitle,
   editingTitle,
   setEditingTitle,
-  setTitle,
+  // speakers
+  speakers,
+  setSpeakers,
+  editingSpeaker,
+  setEditingSpeaker,
 } : {
   focus: number,
   zDocument: ZDocument | null,
   setFocus: (f: number) => void,
   initialTranscriptionId: string,
   title: string | null,
+  setTitle: (t: string) => void,
   editingTitle: boolean,
   setEditingTitle: (e: boolean) => void,
-  setTitle: (t: string) => void,
+  speakers: string[],
+  setSpeakers: (s: string[]) => void,
+  editingSpeaker: number | null,
+  setEditingSpeaker: (s: number | null) => void,
 }) {
   /**
    * Event handlers
@@ -58,10 +67,23 @@ export default function Editor({
 
   function targets(zDoc: ZDocument) {
     return zDocumentToZTokens(zDoc).map((token) => {
-      if (token.type == 'speaker-name') {
+      if (token.type == 'speaker-index') {
+          const iSpeaker = Number(token.value);
           return (
-            <h3 className="pl-1 mt-4 font-semibold text-base-300">
-              {token.value}
+            <h3 className="-mb-2 mt-2">
+              <EditableText
+                className="pl-1 mt-4 font-semibold text-base-300"
+                value={speakers[iSpeaker]}
+                setValue={(name) => {
+                  const newSpeakers = [...speakers]
+                  newSpeakers[iSpeaker] = name
+                  setSpeakers(newSpeakers)
+                }}
+                editing={editingSpeaker === iSpeaker} 
+                setEditing={() => {
+                  setEditingSpeaker(iSpeaker)
+                }}
+              />
             </h3>
           );
 
@@ -87,7 +109,7 @@ export default function Editor({
 
   return (
     <>
-      <h1 className="mb-8 flex justify-between">
+      <h1 className="mb-4 flex justify-between">
         {zDocument !== null
           ? (
             <>

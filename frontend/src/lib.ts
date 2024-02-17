@@ -360,13 +360,13 @@ export type ZTokens = {
 export function zDocumentToZTokens(z: ZDocument): ZTokens[] {
 
   // helpers
-  const getSpeakerForTurn = (i: number) => z.speakers[z.turns[i][0]];
+  const getSpeakerForTurn = (i: number) => z.turns[i][0];
   const getWordIndexForTurn = (i: number) => z.turns[i][1];
 
   let iCurrentTurn = 0
   let zTokens: ZTokens[] = [{
-    type: 'speaker-name',
-    value: getSpeakerForTurn(iCurrentTurn),
+    type: 'speaker-index',
+    value: String(getSpeakerForTurn(iCurrentTurn)),
     wordIndex: null
   }]
 
@@ -376,8 +376,8 @@ export function zDocumentToZTokens(z: ZDocument): ZTokens[] {
     const isLastTurn = iCurrentTurn === z.turns.length - 1
     if (!isLastTurn && i >= getWordIndexForTurn(iCurrentTurn + 1)) {
       zTokens.push({
-        type: 'speaker-name',
-        value: getSpeakerForTurn(iCurrentTurn + 1),
+        type: 'speaker-index',
+        value: String(getSpeakerForTurn(iCurrentTurn + 1)),
         wordIndex: null
       })
 

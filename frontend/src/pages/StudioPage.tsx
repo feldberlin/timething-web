@@ -85,6 +85,7 @@ export default function StudioPage() {
   const [description, setDescription] = useState<string | null>(null);
   const [editingDescription, setEditingDescription] = useState<boolean>(false);
   const [speakers, setSpeakers] = useState<string[]>([]);
+  const [editingSpeaker, setEditingSpeaker] = useState<number | null>(null);
 
   // retranscription
   const [retranscribing, setRetranscribing] = useState<boolean>(false);
@@ -116,7 +117,6 @@ export default function StudioPage() {
 
           // speakers
           setSpeakers(zDocument.speakers);
-          console.log(zDocument.speakers)
 
           // alignment
           if (meta.alignment) {
@@ -397,8 +397,18 @@ export default function StudioPage() {
         { /* Speakers */ }
         <div className="section border-b border-base-200 pt-1 pb-5">
           <h3 className="my-3 mx-8 font-bold">Speakers</h3>
-          {speakers.map((speaker) => (
-            <p className="mx-8">{speaker}</p>
+          {speakers.map((_, iSpeaker) => (
+            <EditableText
+              className="mx-8"
+              value={speakers[iSpeaker]}
+              setValue={(name) => {
+                const newSpeakers = [...speakers]
+                newSpeakers[iSpeaker] = name
+                setSpeakers(newSpeakers)
+              }}
+              editing={editingSpeaker === iSpeaker}
+              setEditing={() => setEditingSpeaker(iSpeaker)}
+            />
           ))}
         </div>
       </div>
@@ -406,14 +416,18 @@ export default function StudioPage() {
         {err
           && <ErrorMessage message={err} />}
         <Editor
+          initialTranscriptionId={transcriptionId}
+          zDocument={zDocument}
           focus={focus}
           setFocus={setFocusFromEditor}
-          zDocument={zDocument}
           title={title}
+          setTitle={setTitle}
           editingTitle={editingTitle}
           setEditingTitle={setEditingTitle}
-          setTitle={setTitle}
-          initialTranscriptionId={transcriptionId}
+          speakers={speakers}
+          setSpeakers={setSpeakers}
+          editingSpeaker={editingSpeaker}
+          setEditingSpeaker={setEditingSpeaker}
         />
       </div>
       <div id="player" className="flex justify-center items-center h-screen bg-images-right">
