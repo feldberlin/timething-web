@@ -40,7 +40,7 @@ import {
   languageLongName,
   process,
   supportedLanguages as languages,
-  transcriptionToDocument,
+  transcriptionToZDocument,
 } from '../lib.ts';
 
 // data
@@ -104,7 +104,7 @@ export default function StudioPage() {
           setTitle(meta.track.title);
           setDescription(meta.track.description);
 
-          const zDocument = transcriptionToDocument(meta);
+          const zDocument = transcriptionToZDocument(meta);
           setZDocument(zDocument);
 
           // alignment

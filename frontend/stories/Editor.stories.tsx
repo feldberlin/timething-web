@@ -30,16 +30,14 @@ export default {
 
 // example data
 const helloWorldDoc: ZDocument = {
-  words: ["hello", "world", "this", "is", "a", "test"],
+  words: ["Hello", "world,", "this", "is", "a", "test!"],
   scores: [0.9, 0.8, 0.95, 0.7, 0.85, 0.6],
   speakers: ["Rany", "Alexey"],
   turns: [
-    [0, 0], // Speaker 1 said "hello"
-    [1, 1], // Speaker 2 said "world"
-    [0, 2], // Speaker 1 said "this"
-    [1, 3], // Speaker 2 said "is"
-    [0, 4], // Speaker 1 said "a"
-    [1, 5], // Speaker 2 said "test"
+    [0, 0], // Rany said "hello world"
+    [1, 2], // Alexey said "this"
+    [0, 3], // Rany said "is"
+    [1, 4], // Alexey said "a test"
   ],
 };
 

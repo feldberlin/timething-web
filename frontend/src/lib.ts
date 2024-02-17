@@ -343,11 +343,63 @@ export type ZDocument = {
   turns: [number, number][];
 }
 
+export type ZTokens = {
+  // the type of tokens, either speaker-name or content
+  type: string;
+  // the value of the token
+  value: string;
+  // the word index of the token. does not include speaker names.
+  wordIndex: number | null;
+}
+
+/**
+ * Generates a sequence of tokens from a ZDocument. Tokens have the type
+ * speaker-name or word.
+ *
+ */
+export function zDocumentToZTokens(z: ZDocument): ZTokens[] {
+
+  // helpers
+  const getSpeakerForTurn = (i: number) => z.speakers[z.turns[i][0]];
+  const getWordIndexForTurn = (i: number) => z.turns[i][1];
+
+  let iCurrentTurn = 0
+  let zTokens: ZTokens[] = [{
+    type: 'speaker-name',
+    value: getSpeakerForTurn(iCurrentTurn),
+    wordIndex: null
+  }]
+
+  for (let i = 0; i < z.words.length; i++) {
+
+    // word is in the next or last turn
+    const isLastTurn = iCurrentTurn === z.turns.length - 1
+    if (!isLastTurn && i >= getWordIndexForTurn(iCurrentTurn + 1)) {
+      zTokens.push({
+        type: 'speaker-name',
+        value: getSpeakerForTurn(iCurrentTurn + 1),
+        wordIndex: null
+      })
+
+      iCurrentTurn = iCurrentTurn + 1;
+    }
+
+    // word is in the current turn
+    zTokens.push({
+      type: 'content',
+      value: z.words[i],
+      wordIndex: 0
+    })
+  }
+
+  return zTokens
+}
+
 /**
  * Construct ZDocument from Transcription
  *
  */
-export function transcriptionToDocument(t: Transcription): ZDocument {
+export function transcriptionToZDocument(t: Transcription): ZDocument {
   const words = t.alignment ? t.alignment.words.map(w => w.label) : []
   const scores = t.alignment ? t.alignment.words.map(w => w.score) : []
   const speakers = t.diarization ? t.diarization.turns.map(w => w.speaker) : []

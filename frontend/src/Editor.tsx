@@ -14,7 +14,7 @@ import downloadImg from '../download.svg';
 import '../css/Editor.css';
 
 // lib
-import { ZDocument } from './lib.ts';
+import { ZDocument, zDocumentToZTokens } from './lib.ts';
 
 // data
 import { debouncedPutTitle } from './data.ts';
@@ -57,21 +57,31 @@ export default function Editor({
   }
 
   function targets(zDoc: ZDocument) {
-    return zDoc.words.map((word, index) => {
-      if (index === focus) {
+    return zDocumentToZTokens(zDoc).map((token) => {
+      if (token.type == 'speaker-name') {
+          return (
+            <h3 className="pl-1 mt-8 mb-2 font-semibold text-base-300">
+              {token.value}
+            </h3>
+          );
+
+      } else if (token.type == 'content') {
+        if (token.wordIndex === focus) {
+          return (
+            <>
+              <span className="bg-primary text-white rounded inline-block pl-1 pr-1 cursor-pointer" data-key={token.wordIndex}>{token.value}</span>
+              <span> </span>
+            </>
+          );
+        }
+
         return (
           <>
-            <span className="bg-primary text-white rounded inline-block pl-1 pr-1 cursor-pointer" data-key={index}>{word}</span>
-            <span> </span>
+            <span className="hover:bg-primary hover:text-white hover:rounded inline-block ml-1 mr-1 cursor-pointer" data-key={token.wordIndex}>{token.value}</span>
+            <span className="inline-block -ml-px"> </span>
           </>
         );
       }
-      return (
-        <>
-          <span className="hover:bg-primary hover:text-white hover:rounded inline-block ml-1 mr-1 cursor-pointer" data-key={index}>{word}</span>
-          <span className="inline-block -ml-px"> </span>
-        </>
-      );
     });
   }
 
