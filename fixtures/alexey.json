@@ -15,14 +15,14 @@
     "duration": 23.189864
   },
   "transcript": {
-    "text": " Hi, my name is Rani and my name is Alexei and I would like you to translate what we're speaking about which is We're speaking a very about very complicated things. So they're very hard to dub. Yeah, I'd like to translate them into German French Spanish and Spanish. Yeah, please do this",
+    "text": " Hi, my name is Rany and my name is Alexey and I would like you to translate what we're speaking about which is We're speaking a very about very complicated things. So they're very hard to dub. Yeah, I'd like to translate them into German French Spanish and Spanish. Yeah, please do this",
     "segments": [
       {
         "id": 0,
         "seek": 0,
         "start": 0,
         "end": 10,
-        "text": " Hi, my name is Rani and my name is Alexei and I would like you to translate what we're speaking about which is",
+        "text": " Hi, my name is Rany and my name is Alexey and I would like you to translate what we're speaking about which is",
         "tokens": [
           50364,
           2421,
@@ -241,7 +241,7 @@
         "score": 1
       },
       {
-        "label": "Rani",
+        "label": "Rany",
         "start": 1.7391304347826086,
         "end": 2.1739130434782608,
         "score": 1
@@ -271,7 +271,7 @@
         "score": 1
       },
       {
-        "label": "Alexei",
+        "label": "Alexey",
         "start": 3.9130434782608696,
         "end": 4.3478260869565215,
         "score": 1

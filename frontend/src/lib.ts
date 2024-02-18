@@ -82,7 +82,6 @@ export type Track = {
   description: string | null;
   date: string | null;
   duration: number;
-  path: string;
 }
 
 /**
@@ -114,6 +113,7 @@ export type Transcription = {
   alignment: Alignment | null;
   track: Track;
   language: string;
+  path: string;
 }
 
 /**
@@ -403,6 +403,10 @@ export function zDocumentToZTokens(z: ZDocument): ZTokens[] {
  *
  */
 export function transcriptionToZDocument(t: Transcription): ZDocument {
+  if (t.alignment == null) {
+    throw new Error('Transcription does not have alignment')
+  }
+
   const words = t.alignment ? t.alignment.words.map(w => w.label) : []
   const scores = t.alignment ? t.alignment.words.map(w => w.score) : []
   const speakers = t.diarization ? t.diarization.turns.map(w => w.speaker) : []
@@ -411,23 +415,16 @@ export function transcriptionToZDocument(t: Transcription): ZDocument {
   // map from speaker names to starting offset in seconds
   let turns: [number, number][] = []
   if (t.diarization) {
-     turns = t.diarization.turns.map(w => [
+    const collapsed = collapseSpeakers(t.diarization.turns)
+    turns = collapsed.map(w => [
        uniqueSpeakers.indexOf(w.speaker),
-       w.start
+       w.start,
     ])
   }
 
-  // dedupe e.g. 0, 0, 1, 0 => 0, 1, 0
-  const dedupedTurns = turns.reduce<[number, number][]>((acc, [speaker, start]) => {
-    if (!acc.length || acc[acc.length - 1][0] !== speaker) {
-      acc.push([speaker, start]);
-    }
-    return acc;
-  }, []);
-
   // replace start times with word indices
-  for (let i = 0; i < dedupedTurns.length; i++) {
-    const [speaker, start] = dedupedTurns[i];
+  for (let i = 0; i < turns.length; i++) {
+    const [_, start] = turns[i];
     // find word index for start
     let wordIndex = 0;
     for (let j = 0; j < t.alignment.words.length; j++) {
@@ -437,13 +434,66 @@ export function transcriptionToZDocument(t: Transcription): ZDocument {
       }
     }
 
-    dedupedTurns[i][1] = wordIndex;
+    turns[i][1] = wordIndex;
   }
 
   return {
     words,
     scores,
     speakers: uniqueSpeakers,
-    turns: dedupedTurns,
+    turns,
   };
+}
+
+// collapse consecutive turns by the same speaker. Where there are
+// overlapping turns, the first speaker wins.
+export function collapseSpeakers(turns: Turn[]): Turn[] {
+  let speaker, start, end;
+  const ret = []
+  for (let i = 0; i < turns.length; i++) {
+    const turn = turns[i]
+    if (end && turn.end < end) {
+      // new turn end before the last speaker ends. ignore this turn
+      continue
+    }
+    if (end && turn.start < end) {
+      // new speaker starts before the last speaker ends
+      turn.start = end
+    }
+
+    if (turn.speaker !== speaker) {
+      // new speaker
+      if (speaker) {
+        // not the first speaker
+
+        // push the last turn
+        ret.push({
+          speaker: speaker || '',
+          start: start || 0,
+          end: end || 0,
+        })
+      }
+
+      // remember as last values
+      speaker = turn.speaker
+      start = turn.start
+      end = turn.end
+    } else {
+      // same speaker
+      end = turn.end
+    }
+  }
+
+  // last turn
+  if (turns.length > 0) {
+    ret.push({
+      speaker: speaker || '',
+      start: start || 0,
+      end: end || 0,
+    })
+  }
+
+  // always start at 0
+  ret[0].start = 0
+  return ret
 }
