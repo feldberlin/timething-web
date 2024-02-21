@@ -351,7 +351,7 @@ export type ZDocument = {
   // speakers, an array of speaker names and ids, S long
   speakers: Speaker[];
   // an array of [speaker id, word index], T long
-  turns: [number, number][];
+  turns: [string, number][];
 }
 
 export type ZTokens = {
@@ -379,7 +379,7 @@ export function zDocumentToZTokens(z: ZDocument): ZTokens[] {
   let iCurrentTurn = 0;
   const zTokens: ZTokens[] = [{
     id: Math.random().toString(),
-    type: 'speaker-index',
+    type: 'speaker',
     value: String(getSpeakerForTurn(iCurrentTurn)),
     wordIndex: null,
   }];
@@ -391,7 +391,7 @@ export function zDocumentToZTokens(z: ZDocument): ZTokens[] {
     if (!isLastTurn && i >= getWordIndexForTurn(iCurrentTurn + 1)) {
       zTokens.push({
         id: Math.random().toString(),
-        type: 'speaker-index',
+        type: 'speaker',
         value: String(getSpeakerForTurn(iCurrentTurn + 1)),
         wordIndex: null,
       });
@@ -487,11 +487,11 @@ export function transcriptionToZDocument(t: Transcription): ZDocument {
   }));
 
   // map from speaker names to starting offset in seconds
-  let turns: [number, number][] = [];
+  let turns: [string, number][] = [];
   if (t.diarization) {
     const collapsed = collapseSpeakers(t.diarization.turns);
     turns = collapsed.map((w) => [
-      speakers.map((s) => s.id).indexOf(w.speaker),
+      w.speaker,
       w.start,
     ]);
   }

@@ -22,15 +22,15 @@ test('convert document to tokens', () => {
       { id: 'S2', name: 'Alexey' },
     ],
     turns: [
-      [0, 0], // Rany said "hello world"
-      [1, 2], // Alexey said "this"
-      [0, 3], // Rany said "is"
-      [1, 4], // Alexey said "a test"
+      ['S1', 0], // Rany said "hello world"
+      ['S2', 2], // Alexey said "this"
+      ['S1', 3], // Rany said "is"
+      ['S2', 4], // Alexey said "a test"
     ],
   };
 
   const tokens = zDocumentToZTokens(doc);
-  const speakerTokens = tokens.filter((t) => t.type === 'speaker-index');
+  const speakerTokens = tokens.filter((t) => t.type === 'speaker');
   const contentTokens = tokens.filter((t) => t.type === 'content');
 
   // there should be 4 speaker changes
@@ -39,7 +39,7 @@ test('convert document to tokens', () => {
 
   // speaker order should be rany, alexey, rany, alexey
   const speakers = speakerTokens.map((t) => t.value);
-  expect(speakers).toEqual(['0', '1', '0', '1']);
+  expect(speakers).toEqual(['S1', 'S2', 'S1', 'S2']);
 
   // word tokens should match words
   expect(contentTokens.map((t) => t.value)).toEqual(doc.words);
@@ -150,42 +150,42 @@ test('convert transcription to document', () => {
   const doc: ZDocument = transcriptionToZDocument(t);
   const wantTurns = [
     {
-      speaker: '1', // Rany
+      speaker: 'Rany',
       start: 0.0,
       content: 'Hi, my name is Rany',
     },
     {
-      speaker: '0', // Alexey
+      speaker: 'Alexey',
       start: 1.8590831918505943,
       content: 'and my name',
     },
     {
-      speaker: '1', // Rany
+      speaker: 'Rany',
       start: 3.3531409168081496,
       content: 'is',
     },
     {
-      speaker: '0', // Alexey
+      speaker: 'Alexey',
       start: 3.7775891341256367,
       content: "Alexey and I would like you to translate what we're speaking about which is We're speaking",
     },
     {
-      speaker: '1', // Rany
+      speaker: 'Rany',
       start: 11.264855687606113,
       content: "a very about very complicated things. So they're very hard to dub. Yeah, I'd like to translate them into German French Spanish",
     },
     {
-      speaker: '0', // Alexey
+      speaker: 'Alexey',
       start: 20.246179966044146,
       content: 'and',
     },
     {
-      speaker: '1', // Rany
+      speaker: 'Rany',
       start: 20.483870967741936,
       content: 'Spanish. Yeah,',
     },
     {
-      speaker: '0', // Alexey
+      speaker: 'Alexey',
       start: 21.468590831918505,
       content: 'please do this',
     },

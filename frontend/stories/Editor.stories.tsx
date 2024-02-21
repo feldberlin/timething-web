@@ -42,14 +42,14 @@ const helloWorldDoc: ZDocument = {
   words: ["Hello", "world,", "this", "is", "a", "test!"],
   scores: [0.9, 0.8, 0.95, 0.7, 0.85, 0.6],
   speakers: [
-    { key: "rany", name: "Rany" },
-    { key: "alexey", name: "Alexey" },
+    { id: "S1", name: "Rany" },
+    { id: "S2", name: "Alexey" },
   ],
   turns: [
-    [0, 0], // Rany said "hello world"
-    [1, 2], // Alexey said "this"
-    [0, 3], // Rany said "is"
-    [1, 4], // Alexey said "a test"
+    ['S1', 0], // Rany said "hello world"
+    ['S2', 2], // Alexey said "this"
+    ['S1', 3], // Rany said "is"
+    ['S2', 4], // Alexey said "a test"
   ],
 };
 

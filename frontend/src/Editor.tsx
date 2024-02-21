@@ -3,6 +3,7 @@ import React from 'react';
 // third party
 // @ts-expect-error no types
 import * as _ from 'underscore';
+import * as log from 'loglevel';
 
 // components
 import EditableText from './EditableText.tsx';
@@ -67,15 +68,16 @@ export default function Editor({
 
   function targets(zDoc: ZDocument) {
     return zDocumentToZTokens(zDoc).map((token) => {
-      if (token.type === 'speaker-index') {
+      if (token.type === 'speaker') {
         const speakerId = token.value;
         const speaker = speakers.find((x) => x.id === speakerId);
         if (!speaker) {
           // could not find the speaker
+          log.error('could not find speaker: ', speakerId, ' in ', speakers);
           return (null);
         }
         return (
-          <h3 key={token.id} className="-mb-2 mt-1">
+          <h3 className="-mb-2 mt-1">
             <EditableText
               className="pl-1 mt-4 font-semibold text-base-300"
               value={speaker.name}
