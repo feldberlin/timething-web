@@ -329,6 +329,17 @@ export const process = ({
 };
 
 /**
+ * A single speaker
+ *
+ */
+export type Speaker = {
+  // backend identifier for this speaker
+  id: string
+  // name of the speaker
+  name: string
+}
+
+/**
  * Document representation for the editor
  *
  */
@@ -337,19 +348,22 @@ export type ZDocument = {
   words: string[];
   // an array of scores, W long.
   scores: number[];
-  // speakers, an array of speaker names, S long
-  speakers: string[];
+  // speakers, an array of speaker names and ids, S long
+  speakers: Speaker[];
   // an array of [speaker id, word index], T long
   turns: [number, number][];
 }
 
 export type ZTokens = {
+  // unique token identifier, used as react key
+  id: string
   // the type of tokens, either speaker-name or content
   type: string;
   // the value of the token
   value: string;
   // the word index of the token. does not include speaker names.
   wordIndex: number | null;
+
 }
 
 /**
@@ -358,44 +372,100 @@ export type ZTokens = {
  *
  */
 export function zDocumentToZTokens(z: ZDocument): ZTokens[] {
-
   // helpers
   const getSpeakerForTurn = (i: number) => z.turns[i][0];
   const getWordIndexForTurn = (i: number) => z.turns[i][1];
 
-  let iCurrentTurn = 0
-  let zTokens: ZTokens[] = [{
+  let iCurrentTurn = 0;
+  const zTokens: ZTokens[] = [{
+    id: Math.random().toString(),
     type: 'speaker-index',
     value: String(getSpeakerForTurn(iCurrentTurn)),
-    wordIndex: null
-  }]
+    wordIndex: null,
+  }];
 
-  let currentWordIndex = 0
+  let currentWordIndex = 0;
   for (let i = 0; i < z.words.length; i++) {
-
     // word is in the next or last turn
-    const isLastTurn = iCurrentTurn === z.turns.length - 1
+    const isLastTurn = iCurrentTurn === z.turns.length - 1;
     if (!isLastTurn && i >= getWordIndexForTurn(iCurrentTurn + 1)) {
       zTokens.push({
+        id: Math.random().toString(),
         type: 'speaker-index',
         value: String(getSpeakerForTurn(iCurrentTurn + 1)),
-        wordIndex: null
-      })
+        wordIndex: null,
+      });
 
-      iCurrentTurn = iCurrentTurn + 1;
+      iCurrentTurn += 1;
     }
 
     // word is in the current turn
     zTokens.push({
+      id: Math.random().toString(),
       type: 'content',
       value: z.words[i],
-      wordIndex: currentWordIndex
-    })
+      wordIndex: currentWordIndex,
+    });
 
-    currentWordIndex = currentWordIndex + 1
+    currentWordIndex += 1;
   }
 
-  return zTokens
+  return zTokens;
+}
+
+// collapse consecutive turns by the same speaker. Where there are
+// overlapping turns, the first speaker wins.
+export function collapseSpeakers(turns: Turn[]): Turn[] {
+  let speaker;
+  let start;
+  let end;
+  const ret = [];
+  for (let i = 0; i < turns.length; i++) {
+    const turn = turns[i];
+    if (end && turn.end < end) {
+      // new turn end before the last speaker ends. ignore this turn
+      continue;
+    }
+    if (end && turn.start < end) {
+      // new speaker starts before the last speaker ends
+      turn.start = end;
+    }
+
+    if (turn.speaker !== speaker) {
+      // new speaker
+      if (speaker) {
+        // not the first speaker
+
+        // push the last turn
+        ret.push({
+          speaker: speaker || '',
+          start: start || 0,
+          end: end || 0,
+        });
+      }
+
+      // remember as last values
+      speaker = turn.speaker;
+      start = turn.start;
+      end = turn.end;
+    } else {
+      // same speaker
+      end = turn.end;
+    }
+  }
+
+  // last turn
+  if (turns.length > 0) {
+    ret.push({
+      speaker: speaker || '',
+      start: start || 0,
+      end: end || 0,
+    });
+  }
+
+  // always start at 0
+  ret[0].start = 0;
+  return ret;
 }
 
 /**
@@ -404,27 +474,31 @@ export function zDocumentToZTokens(z: ZDocument): ZTokens[] {
  */
 export function transcriptionToZDocument(t: Transcription): ZDocument {
   if (t.alignment == null) {
-    throw new Error('Transcription does not have alignment')
+    throw new Error('Transcription does not have alignment');
   }
 
-  const words = t.alignment ? t.alignment.words.map(w => w.label) : []
-  const scores = t.alignment ? t.alignment.words.map(w => w.score) : []
-  const speakers = t.diarization ? t.diarization.turns.map(w => w.speaker) : []
-  const uniqueSpeakers = Array.from(new Set(speakers)).sort()
+  const words = t.alignment ? t.alignment.words.map((w) => w.label) : [];
+  const scores = t.alignment ? t.alignment.words.map((w) => w.score) : [];
+  const allSpeakers = t.diarization ? t.diarization.turns.map((w) => w.speaker) : [];
+  const uniqueSpeakers = Array.from(new Set(allSpeakers)).sort();
+  const speakers = uniqueSpeakers.map((speaker) => ({
+    id: speaker,
+    name: speaker,
+  }));
 
   // map from speaker names to starting offset in seconds
-  let turns: [number, number][] = []
+  let turns: [number, number][] = [];
   if (t.diarization) {
-    const collapsed = collapseSpeakers(t.diarization.turns)
-    turns = collapsed.map(w => [
-       uniqueSpeakers.indexOf(w.speaker),
-       w.start,
-    ])
+    const collapsed = collapseSpeakers(t.diarization.turns);
+    turns = collapsed.map((w) => [
+      speakers.map((s) => s.id).indexOf(w.speaker),
+      w.start,
+    ]);
   }
 
   // replace start times with word indices
   for (let i = 0; i < turns.length; i++) {
-    const [_, start] = turns[i];
+    const start = turns[i][1];
     // find word index for start
     let wordIndex = 0;
     for (let j = 0; j < t.alignment.words.length; j++) {
@@ -440,60 +514,7 @@ export function transcriptionToZDocument(t: Transcription): ZDocument {
   return {
     words,
     scores,
-    speakers: uniqueSpeakers,
+    speakers,
     turns,
   };
-}
-
-// collapse consecutive turns by the same speaker. Where there are
-// overlapping turns, the first speaker wins.
-export function collapseSpeakers(turns: Turn[]): Turn[] {
-  let speaker, start, end;
-  const ret = []
-  for (let i = 0; i < turns.length; i++) {
-    const turn = turns[i]
-    if (end && turn.end < end) {
-      // new turn end before the last speaker ends. ignore this turn
-      continue
-    }
-    if (end && turn.start < end) {
-      // new speaker starts before the last speaker ends
-      turn.start = end
-    }
-
-    if (turn.speaker !== speaker) {
-      // new speaker
-      if (speaker) {
-        // not the first speaker
-
-        // push the last turn
-        ret.push({
-          speaker: speaker || '',
-          start: start || 0,
-          end: end || 0,
-        })
-      }
-
-      // remember as last values
-      speaker = turn.speaker
-      start = turn.start
-      end = turn.end
-    } else {
-      // same speaker
-      end = turn.end
-    }
-  }
-
-  // last turn
-  if (turns.length > 0) {
-    ret.push({
-      speaker: speaker || '',
-      start: start || 0,
-      end: end || 0,
-    })
-  }
-
-  // always start at 0
-  ret[0].start = 0
-  return ret
 }

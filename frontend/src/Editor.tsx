@@ -14,7 +14,7 @@ import downloadImg from '../download.svg';
 import '../css/Editor.css';
 
 // lib
-import { ZDocument, zDocumentToZTokens } from './lib.ts';
+import { ZDocument, zDocumentToZTokens, Speaker } from './lib.ts';
 
 // data
 import { debouncedPutTitle } from './data.ts';
@@ -48,10 +48,10 @@ export default function Editor({
   setTitle: (t: string) => void,
   editingTitle: boolean,
   setEditingTitle: (e: boolean) => void,
-  speakers: string[],
-  setSpeakers: (s: string[]) => void,
-  editingSpeaker: number | null,
-  setEditingSpeaker: (s: number | null) => void,
+  speakers: Speaker[];
+  setSpeakers: (s: Speaker[]) => void,
+  editingSpeaker: string | null,
+  setEditingSpeaker: (s: string | null) => void,
 }) {
   /**
    * Event handlers
@@ -67,27 +67,36 @@ export default function Editor({
 
   function targets(zDoc: ZDocument) {
     return zDocumentToZTokens(zDoc).map((token) => {
-      if (token.type == 'speaker-index') {
-          const iSpeaker = Number(token.value);
-          return (
-            <h3 className="-mb-2 mt-1">
-              <EditableText
-                className="pl-1 mt-4 font-semibold text-base-300"
-                value={speakers[iSpeaker]}
-                setValue={(name) => {
-                  const newSpeakers = [...speakers]
-                  newSpeakers[iSpeaker] = name
-                  setSpeakers(newSpeakers)
-                }}
-                editing={editingSpeaker === iSpeaker} 
-                setEditing={() => {
-                  setEditingSpeaker(iSpeaker)
-                }}
-              />
-            </h3>
-          );
+      if (token.type === 'speaker-index') {
+        const speakerId = token.value;
+        const speaker = speakers.find((x) => x.id === speakerId);
+        if (!speaker) {
+          // could not find the speaker
+          return (null);
+        }
+        return (
+          <h3 key={token.id} className="-mb-2 mt-1">
+            <EditableText
+              className="pl-1 mt-4 font-semibold text-base-300"
+              value={speaker.name}
+              setValue={(name) => {
+                const newSpeakers = [...speakers];
+                const s = newSpeakers.find((x) => x.id === speaker.id);
+                if (s) {
+                  s.name = name;
+                  setSpeakers(newSpeakers);
+                }
+              }}
+              editing={editingSpeaker === speaker.id}
+              setEditing={() => {
+                setEditingSpeaker(speaker.id);
+              }}
+            />
+          </h3>
+        );
+      }
 
-      } else if (token.type == 'content') {
+      if (token.type === 'content') {
         if (token.wordIndex === focus) {
           return (
             <>
@@ -104,6 +113,8 @@ export default function Editor({
           </>
         );
       }
+
+      return <> </>;
     });
   }
 

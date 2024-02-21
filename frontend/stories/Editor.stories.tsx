@@ -41,7 +41,10 @@ export default {
 const helloWorldDoc: ZDocument = {
   words: ["Hello", "world,", "this", "is", "a", "test!"],
   scores: [0.9, 0.8, 0.95, 0.7, 0.85, 0.6],
-  speakers: ["Rany", "Alexey"],
+  speakers: [
+    { key: "rany", name: "Rany" },
+    { key: "alexey", name: "Alexey" },
+  ],
   turns: [
     [0, 0], // Rany said "hello world"
     [1, 2], // Alexey said "this"

@@ -88,19 +88,19 @@ def annotate(transcription_id):
         for turn, _, speaker in diarization.itertracks(yield_label=True):
             if not re.match(r"SPEAKER_\d+", speaker):
                 raise AnnotationError(f"unexpected speaker format: {speaker}")
-            turns.append(common.Turn(name, turn.start, turn.end))
+            turns.append(common.Turn(speaker, turn.start, turn.end))
 
         # speaker naming scheme depending on number of speakers
-        n_speakers = len({t.name for t in turns})
+        n_speakers = len({t.speaker for t in turns})
         for t in turns:
             if n_speakers == 1:
-                t.name = "Speaker"
+                t.speaker = "Speaker"
             elif n_speakers <= 3:
                 number = int(t.speaker.split("_")[1]) + 1
-                t.name = f"speaker {num2words(number)}".title()
+                t.speaker = f"speaker {num2words(number)}".title()
             else:
                 number = int(t.speaker.split("_")[1]) + 1
-                t.name = f"Speaker {number}"
+                t.speaker = f"Speaker {number}"
 
         return common.Diarization(
             turns=turns

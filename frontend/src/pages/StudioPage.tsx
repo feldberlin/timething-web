@@ -40,6 +40,7 @@ import {
   languageLongName,
   process,
   supportedLanguages as languages,
+  Speaker,
   transcriptionToZDocument,
 } from '../lib.ts';
 
@@ -84,8 +85,8 @@ export default function StudioPage() {
   const [editingTitle, setEditingTitle] = useState<boolean>(false);
   const [description, setDescription] = useState<string | null>(null);
   const [editingDescription, setEditingDescription] = useState<boolean>(false);
-  const [speakers, setSpeakers] = useState<string[]>([]);
-  const [editingSpeaker, setEditingSpeaker] = useState<number | null>(null);
+  const [speakers, setSpeakers] = useState<Speaker[]>([]);
+  const [editingSpeaker, setEditingSpeaker] = useState<string | null>(null);
 
   // retranscription
   const [retranscribing, setRetranscribing] = useState<boolean>(false);
@@ -112,11 +113,11 @@ export default function StudioPage() {
           setTitle(meta.track.title);
           setDescription(meta.track.description);
 
-          const zDocument = transcriptionToZDocument(meta);
-          setZDocument(zDocument);
+          const zDoc = transcriptionToZDocument(meta);
+          setZDocument(zDoc);
 
           // speakers
-          setSpeakers(zDocument.speakers);
+          setSpeakers(zDoc.speakers);
 
           // alignment
           if (meta.alignment) {
@@ -179,7 +180,7 @@ export default function StudioPage() {
     const findElapsed = (f: number) => {
       const { words = [] } = alignment || {};
       const word = words[f];
-      return word ? word.start : 0
+      return word ? word.start : 0;
     };
 
     const e = findElapsed(editorFocus);
@@ -397,17 +398,21 @@ export default function StudioPage() {
         { /* Speakers */ }
         <div className="section border-b border-base-200 pt-1 pb-5">
           <h3 className="my-3 mx-8 font-bold">Speakers</h3>
-          {speakers.map((_, iSpeaker) => (
+          {speakers.map((speaker) => (
             <EditableText
+              key={`sidebar-${speaker.id}`}
               className="sidebar-speaker mx-8"
-              value={speakers[iSpeaker]}
+              value={speaker.name}
               setValue={(name) => {
-                const newSpeakers = [...speakers]
-                newSpeakers[iSpeaker] = name
-                setSpeakers(newSpeakers)
+                const newSpeakers = [...speakers];
+                const s = newSpeakers.find((x) => x.id === speaker.id);
+                if (s) {
+                  s.name = name;
+                  setSpeakers(newSpeakers);
+                }
               }}
-              editing={editingSpeaker === iSpeaker}
-              setEditing={() => setEditingSpeaker(iSpeaker)}
+              editing={editingSpeaker === speaker.id}
+              setEditing={() => setEditingSpeaker(speaker.id)}
             />
           ))}
         </div>
