@@ -3,15 +3,12 @@ import EditableText from '../src/EditableText';
 
 // wrapper
 const EditableTextWrapper = () => {
-  let [editing, setEditing] = useState(false);
   let [text, setText] = useState('Hello World');
   let [display, setDisplay] = useState();
 
   return (
     <>
       <EditableText
-        editing={editing}
-        setEditing={setEditing}
         setValue={setText}
         value={text === null ? 'Default' : text}
         onSave={

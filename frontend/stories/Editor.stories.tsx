@@ -53,7 +53,7 @@ const helloWorldDoc: ZDocument = {
   ],
 };
 
-const realZDocument = transcriptionToZDocument(fixtureData);
+// const realZDocument = transcriptionToZDocument(fixtureData);
 
 // more realistic data from file
 
@@ -63,27 +63,27 @@ export const Primary = {
     setFocus: (ev) => { console.log('focus', ev) },
   },
 };
+//
+// export const Focussed = {
+//   args: {
+//     zDocument: helloWorldDoc,
+//     setFocus: (ev) => { console.log('focus', ev) },
+//     focus: 3,
+//   },
+// };
+//
+// export const Named = {
+//   args: {
+//     zDocument: helloWorldDoc,
+//     title: 'Hello World',
+//     setFocus: (ev) => { console.log('focus', ev) },
+//   },
+// };
 
-export const Focussed = {
-  args: {
-    zDocument: helloWorldDoc,
-    setFocus: (ev) => { console.log('focus', ev) },
-    focus: 3,
-  },
-};
-
-export const Named = {
-  args: {
-    zDocument: helloWorldDoc,
-    title: 'Hello World',
-    setFocus: (ev) => { console.log('focus', ev) },
-  },
-};
-
-export const RealData = {
-  args: {
-    zDocument: realZDocument,
-    title: 'Hello World',
-    setFocus: (ev) => { console.log('focus', ev) },
-  },
-};
+// export const RealData = {
+//   args: {
+//     zDocument: realZDocument,
+//     title: 'Hello World',
+//     setFocus: (ev) => { console.log('focus', ev) },
+//   },
+// };

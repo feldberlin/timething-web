@@ -33,13 +33,9 @@ export default function Editor({
   // title
   title = null,
   setTitle,
-  editingTitle,
-  setEditingTitle,
   // speakers
   speakers,
   setSpeakers,
-  editingSpeaker,
-  setEditingSpeaker,
 } : {
   focus: number,
   zDocument: ZDocument | null,
@@ -47,13 +43,12 @@ export default function Editor({
   initialTranscriptionId: string,
   title: string | null,
   setTitle: (t: string) => void,
-  editingTitle: boolean,
-  setEditingTitle: (e: boolean) => void,
   speakers: Speaker[];
   setSpeakers: (s: Speaker[]) => void,
-  editingSpeaker: string | null,
-  setEditingSpeaker: (s: string | null) => void,
 }) {
+
+  log.info(`Rendering Editor component with focus ${focus}`);
+
   /**
    * Event handlers
    *
@@ -66,55 +61,45 @@ export default function Editor({
     }
   }
 
+  /**
+   * Display ZTokens.
+   *
+   */
   function targets(tokens: ZTokens[]) {
     return tokens.map((token) => {
+
+      // speaker token
       if (token.type === 'speaker') {
-        const speakerId = token.value;
-        const speaker = speakers.find((x) => x.id === speakerId);
-        if (!speaker) {
-          // could not find the speaker
-          log.error('could not find speaker: ', speakerId, ' in ', speakers);
-          return (null);
+        const speakerIdx = speakers.findIndex((x) => x.id === token.value);
+        if (speakerIdx == -1) {
+          return null;
         }
+
+        // found the speaker in the given speakers array
+        const speaker = speakers[speakerIdx];
+
+        // an editable speaker name
         return (
           <EditableText
+            key={Math.random().toString()}
             className="pl-1 mt-5 -mb-2 font-semibold text-base-300"
             value={speaker.name}
             setValue={(name) => {
               const newSpeakers = [...speakers];
-              const s = newSpeakers.find((x) => x.id === speaker.id);
-              if (s) {
-                s.name = name;
-                setSpeakers(newSpeakers);
-              }
-            }}
-            editing={editingSpeaker === speaker.id}
-            setEditing={() => {
-              setEditingSpeaker(speaker.id);
+              newSpeakers[speakerIdx].name = name;
+              setSpeakers(newSpeakers);
             }}
           />
         );
-      }
 
-      if (token.type === 'content') {
-        if (token.wordIndex === focus) {
-          return (
-            <>
-              <span className="bg-primary text-white rounded inline-block pl-1 pr-1 cursor-pointer" data-key={token.wordIndex}>{token.value}</span>
-              <span> </span>
-            </>
-          );
-        }
-
+      // content token
+      } else {
         return (
-          <>
-            <span className="hover:bg-primary hover:text-white hover:rounded inline-block ml-1 mr-1 cursor-pointer" data-key={token.wordIndex}>{token.value}</span>
-            <span className="inline-block -ml-px"> </span>
-          </>
+          <span key={Math.random()}>
+            {token.value}
+          </span>
         );
       }
-
-      return (null);
     });
   }
 
@@ -125,8 +110,6 @@ export default function Editor({
           ? (
             <>
               <EditableText
-                editing={editingTitle}
-                setEditing={setEditingTitle}
                 setValue={setTitle}
                 value={title === null ? 'Transcript' : title}
                 onUpdate={_.partial(debouncedPutTitle, initialTranscriptionId)}

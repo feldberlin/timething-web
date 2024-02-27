@@ -67,6 +67,7 @@ type StudioParams = {
 export default function StudioPage() {
   const { transcriptionId } = useParams<StudioParams>();
   const playerRef = useRef<ReactPlayer>(null);
+  const changeLanguageModalRef = useRef<HTMLDialogElement>(null)
 
   // basic data
   const [alignment, setAlignment] = useState<Alignment | null>(null);
@@ -86,7 +87,6 @@ export default function StudioPage() {
   const [description, setDescription] = useState<string | null>(null);
   const [editingDescription, setEditingDescription] = useState<boolean>(false);
   const [speakers, setSpeakers] = useState<Speaker[]>([]);
-  const [editingSpeaker, setEditingSpeaker] = useState<string | null>(null);
 
   // retranscription
   const [retranscribing, setRetranscribing] = useState<boolean>(false);
@@ -265,9 +265,8 @@ export default function StudioPage() {
         + ` in ${s.label}?`,
       );
 
-      const modal = document.querySelector('#change-language-modal') as HTMLFormElement;
-      if (modal) {
-        modal.showModal();
+      if (changeLanguageModalRef.current) {
+        changeLanguageModalRef.current.showModal();
       }
     }
   };
@@ -289,7 +288,7 @@ export default function StudioPage() {
   return (
     <div id="studio" className="flex min-w-full min-h-screen screen">
       <div id="studio-modal">
-        <dialog id="change-language-modal" className="modal">
+        <dialog ref={changeLanguageModalRef} id="change-language-modal" className="modal">
           <div className="modal-box">
             <h3 className="font-bold text-lg">Changing Language</h3>
             <p className="py-4">
@@ -337,8 +336,6 @@ export default function StudioPage() {
           { (editingTitle || title) && (
             <EditableText
               className="my-3 mx-8"
-              editing={editingTitle}
-              setEditing={setEditingTitle}
               setValue={setTitle}
               value={title}
               onUpdate={_.partial(debouncedPutTitle, transcriptionId)}
@@ -363,8 +360,6 @@ export default function StudioPage() {
           { (editingDescription || description) && (
             <EditableText
               className="my-3 mx-8"
-              editing={editingDescription}
-              setEditing={setEditingDescription}
               setValue={setDescription}
               value={description}
               onUpdate={_.partial(debouncedPutDescription, transcriptionId)}
@@ -411,8 +406,6 @@ export default function StudioPage() {
                   setSpeakers(newSpeakers);
                 }
               }}
-              editing={editingSpeaker === speaker.id}
-              setEditing={() => setEditingSpeaker(speaker.id)}
             />
           ))}
         </div>
@@ -427,12 +420,8 @@ export default function StudioPage() {
           setFocus={setFocusFromEditor}
           title={title}
           setTitle={setTitle}
-          editingTitle={editingTitle}
-          setEditingTitle={setEditingTitle}
           speakers={speakers}
           setSpeakers={setSpeakers}
-          editingSpeaker={editingSpeaker}
-          setEditingSpeaker={setEditingSpeaker}
         />
       </div>
       <div id="player" className="flex justify-center items-center h-screen bg-images-right">

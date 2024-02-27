@@ -1,4 +1,3 @@
-// @ts-expect-error keep react here
 import React from 'react';
 
 // styles
@@ -10,9 +9,7 @@ import TextareaAutosize from 'react-textarea-autosize';
 // props
 type EditableTextProps = {
   className?: string | null;
-  editing: boolean;
   value: string | null;
-  setEditing: (editing: boolean) => void;
   setValue: (value: string) => void;
   onUpdate?: (value: string) => void;
 };
@@ -23,32 +20,32 @@ type EditableTextProps = {
  */
 export default function EditableText({
   className = null,
-  editing = false,
   value = null,
-  setEditing = () => {},
   setValue = () => {},
   onUpdate = () => {},
 } : EditableTextProps) {
+  const textAreaRef = React.useRef<HTMLTextAreaElement>(null);
+
   return (
     <div className="editable-text">
       <TextareaAutosize
+        ref={textAreaRef}
         autoFocus
         autoComplete="off"
         autoCorrect="off"
         autoCapitalize="off"
         spellCheck="false"
-        readOnly={!editing}
         className={className || undefined}
         onChange={(ev) => {
           const val = ev.target.value;
           setValue(val);
           onUpdate(val);
         }}
-        onClick={() => setEditing(true)}
-        onBlur={() => setEditing(false)}
         onKeyDown={(ev) => {
           if (ev.key === 'Enter' || ev.key === 'Escape') {
-            setEditing(false);
+            if (textAreaRef.current !== null) {
+              textAreaRef.current.blur();
+            }
           }
         }}
         value={value || undefined}
