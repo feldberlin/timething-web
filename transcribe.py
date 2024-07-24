@@ -6,7 +6,7 @@ import traceback
 from modal import Image
 
 import common
-from common import stub
+from common import app
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
