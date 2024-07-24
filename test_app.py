@@ -33,8 +33,9 @@ def test_upload(client):
     assert res.status_code == 200
 
 
-@patch('common.stub', new=MockedStub())
-def test_upload_chunk(client, transcription_id = 'abc'):
+@patch("common.app", new=MockedStub())
+@patch("common.transcriptions", new=dict())
+def test_upload_chunk(client, transcription_id="abc"):
     with common.tmpdir_scope() as tmp_dir:
         media_path = Path(tmp_dir)
         with patch('common.db', new=common.Store(media_path)):
@@ -76,9 +77,12 @@ def test_upload_chunk(client, transcription_id = 'abc'):
 
 
 resume_stub = MockedStub()
-@patch('app.stub', new=resume_stub)
-@patch('common.stub', new=resume_stub)
-def test_resume(client, transcription_id = 'abc'):
+
+
+@patch("app.app", new=resume_stub)
+@patch("common.app", new=resume_stub)
+@patch("common.transcriptions", new=dict())
+def test_resume(client, transcription_id="abc"):
     with common.tmpdir_scope() as tmp_dir:
         media_path = Path(tmp_dir)
         with patch('common.db', new=common.Store(media_path)):
@@ -154,9 +158,12 @@ def test_resume(client, transcription_id = 'abc'):
 
 
 update_track_stub = MockedStub()
-@patch('app.stub', new=update_track_stub)
-@patch('common.stub', new=update_track_stub)
-def test_update_track(client, transcription_id = "abc"):
+
+
+@patch("app.app", new=update_track_stub)
+@patch("common.app", new=update_track_stub)
+@patch("common.transcriptions", new=dict())
+def test_update_track(client, transcription_id="abc"):
     with common.tmpdir_scope() as tmp_dir:
         media_path = Path(tmp_dir)
         with patch('common.db', new=common.Store(media_path)):
@@ -187,9 +194,12 @@ def test_update_track(client, transcription_id = "abc"):
 
 
 export_stub = MockedStub()
-@patch('app.stub', new=export_stub)
-@patch('common.stub', new=export_stub)
-def test_export_srt(client, transcription_id = 'abc'):
+
+
+@patch("app.app", new=export_stub)
+@patch("common.app", new=export_stub)
+@patch("common.transcriptions", new=dict())
+def test_export_srt(client, transcription_id="abc"):
     with open("fixtures/meta.json") as f:
         meta = json.loads(f.read())
         transcript = meta['transcript']
