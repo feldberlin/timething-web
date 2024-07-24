@@ -19,9 +19,12 @@ class MockedStub:
 
 
 transcode_stub = MockedStub()
-@patch('transcode.stub', new=transcode_stub)
-@patch('common.stub', new=transcode_stub)
-def test_transcode(transcription_id = "keanu.mp3"):
+
+
+@patch("transcode.app", new=transcode_stub)
+@patch("common.app", new=transcode_stub)
+@patch("common.transcriptions", new=dict())
+def test_transcode(transcription_id="keanu.mp3"):
     with common.tmpdir_scope() as tmp:
         media_path = Path(tmp)
         with patch('common.db', new=common.Store(media_path)):
