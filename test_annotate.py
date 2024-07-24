@@ -21,6 +21,7 @@ annotate_stub = MockedStub()
 
 @patch("annotate.app", new=annotate_stub)
 @patch("common.app", new=annotate_stub)
+@patch("common.transcriptions", new=dict())
 def test_annotate_one_speaker(transcription_id="one.wav"):
     with common.tmpdir_scope() as tmp:
         media_path = Path(tmp)
@@ -41,6 +42,9 @@ def test_annotate_one_speaker(transcription_id="one.wav"):
             assert diarization.turns[0].speaker == "Speaker"
 
 
+@patch("annotate.app", new=annotate_stub)
+@patch("common.app", new=annotate_stub)
+@patch("common.transcriptions", new=dict())
 def test_annotate_two_speakers(transcription_id="two.wav"):
     with common.tmpdir_scope() as tmp:
         media_path = Path(tmp)
