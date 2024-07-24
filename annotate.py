@@ -76,7 +76,7 @@ def annotate(transcription_id):
 
     with ProgressHook() as hook:
         # load audio. https://github.com/m-bain/whisperX/issues/399
-        waveform, sample_rate = torchaudio.load(t.transcoded_file)
+        waveform, sample_rate = torchaudio.load(str(t.transcoded_file))
         logger.info(f"loaded waveform {waveform.size()}")
         diarization = pipeline({
             "waveform": waveform,
