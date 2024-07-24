@@ -39,7 +39,7 @@ transcriber_image = (
 )
 
 
-@stub.function(
+@app.function(
     gpu="A10G",
     cpu=8.0,
     container_idle_timeout=180,
