@@ -8,7 +8,7 @@ import sys
 from modal import Image, Secret
 
 import common
-from common import stub
+from common import app
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -42,7 +42,7 @@ class Progress:
         pass
 
 
-@stub.function(
+@app.function(
     gpu="A10G",
     cpu=8.0,
     container_idle_timeout=180,
