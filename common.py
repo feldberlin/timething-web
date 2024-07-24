@@ -8,7 +8,7 @@ import shutil
 import tempfile
 import typing
 
-from modal import Stub, Dict, NetworkFileSystem
+from modal import App, Dict, NetworkFileSystem
 
 import llm
 
@@ -22,16 +22,16 @@ LANGUAGE = "en"
 MODEL_NAME = "large-v2"
 
 # main storage volume
-volume = NetworkFileSystem.persisted("media")
+volume = NetworkFileSystem.from_name("media")
 
 # nfs
 nfs = {
     str(MEDIA_PATH): volume
 }
 
-# stub
-stub = Stub(name="timething-web")
-stub.transcriptions = Dict.new()
+# app
+app = App(name="timething-web")
+transcriptions = Dict.from_name("transcriptions", create_if_missing=True)
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -52,11 +52,13 @@ class UploadInfo:
     size_bytes: int = None
 
     def from_dict(d):
-        return UploadInfo(**{
-            k: v for k, v in d.items()
-            if k in inspect.signature(UploadInfo).parameters
-        })
-
+        return UploadInfo(
+            **{
+                k: v
+                for k, v in d.items()
+                if k in inspect.signature(UploadInfo).parameters
+            }
+        )
 
 
 @dataclass
@@ -250,7 +252,7 @@ class Store:
         if not t.transcription_id:
             raise Exception(f'id not specified')
 
-        stub.transcriptions[t.transcription_id] = t
+        transcriptions[t.transcription_id] = t
         content = json.dumps(asdict(t), cls=JSONEncoder)
         with open(t.transcribed_file, 'w') as f:
             f.write(content)
@@ -260,7 +262,7 @@ class Store:
             raise Exception(f'id not specified')
 
         # guard against path traversal attacks
-        if transcription_id not in stub.transcriptions:
+        if transcription_id not in transcriptions:
             return None
 
         path = self.media_path / transcription_id
@@ -271,7 +273,7 @@ class Store:
         with open(meta, 'r') as f:
             t_dict = json.load(f)
             t = Transcription.from_dict(t_dict)
-            stub.transcriptions[transcription_id] = t
+            transcriptions[transcription_id] = t
             return t
 
 
