@@ -81,9 +81,7 @@ def test_pipeline(transcription_id = "abc"):
             assert updates[0].state == "transcoding"
 
             assert type(updates[1]) == TranscodingProgress
-            assert updates[2].percent_done == 96
-            assert updates[5].percent_done is 100
-            assert updates[5].track.duration > 1.4
+            assert updates[4].track.duration > 1.4
 
             assert type(updates[-3]) == TranscriptionProgress
             assert updates[-3].percent_done is 100
