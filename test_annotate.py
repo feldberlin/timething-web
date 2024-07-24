@@ -38,4 +38,4 @@ def test_annotate_one_speaker(transcription_id="one.wav"):
             common.db.create(t)
             diarization = annotate.local(transcription_id)
             assert len(diarization.turns) == 1
-            assert diarization.turns[0].speaker == "SPEAKER_00"
+            assert diarization.turns[0].speaker == "Speaker"
