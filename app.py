@@ -13,7 +13,7 @@ import uuid
 from modal import Mount, NetworkFileSystem, asgi_app, Image, Secret
 from pydantic import BaseModel
 
-from common import stub, Transcription
+from common import app, Transcription
 import common
 import formats
 from pipeline import pipeline, PipelineProgress
@@ -51,7 +51,7 @@ class MediaForm(BaseModel):
     size_bytes: int
 
 
-@stub.function(
+@app.function(
     mounts=[mount],
     image=app_image,
     network_file_systems=common.nfs,
