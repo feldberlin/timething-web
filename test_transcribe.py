@@ -16,9 +16,12 @@ class MockedStub:
 
 
 transcribe_stub = MockedStub()
-@patch('transcribe.stub', new=transcribe_stub)
-@patch('common.stub', new=transcribe_stub)
-def test_transcribe(transcription_id = "abc"):
+
+
+@patch("transcribe.app", new=transcribe_stub)
+@patch("common.app", new=transcribe_stub)
+@patch("common.transcriptions", new=dict())
+def test_transcribe(transcription_id="abc"):
     with common.tmpdir_scope() as tmp:
         media_path = Path(tmp)
         with patch('common.db', new=common.Store(media_path)):
