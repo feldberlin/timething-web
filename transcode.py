@@ -6,7 +6,7 @@ import socket
 
 from modal import Image
 
-from common import stub
+from common import app
 import common
 
 logger = logging.getLogger(__name__)
@@ -31,7 +31,7 @@ transcoder_image = (
 )
 
 
-@stub.function(
+@app.function(
     cpu=8.0,
     container_idle_timeout=180,
     image=transcoder_image,
