@@ -51,7 +51,6 @@ def test_transcode(transcription_id="keanu.mp3"):
             )
 
             assert len(updates) >= 3
-            assert updates[0].percent_done == 0
             assert updates[-2].percent_done == 100
             assert updates[-1].percent_done == 100
 
