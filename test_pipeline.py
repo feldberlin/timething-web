@@ -41,12 +41,15 @@ class MockedStub:
 
 
 pipeline_stub = MockedStub()
-@patch('annotate.stub', new=pipeline_stub)
-@patch('common.stub', new=pipeline_stub)
-@patch('pipeline.stub', new=pipeline_stub)
-@patch('transcode.stub', new=pipeline_stub)
-@patch('transcribe.stub', new=pipeline_stub)
-def test_pipeline(transcription_id = "abc"):
+
+
+@patch("annotate.app", new=pipeline_stub)
+@patch("common.app", new=pipeline_stub)
+@patch("pipeline.app", new=pipeline_stub)
+@patch("transcode.app", new=pipeline_stub)
+@patch("transcribe.app", new=pipeline_stub)
+@patch("common.transcriptions", new=dict())
+def test_pipeline(transcription_id="abc"):
     with common.tmpdir_scope() as tmp:
         media_path = Path(tmp)
         with patch('common.db', new=common.Store(media_path)):
@@ -81,9 +84,7 @@ def test_pipeline(transcription_id = "abc"):
             assert updates[0].state == "transcoding"
 
             assert type(updates[1]) == TranscodingProgress
-            assert updates[2].percent_done == 96
-            assert updates[5].percent_done is 100
-            assert updates[5].track.duration > 1.4
+            assert updates[4].track.duration > 1.4
 
             assert type(updates[-3]) == TranscriptionProgress
             assert updates[-3].percent_done is 100

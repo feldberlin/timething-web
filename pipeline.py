@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
 import common
-from common import stub
+from common import app
 
 
 class PipelineError(Exception):

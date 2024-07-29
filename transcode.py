@@ -6,7 +6,7 @@ import socket
 
 from modal import Image
 
-from common import stub
+from common import app
 import common
 
 logger = logging.getLogger(__name__)
@@ -24,14 +24,13 @@ class TranscodeError(Exception):
 
 
 transcoder_image = (
-    Image
-        .debian_slim(python_version="3.10.8")
-        .apt_install("git", "ffmpeg", "curl")
-        .pip_install("ffmpeg-python")
+    Image.debian_slim(python_version="3.10.8")
+    .apt_install("git", "ffmpeg", "curl")
+    .pip_install("ffmpeg-python")
 )
 
 
-@stub.function(
+@app.function(
     cpu=8.0,
     container_idle_timeout=180,
     image=transcoder_image,
