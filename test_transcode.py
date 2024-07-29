@@ -24,7 +24,7 @@ transcode_stub = MockedStub()
 @patch("transcode.app", new=transcode_stub)
 @patch("common.app", new=transcode_stub)
 @patch("common.transcriptions", new=dict())
-def test_transcode(transcription_id="keanu.mp3"):
+def test_transcode(transcription_id="overgrown.mp3"):
     with common.tmpdir_scope() as tmp:
         media_path = Path(tmp)
         with patch('common.db', new=common.Store(media_path)):
@@ -55,12 +55,18 @@ def test_transcode(transcription_id="keanu.mp3"):
             assert updates[-1].percent_done == 100
 
             track = updates[-1].track
-            assert track.title == "Keanu Reeves"
-            assert track.artist == "The New York Times"
-            assert track.album == "Still Processing"
-            assert track.comment == "preroll_1;postroll_1"
-            assert track.date == "2022"
+            assert track.title == "Overgrown"
+            assert track.artist == "Totonoko"
+            assert track.album == "Totonoko EP"
+            assert (
+                track.comment
+                == "Totonoko comment one, comment two"
+            )
+            assert track.date == "2014"
 
             probe = ffmpeg.probe(t.transcoded_file)
-            assert probe['format']['format_name'] == "wav"
-            assert int(float(probe['format']['duration'])) == 1572
+            assert probe["format"]["format_name"] == "wav"
+            assert (
+                int(float(probe["format"]["duration"]))
+                == 222
+            )
