@@ -24,10 +24,10 @@ class TranscodeError(Exception):
 
 
 transcoder_image = (
-    Image
-        .debian_slim(python_version="3.10.8")
-        .apt_install("git", "ffmpeg", "curl")
-        .pip_install("ffmpeg-python")
+    Image.debian_slim(python_version="3.10.8")
+    .apt_install("git", "ffmpeg", "curl")
+    .pip_install("ffmpeg-python")
+    .pip_install("ffprobe-python")
 )
 
 
