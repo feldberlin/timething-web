@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 // @ts-expect-error no types package for react-checkmark
 import { Checkmark } from 'react-checkmark';
 import { createXXHash3 } from 'hash-wasm';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import * as log from 'loglevel';
 
 // components
@@ -80,7 +80,7 @@ export default function Upload({
   const [bps, setBps] = useState<number | null>(initialBps); // bps upload speed
   const [showEta, setShowEta] = useState<boolean>(initialShowEta);
   const [error, setError] = useState<string | null>(initialError);
-  const history = useHistory();
+  const navigate = useNavigate();
 
   /**
    * State management
@@ -445,7 +445,7 @@ export default function Upload({
       setProgress,
       setShowEta,
       showState,
-      onComplete: () => history.push(`/studio/${id}`),
+      onComplete: () => navigate(`/studio/${id}`),
       onError: setUploadError,
     });
   }

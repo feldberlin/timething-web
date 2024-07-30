@@ -1,9 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import {
-  BrowserRouter as Router,
-  Switch,
+  Routes,
   Route,
+  BrowserRouter,
 } from 'react-router-dom';
 
 // components
@@ -20,24 +20,18 @@ import '../css/App.css';
  */
 export default function App() {
   return (
-    <Router>
-      <Switch>
-        <Route path="/studio/:transcriptionId">
-          <StudioPage />
-        </Route>
-        <Route path="/upload">
-          <UploadPage />
-        </Route>
-        <Route path="/">
-          <HomePage />
-        </Route>
-      </Switch>
-    </Router>
+    <Routes>
+      <Route path="/studio/:transcriptionId" element={<StudioPage />} />
+      <Route path="/upload" element={<UploadPage />} />
+      <Route path="/" element={<HomePage />} />
+    </Routes>
   );
 }
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <App />
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
   </React.StrictMode>,
 );

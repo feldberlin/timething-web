@@ -1,6 +1,6 @@
 // @ts-expect-error keep react here
 import React from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 // images
 import logoUrl from '../../timething.svg';
@@ -10,10 +10,10 @@ import logoUrl from '../../timething.svg';
  *
  */
 export default function HomePage() {
-  const history = useHistory();
+  const navigate = useNavigate();
 
   function upload() {
-    history.push('/upload');
+    navigate('/upload');
   }
 
   return (
