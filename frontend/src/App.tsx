@@ -7,6 +7,8 @@ import {
 } from 'react-router-dom';
 
 // components
+import { AuthProvider } from './components/hooks/useAuth.tsx';
+import RequireAuth from './components/RequireAuth.tsx';
 import StudioPage from './pages/StudioPage.tsx';
 import UploadPage from './pages/UploadPage.tsx';
 import HomePage from './pages/HomePage.tsx';
@@ -21,9 +23,23 @@ import '../css/App.css';
 export default function App() {
   return (
     <Routes>
-      <Route path="/studio/:transcriptionId" element={<StudioPage />} />
-      <Route path="/upload" element={<UploadPage />} />
       <Route path="/" element={<HomePage />} />
+      <Route
+        path="/studio/:transcriptionId"
+        element={(
+          <RequireAuth>
+            <StudioPage />
+          </RequireAuth>
+      )}
+      />
+      <Route
+        path="/upload"
+        element={(
+          <RequireAuth>
+            <UploadPage />
+          </RequireAuth>
+      )}
+      />
     </Routes>
   );
 }
@@ -31,7 +47,9 @@ export default function App() {
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <BrowserRouter>
-      <App />
+      <AuthProvider>
+        <App />
+      </AuthProvider>
     </BrowserRouter>
   </React.StrictMode>,
 );
