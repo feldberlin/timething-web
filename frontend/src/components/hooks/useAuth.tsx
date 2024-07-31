@@ -43,7 +43,3 @@ export function useAuth() {
   if (context === undefined) throw Error('useAuth must be used within AuthProvider');
   return context;
 }
-
-export default function AuthConsumer() {
-  return React.useContext(authContext);
-}
