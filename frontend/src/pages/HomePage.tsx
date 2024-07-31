@@ -1,6 +1,10 @@
 // @ts-expect-error keep react here
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { Auth } from '@supabase/auth-ui-react';
+import { ThemeSupa } from '@supabase/auth-ui-shared';
+import { useAuth } from '../components/hooks/useAuth.tsx';
+import supabase from '../supabaseClient.ts';
 
 // images
 import logoUrl from '../../timething.svg';
@@ -10,11 +14,17 @@ import logoUrl from '../../timething.svg';
  *
  */
 export default function HomePage() {
+  const { session } = useAuth();
+  const { state } = useLocation();
   const navigate = useNavigate();
 
-  function upload() {
-    navigate('/upload');
-  }
+  const upload = () => {
+    navigate(state?.path || '/upload');
+  };
+
+  const signOut = () => {
+    supabase.auth.signOut();
+  };
 
   return (
     <div className="min-w-full min-h-screen screen">
@@ -34,9 +44,18 @@ export default function HomePage() {
             video files with just one upload. Enhance accessibility, increase
             comprehension and break language barriers with subtitles.
           </h2>
-          <div className="button">
-            <label className="btn btn-lg btn-primary" onClick={upload}>Upload</label>
-          </div>
+          {session ? (
+            <div>
+              <div className="button">
+                <label className="btn btn-lg btn-primary" onClick={upload}>Upload</label>
+              </div>
+              <div className="button">
+                <label className="btn btn-lg btn-primary" onClick={signOut}>Sign out</label>
+              </div>
+            </div>
+          ) : (
+            <Auth supabaseClient={supabase} providers={['google']} appearance={{ theme: ThemeSupa }} />
+          )}
         </main>
       </div>
     </div>
