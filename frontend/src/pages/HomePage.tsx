@@ -2,9 +2,10 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Auth } from '@supabase/auth-ui-react';
-import { ThemeSupa } from '@supabase/auth-ui-shared';
+// import { ThemeSupa } from '@supabase/auth-ui-shared';
 import { useAuth } from '../components/hooks/useAuth.tsx';
 import supabase from '../supabaseClient.ts';
+import customTheme from '../authCustomTheme.ts';
 
 // images
 import logoUrl from '../../timething.svg';
@@ -54,7 +55,7 @@ export default function HomePage() {
               </div>
             </div>
           ) : (
-            <Auth supabaseClient={supabase} providers={['google']} appearance={{ theme: ThemeSupa }} />
+            <Auth supabaseClient={supabase} providers={['google']} appearance={{ theme: customTheme }} />
           )}
         </main>
       </div>
