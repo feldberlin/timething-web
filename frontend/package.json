@@ -34,7 +34,6 @@
     "install": "^0.13.0",
     "loglevel": "^1.9.1",
     "npm": "^10.4.0",
-    "postcss-nesting": "^12.1.5",
     "prop-types": "^15.8.1",
     "react": "^18.2.0",
     "react-checkmark": "^2.0.0",
