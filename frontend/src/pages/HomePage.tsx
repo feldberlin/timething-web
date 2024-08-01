@@ -48,14 +48,23 @@ export default function HomePage() {
           {session ? (
             <div>
               <div className="button">
-                <label className="btn btn-lg btn-primary" onClick={upload}>Upload</label>
+                <label className="btn btn-lg btn-primary" onClick={upload}>
+                  Upload
+                </label>
               </div>
               <div className="button">
-                <label className="btn btn-lg btn-primary" onClick={signOut}>Sign out</label>
+                <label className="btn btn-lg btn-primary" onClick={signOut}>
+                  Sign out
+                </label>
               </div>
             </div>
           ) : (
-            <Auth supabaseClient={supabase} providers={['google']} appearance={{ theme: customTheme }} />
+            <Auth
+              supabaseClient={supabase}
+              providers={['google']}
+              appearance={{ theme: customTheme }}
+              redirectTo={document.location.origin}
+            />
           )}
         </main>
       </div>
