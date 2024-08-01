@@ -7,5 +7,3 @@ export default {
     autoprefixer(),
   ],
 };
-
-
