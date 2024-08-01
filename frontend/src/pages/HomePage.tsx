@@ -10,6 +10,9 @@ import customTheme from '../authCustomTheme.ts';
 // images
 import logoUrl from '../../timething.svg';
 
+// styles
+import '../../css/pages/HomePage.css';
+
 /**
  * Main page users land on when they visit the site.
  *
@@ -46,7 +49,7 @@ export default function HomePage() {
             comprehension and break language barriers with subtitles.
           </h2>
           {session ? (
-            <div>
+            <div id="buttons">
               <div className="button">
                 <label className="btn btn-lg btn-primary" onClick={upload}>
                   Upload
