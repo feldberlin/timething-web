@@ -19,6 +19,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@ffmpeg/ffmpeg": "^0.12.10",
+    "@ffmpeg/util": "^0.12.1",
     "@storybook/builder-vite": "^8.2.6",
     "@supabase/auth-ui-react": "^0.4.7",
     "@supabase/auth-ui-shared": "^0.1.8",

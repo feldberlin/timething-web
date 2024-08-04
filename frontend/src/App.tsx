@@ -11,6 +11,7 @@ import { AuthProvider } from './components/hooks/useAuth.tsx';
 import RequireAuth from './components/RequireAuth.tsx';
 import StudioPage from './pages/StudioPage.tsx';
 import UploadPage from './pages/UploadPage.tsx';
+import UploadWasmPage from './pages/UploadWasmPage.tsx';
 import HomePage from './pages/HomePage.tsx';
 
 // styles
@@ -37,6 +38,14 @@ export default function App() {
         element={(
           <RequireAuth>
             <UploadPage />
+          </RequireAuth>
+      )}
+      />
+      <Route
+        path="/upload-wasm"
+        element={(
+          <RequireAuth>
+            <UploadWasmPage />
           </RequireAuth>
       )}
       />

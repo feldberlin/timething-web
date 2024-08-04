@@ -26,6 +26,10 @@ export default function HomePage() {
     navigate(state?.path || '/upload');
   };
 
+  const uploadWasm = () => {
+    navigate(state?.path || '/upload-wasm');
+  };
+
   const signOut = () => {
     supabase.auth.signOut();
   };
@@ -53,6 +57,11 @@ export default function HomePage() {
               <div className="button">
                 <label className="btn btn-lg btn-primary" onClick={upload}>
                   Upload
+                </label>
+              </div>
+              <div className="button">
+                <label className="btn btn-lg btn-primary" onClick={uploadWasm}>
+                  Upload WASM test
                 </label>
               </div>
               <div className="button">

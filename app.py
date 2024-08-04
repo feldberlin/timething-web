@@ -68,10 +68,22 @@ def web():
         Request,
         UploadFile,
     )
+    from fastapi.middleware.cors import CORSMiddleware
     from fastapi.responses import FileResponse, Response, StreamingResponse
     from fastapi.staticfiles import StaticFiles
+    from starlette.middleware.base import BaseHTTPMiddleware
 
     web_app = FastAPI()
+
+    # Custom middleware to add headers
+    class CORPHeadersMiddleware(BaseHTTPMiddleware):
+        async def dispatch(self, request, call_next):
+            response = await call_next(request)
+            response.headers["Cross-Origin-Opener-Policy"] = "same-origin"
+            response.headers["Cross-Origin-Embedder-Policy"] = "require-corp"
+            return response
+
+    web_app.add_middleware(CORPHeadersMiddleware)
 
     def error(status_code: int, msg: str):
         logger.error(msg)
