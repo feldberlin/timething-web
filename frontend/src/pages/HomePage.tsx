@@ -30,7 +30,6 @@ export default function HomePage() {
     supabase.auth.signOut();
   };
 
-  const isSignedIn = session && user && authChangeEvent === authChangeEvents.SIGNED_IN;
   const isSignedIn = session && user
     && (authChangeEvent === authChangeEvents.SIGNED_IN
       || authChangeEvent === authChangeEvents.INITIAL_SESSION);
