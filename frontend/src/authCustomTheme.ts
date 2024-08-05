@@ -8,13 +8,17 @@ const customTheme = {
       brandButtonBackgroundHover: 'hsl(235, 100%, 53%)',
       defaultButtonBackground: 'transparent',
       defaultButtonBackgroundHover: 'white',
-
+      inputBorderFocus: 'hsl(235, 100%, 63%)',
     },
     fonts: {
       bodyFontFamily: 'Test Söhne Breit Halbfett, sans-serif',
       buttonFontFamily: 'Test Söhne Breit Halbfett, sans-serif',
       inputFontFamily: 'Test Söhne Breit Halbfett, sans-serif',
       labelFontFamily: 'Test Söhne Breit Halbfett, sans-serif',
+    },
+    space: {
+      buttonPadding: '10px 15px',
+      inputPadding: '10px 15px',
     },
     radii: {
       borderRadiusButton: '.5rem',
