@@ -31,6 +31,9 @@ export default function HomePage() {
   };
 
   const isSignedIn = session && user && authChangeEvent === authChangeEvents.SIGNED_IN;
+  const isSignedIn = session && user
+    && (authChangeEvent === authChangeEvents.SIGNED_IN
+      || authChangeEvent === authChangeEvents.INITIAL_SESSION);
 
   return (
     <div className="min-w-full min-h-screen screen">

@@ -15,13 +15,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(session?.user ?? null);
   const [authChangeEvent, setAuthEvent] = useState<AuthChangeEvent | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    (async () => {
-      const { data } = await supabase.auth.getSession();
-      setSession(data.session);
-      setUser(data.session?.user ?? null);
-    })();
+    const getSession = async () => {
+      try {
+        const { data } = await supabase.auth.getSession();
+        setSession(data.session);
+        setUser(data.session?.user ?? null);
+        setError(null);
+      } catch (e: unknown) {
+        if (e instanceof Error) setError(e.message);
+      }
+    };
+
+    getSession();
 
     const { data: authListener } = supabase.auth.onAuthStateChange(
       async (_event: AuthChangeEvent, _session: Session | null) => {
@@ -37,7 +45,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   // eslint-disable-next-line react/jsx-no-constructed-context-values
-  const value = { authChangeEvent, session, user };
+  const value = {
+    authChangeEvent, error, session, user,
+  };
   return <authContext.Provider value={value}>{children}</authContext.Provider>;
 }
 
