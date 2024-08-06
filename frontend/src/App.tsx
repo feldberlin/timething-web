@@ -1,12 +1,14 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import {
-  BrowserRouter as Router,
-  Switch,
+  Routes,
   Route,
+  BrowserRouter,
 } from 'react-router-dom';
 
 // components
+import { AuthProvider } from './components/hooks/useAuth.tsx';
+import RequireAuth from './components/RequireAuth.tsx';
 import StudioPage from './pages/StudioPage.tsx';
 import UploadPage from './pages/UploadPage.tsx';
 import HomePage from './pages/HomePage.tsx';
@@ -20,24 +22,34 @@ import '../css/App.css';
  */
 export default function App() {
   return (
-    <Router>
-      <Switch>
-        <Route path="/studio/:transcriptionId">
-          <StudioPage />
-        </Route>
-        <Route path="/upload">
-          <UploadPage />
-        </Route>
-        <Route path="/">
-          <HomePage />
-        </Route>
-      </Switch>
-    </Router>
+    <Routes>
+      <Route path="/" element={<HomePage />} />
+      <Route
+        path="/studio/:transcriptionId"
+        element={(
+          <RequireAuth>
+            <StudioPage />
+          </RequireAuth>
+      )}
+      />
+      <Route
+        path="/upload"
+        element={(
+          <RequireAuth>
+            <UploadPage />
+          </RequireAuth>
+      )}
+      />
+    </Routes>
   );
 }
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <App />
+    <BrowserRouter>
+      <AuthProvider>
+        <App />
+      </AuthProvider>
+    </BrowserRouter>
   </React.StrictMode>,
 );

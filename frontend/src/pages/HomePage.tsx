@@ -1,20 +1,38 @@
 // @ts-expect-error keep react here
 import React from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { Auth } from '@supabase/auth-ui-react';
+import { useAuth } from '../components/hooks/useAuth.tsx';
+import supabase from '../supabaseClient.ts';
+import customTheme from '../authCustomTheme.ts';
+import authChangeEvents from '../authChangeEvents.ts';
 
 // images
 import logoUrl from '../../timething.svg';
+
+// styles
+import '../../css/pages/HomePage.css';
 
 /**
  * Main page users land on when they visit the site.
  *
  */
 export default function HomePage() {
-  const history = useHistory();
+  const { session, user, authChangeEvent } = useAuth();
+  const { state } = useLocation();
+  const navigate = useNavigate();
 
-  function upload() {
-    history.push('/upload');
-  }
+  const upload = () => {
+    navigate(state?.path || '/upload');
+  };
+
+  const signOut = () => {
+    supabase.auth.signOut();
+  };
+
+  const isSignedIn = session && user
+    && (authChangeEvent === authChangeEvents.SIGNED_IN
+      || authChangeEvent === authChangeEvents.INITIAL_SESSION);
 
   return (
     <div className="min-w-full min-h-screen screen">
@@ -34,9 +52,29 @@ export default function HomePage() {
             video files with just one upload. Enhance accessibility, increase
             comprehension and break language barriers with subtitles.
           </h2>
-          <div className="button">
-            <label className="btn btn-lg btn-primary" onClick={upload}>Upload</label>
-          </div>
+          {isSignedIn ? (
+            <div id="buttons">
+              <div className="button">
+                <label className="btn btn-lg btn-primary" onClick={upload}>
+                  Upload
+                </label>
+              </div>
+              <div className="button">
+                <label className="btn btn-lg btn-primary" onClick={signOut}>
+                  Sign out
+                </label>
+              </div>
+            </div>
+          ) : (
+            <div className="w-96">
+              <Auth
+                supabaseClient={supabase}
+                providers={['google']}
+                appearance={{ theme: customTheme }}
+                redirectTo={document.location.origin}
+              />
+            </div>
+          )}
         </main>
       </div>
     </div>

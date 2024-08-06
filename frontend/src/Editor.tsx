@@ -77,7 +77,7 @@ export default function Editor({
           return (null);
         }
         return (
-          <h3 className="-mb-2 mt-1">
+          <h3 key={speakerId} className="-mb-2 mt-1">
             <EditableText
               className="pl-1 mt-4 font-semibold text-base-300"
               value={speaker.name}
