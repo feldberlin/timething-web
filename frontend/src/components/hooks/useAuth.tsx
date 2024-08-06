@@ -3,12 +3,15 @@ import { AuthChangeEvent, Session, User } from '@supabase/supabase-js';
 import supabase from '../../supabaseClient.ts';
 
 interface AuthContext {
+  authChangeEvent: AuthChangeEvent | null;
+  error: string | null;
   session: Session | null;
   user: User | null;
-  authChangeEvent: AuthChangeEvent | null;
 }
 
-const initialState = { session: null, user: null } as AuthContext;
+const initialState = {
+  session: null, user: null, authChangeEvent: null, error: null,
+} as AuthContext;
 const authContext = React.createContext(initialState);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
