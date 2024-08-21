@@ -1,4 +1,6 @@
-import Upload from '../src/Upload';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { withRouter } from 'storybook-addon-remix-react-router';
+import Upload from '../src/Upload.tsx';
 
 export default {
   title: 'Upload',
@@ -7,6 +9,7 @@ export default {
     layout: 'centered',
   },
   tags: ['autodocs'],
+  decorators: [withRouter],
   argTypes: {
     backgroundColor: { control: 'color' },
   },
@@ -18,7 +21,7 @@ export const Primary = {
 
 export const Dropping = {
   args: {
-    initialDropping: true
+    initialDropping: true,
   },
 };
 
@@ -27,7 +30,7 @@ export const Preparing = {
     initialProgressText: 'Preparing your file',
     initialProgress: { percent: 80, currentBytes: 2, totalBytes: 10 },
     initialProgressColor: 'primary',
-    initialPreparing: true
+    initialPreparing: true,
   },
 };
 
@@ -36,7 +39,7 @@ export const Prepared = {
     initialProgressText: 'Preparing your file',
     initialProgress: { percent: 100, currentBytes: 2, totalBytes: 10 },
     initialProgressColor: 'primary',
-    initialPreparing: true
+    initialPreparing: true,
   },
 };
 
@@ -45,7 +48,7 @@ export const Uploading = {
     initialUploading: true,
     initialProgress: { percent: 20, currentBytes: 20, totalBytes: 100 },
     initialProgressText: 'Uploading',
-    initialProgressColor: 'primary'
+    initialProgressColor: 'primary',
   },
 };
 
@@ -55,7 +58,6 @@ export const ProcessingAudio = {
     initialProgress: { percent: 20, currentBytes: 20, totalBytes: 100 },
     initialProgressText: 'Processing audio',
     initialProgressColor: 'secondary',
-    initialProgressColor: 'neutral'
   },
 };
 
@@ -64,24 +66,28 @@ export const ConvertingAudioToText = {
     initialUploading: true,
     initialProgress: { percent: 20, currentBytes: 20, totalBytes: 100 },
     initialProgressText: 'Converting audio to text',
-    initialProgressColor: 'secondary'
+    initialProgressColor: 'secondary',
   },
 };
 
 export const ETA = {
   args: {
     initialUploading: true,
-    initialProgress: { percent: 20, currentBytes: 1024 * 1024 * 512, totalBytes: 1024 * 1024 * 1512 },
+    initialProgress: {
+      percent: 20,
+      currentBytes: 1024 * 1024 * 512,
+      totalBytes: 1024 * 1024 * 1512,
+    },
     initialEta: 300,
     initialShowEta: true,
     initialBps: 1024 * 1024 * 12,
     initialProgressText: 'Uploading',
-    initialProgressColor: 'primary'
+    initialProgressColor: 'primary',
   },
 };
 export const Error = {
   args: {
     initialUploading: false,
-    initialError: 'Oops! Please retry and we\'ll pick up right where we left off! 🌟'
+    initialError: 'Oops! Please retry and we\'ll pick up right where we left off! 🌟',
   },
 };
