@@ -654,7 +654,7 @@ export default function Upload({
   return (
     <div
       id="dropzone"
-      className={`${droppingClass} flex items-center flex-col drop-shadow-lg bg-white rounded-lg`}
+      className={`${droppingClass} flex items-center flex-col drop-shadow-lg rounded-lg`}
       onDrop={hDrop}
       onDragOver={hDragOver}
       onDragEnter={hDragEnter}
