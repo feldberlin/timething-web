@@ -1,11 +1,12 @@
 const customTheme = {
   default: {
     colors: {
-      brand: 'hsl(235, 100%, 63%)',
-      brandAccent: 'hsl(235, 100%, 63%)',
+      brand: '#c4120f',
+      primary: 'green',
+      brandAccent: 'red',
       brandButtonText: 'white',
       brandButtonBackground: 'hsl(235, 100%, 63%)',
-      brandButtonBackgroundHover: 'hsl(235, 100%, 53%)',
+      brandButtonBackgroundHover: 'green',
       defaultButtonBackground: 'transparent',
       defaultButtonBackgroundHover: 'white',
       inputBorderFocus: 'hsl(235, 100%, 63%)',
@@ -20,8 +21,9 @@ const customTheme = {
       labelFontFamily: 'Test Söhne Breit Halbfett, sans-serif',
     },
     fontSizes: {
-      baseLabelSize: '16px',
-      baseInputSize: '16px',
+      baseButtonSize: '14px',
+      baseLabelSize: '14px',
+      baseInputSize: '14px',
     },
     space: {
       buttonPadding: '10px 15px',
@@ -34,6 +36,7 @@ const customTheme = {
       inputBorderRadius: '4px',
     },
     borderWidths: {
+      buttonBorderWidth: '2px',
       inputBorderWidth: '1px',
     },
   },

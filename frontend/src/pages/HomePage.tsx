@@ -52,8 +52,8 @@ export default function HomePage() {
               </div>
             </div>
           ) : (
-            <div className="m-auto w-96 border border-[#333] p-12 rounded-[13px] shadow-[0_0_7px_#44444440]">
-              <img src={logoUrl} height="36" width="133" alt="Logo" />
+            <div className="m-auto w-96 border border-[#333] p-10 rounded-[13px] shadow-[0_0_7px_#44444440]">
+              <img src={logoUrl} height="36" width="133" alt="Logo" className="mb-5" />
               <Auth
                 supabaseClient={supabase}
                 appearance={{ theme: customTheme }}
