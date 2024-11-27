@@ -654,17 +654,19 @@ export default function Upload({
   return (
     <div
       id="dropzone"
-      className={`${droppingClass} flex items-center flex-col drop-shadow-lg bg-white p-24 pt-16 pb-20 rounded-lg`}
+      className={`${droppingClass} flex items-center flex-col drop-shadow-lg bg-white rounded-lg`}
       onDrop={hDrop}
       onDragOver={hDragOver}
       onDragEnter={hDragEnter}
       onDragLeave={hDragLeave}
     >
-      <form id="upload" encType="multipart/form-data" method="post">
-        { uploaderJSX() }
-        {error
-          && <ErrorMessage message={error} />}
-      </form>
+      <div className="dots">
+        <form id="upload" encType="multipart/form-data" method="post">
+          { uploaderJSX() }
+          {error
+            && <ErrorMessage message={error} />}
+        </form>
+      </div>
     </div>
   );
 }
