@@ -8,7 +8,7 @@ import customTheme from '../authCustomTheme.ts';
 import authChangeEvents from '../authChangeEvents.ts';
 
 // images
-import logoUrl from '../../timething.svg';
+import logoUrl from '../../voicelayer.svg';
 
 // styles
 import '../../css/pages/HomePage.css';
@@ -36,22 +36,8 @@ export default function HomePage() {
 
   return (
     <div className="min-w-full min-h-screen screen">
-      <div className="w-full h-screen flex bg-images">
-        <main className="w-full mt-20 ml-20 flex flex-col items-start gap-3 pt-6 overflow-auto">
-          <img src={logoUrl} height="36" width="180" alt="Logo" />
-          <h1 className="mt-5 font-black">
-            Make every word count.
-            {' '}
-            <br />
-            Subtitle your videos, gain viewers.
-          </h1>
-          <h2 className="my-8 max-w-xl">
-            <em>Bring it home.</em>
-            {' '}
-            Transcribe and subtitle your audio and
-            video files with just one upload. Enhance accessibility, increase
-            comprehension and break language barriers with subtitles.
-          </h2>
+      <div className="w-full h-screen flex">
+        <main className="w-full flex flex-col items-start gap-3 pt-6 overflow-auto">
           {isSignedIn ? (
             <div id="buttons">
               <div className="button">
@@ -66,11 +52,14 @@ export default function HomePage() {
               </div>
             </div>
           ) : (
-            <div className="w-96">
+            <div className="m-auto w-96 border border-[#333] p-12 rounded-[13px] shadow-[0_0_7px_#44444440]">
+              <img src={logoUrl} height="36" width="133" alt="Logo" />
               <Auth
                 supabaseClient={supabase}
-                providers={['google']}
                 appearance={{ theme: customTheme }}
+                view="sign_in"
+                showLinks={false}
+                providers={[]}
                 redirectTo={document.location.origin}
               />
             </div>

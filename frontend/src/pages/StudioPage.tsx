@@ -23,7 +23,7 @@ import Player from '../Player.tsx';
 import ZeeSelect from '../ZeeSelect.tsx';
 
 // images
-import logoImg from '../../timething.svg';
+import logoImg from '../../voicelayer.svg';
 import addImg from '../../add.svg';
 
 // styles

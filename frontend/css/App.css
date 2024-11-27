@@ -2,11 +2,21 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: "ABC Oracle Light";
+  src: url("/fonts/ABCOracle-Light-Trial.otf") format("opentype");
+}
+
+:root {
+  --primary-background-color: #090909;
+  --eggshell-white: #efefef;
+  --border-color: #333;
+}
+
 body {
+  color: rgb(239, 239, 239);
   font-size: 20px;
-  background-image: radial-gradient(circle at 1px 1px, #CFCECB 2px, transparent 0);
-  background-size: 30px 30px;
-  background-color: #F5F3ED;
+  background-color: var(--primary-background-color);
 }
 
 h1, label.btn-primary {

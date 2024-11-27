@@ -5,7 +5,7 @@ import React from 'react';
 import Upload from '../Upload.tsx';
 
 // images
-import logoUrl from '../../timething.svg';
+import logoUrl from '../../voicelayer.svg';
 
 /**
  * Upload page. Mounted on /upload

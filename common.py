@@ -30,7 +30,7 @@ nfs = {
 }
 
 # app
-app = App(name="timething-web")
+app = App(name="voicelayer-studio")
 transcriptions = Dict.from_name("transcriptions", create_if_missing=True)
 
 logger = logging.getLogger(__name__)

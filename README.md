@@ -1,6 +1,6 @@
-# Timething Web
+# Voicelayer Studio
 
-A web UI for timething.
+The voicelayer app
 
 ## Development
 
