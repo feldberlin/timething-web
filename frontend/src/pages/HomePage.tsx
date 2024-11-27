@@ -1,6 +1,6 @@
 // @ts-expect-error keep react here
-import React from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Auth } from '@supabase/auth-ui-react';
 import { useAuth } from '../components/hooks/useAuth.tsx';
 import supabase from '../supabaseClient.ts';
@@ -19,51 +19,33 @@ import '../../css/pages/HomePage.css';
  */
 export default function HomePage() {
   const { session, user, authChangeEvent } = useAuth();
-  const { state } = useLocation();
   const navigate = useNavigate();
-
-  const upload = () => {
-    navigate(state?.path || '/upload');
-  };
-
-  const signOut = () => {
-    supabase.auth.signOut();
-  };
 
   const isSignedIn = session && user
     && (authChangeEvent === authChangeEvents.SIGNED_IN
       || authChangeEvent === authChangeEvents.INITIAL_SESSION);
 
+  useEffect(() => {
+    if (isSignedIn) {
+      navigate('/upload');
+    }
+  }, [isSignedIn, navigate]);
+
   return (
     <div className="min-w-full min-h-screen screen">
       <div className="w-full h-screen flex">
         <main className="w-full flex flex-col items-start gap-3 pt-6 overflow-auto">
-          {isSignedIn ? (
-            <div id="buttons">
-              <div className="button">
-                <label className="btn btn-lg btn-primary" onClick={upload}>
-                  Upload
-                </label>
-              </div>
-              <div className="button">
-                <label className="btn btn-lg btn-primary" onClick={signOut}>
-                  Sign out
-                </label>
-              </div>
-            </div>
-          ) : (
-            <div className="m-auto w-96 border border-[#333] p-10 rounded-[13px] shadow-[0_0_7px_#44444440]">
-              <img src={logoUrl} height="36" width="133" alt="Logo" className="mb-5" />
-              <Auth
-                supabaseClient={supabase}
-                appearance={{ theme: customTheme }}
-                view="sign_in"
-                showLinks={false}
-                providers={[]}
-                redirectTo={document.location.origin}
-              />
-            </div>
-          )}
+          <div className="m-auto w-96 border border-[#333] p-10 rounded-[13px] shadow-[0_0_7px_#44444440]">
+            <img src={logoUrl} height="36" width="133" alt="Logo" className="mb-5" />
+            <Auth
+              supabaseClient={supabase}
+              appearance={{ theme: customTheme }}
+              view="sign_in"
+              showLinks={false}
+              providers={[]}
+              redirectTo={document.location.origin}
+            />
+          </div>
         </main>
       </div>
     </div>
