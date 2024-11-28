@@ -27,7 +27,7 @@
 }
 
 #dropzone.dropping {
-  border: 4px dashed #999;
+  border: 2px dashed var(--color-yellow-muted);
 }
 
 #dropzone.dropping h2 {
@@ -39,6 +39,22 @@
 }
 
 #uploader .eta-active {
-  opacity: 0.4;
+  opacity: 1;
   transition: all 0.5s ease-in-out 0.1s;
 }
+
+#uploader #status, #uploader .tooltip {
+  color: var(--color-whitest);
+}
+
+/* progress bars*/
+#uploader .progress { height: 3px; }
+#uploader .progress.progress-primary { background-color: var(--color-blue-muted); }
+#uploader .progress.progress-primary::-moz-progress-bar { background: var(--color-blue); }
+#uploader .progress.progress-primary::-webkit-progress-value { background: var(--color-blue); }
+#uploader .progress.progress-primary { color: var(--color-blue); }
+
+#uploader .progress.progress-secondary { background-color: var(--color-red-muted); }
+#uploader .progress.progress-secondary::-moz-progress-bar { background: var(--color-red); }
+#uploader .progress.progress-secondary::-webkit-progress-value { background: var(--color-red); }
+#uploader .progress.progress-secondary { color: var(--color-red); }

@@ -8,7 +8,7 @@ import PropTypes from 'prop-types';
  */
 export default function ErrorMessage({ message } : { message: string }) {
   return (
-    <div role="alert" className="alert alert-error text-white mb-8">
+    <div role="alert" className="alert alert-error text-white my-8">
       <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
         <path
           strokeLinecap="round"

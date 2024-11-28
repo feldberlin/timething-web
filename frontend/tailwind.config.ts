@@ -15,11 +15,11 @@ export default {
           ...require("daisyui/src/theming/themes")[
               "[data-theme=light]"
           ],
-          primary: "#3a59ff",
+          primary: "#22ccff",
           secondary: "#ff3434",
           accent: "#37cdbe",
           neutral: "#3d4451",
-          success: "#2fbc63",
+          success: "#22ccff",
           "base-100": "#f5f3ed",
           "base-200": "#e7e2d2",
           "base-300": "#afafaf"

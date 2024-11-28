@@ -558,7 +558,7 @@ export default function Upload({
           {percentDone === 100
             ? (
               <div className="mt-5">
-                <Checkmark size="96px" color="#2fbc63" />
+                <Checkmark size="96px" color="#22ccff" />
               </div>
             )
             : (
@@ -599,12 +599,12 @@ export default function Upload({
           </div>
           <progress
             id="progressbar"
-            className={`progress w-96 ${currentProgressColor}`}
+            className={`progress ${currentProgressColor}`}
             value={progress !== null ? progress.percent.toString(10) : undefined}
             max="100"
           />
           <div className="text-lg mt-2 flex justify-between">
-            <div id="status" className="filter opacity-40">
+            <div id="status">
               {percentDone !== null
                 ? `${percentDone}%`
                 : '\u00A0'}
@@ -615,7 +615,7 @@ export default function Upload({
                 && totalBytes >= (1024 * 1024 * 512)
                 && percentDone != null)
                 ? (
-                  <div className="filer opacity-40 text-right">
+                  <div className="tooltip tooltip-bottom text-right">
                     <span className="mr-1">{formatBytes(currentBytes, 2)}</span>
                     <span className="mr-1">of</span>
                     <span className="mr-1">{formatBytes(totalBytes, 2)}</span>
@@ -629,6 +629,7 @@ export default function Upload({
         </div>
       );
     }
+
     return (
       <div className="flex">
         <div className="basis-7/12">
