@@ -320,7 +320,7 @@ export default function StudioPage() {
           />
         </div>
         { /* Title */ }
-        <div className="section border-b">
+        <div className="section border-b py-1">
           { (!title && !editingTitle) && (
             <div className="tt-add float-right tooltip tooltip-top" data-tip={help.trackTitle}>
               <img
@@ -346,7 +346,7 @@ export default function StudioPage() {
           )}
         </div>
         { /* Description */ }
-        <div className="section border-b">
+        <div className="section border-b py-1">
           { (!description && !editingDescription) && (
             <div className="tt-add float-right tooltip tooltip-top" data-tip={help.trackDescription}>
               <img
@@ -372,7 +372,7 @@ export default function StudioPage() {
           )}
         </div>
         { /* Source Language */ }
-        <div className="section border-b pb-7">
+        <div className="section border-b py-1 pb-7">
           <h3 className="my-3 mb-4 mx-8 font-bold">Source Language</h3>
           <ZeeSelect
             onChange={hChange}

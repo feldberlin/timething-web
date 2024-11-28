@@ -9,6 +9,8 @@
 }
 
 #sidebar {
+  color: #6e6e6e;
+  background-color: rgba(32,32,32,0.36);
   min-width: 250px;
 }
 
@@ -27,11 +29,16 @@
 }
 
 #sidebar .border-b {
-  border-color: var(--border-color)
+  border-color: rgb(37,37,37);
+}
+
+#sidebar h3 {
+    color: #bbbbbb;
 }
 
 #editor {
-  box-shadow: 7px 0 15px -2px #e8e6e0;
+  background-color: #131313;
+  box-shadow: 15px 10px 50px -2px #000000;
   min-width: 640px;
   max-width: 640px;
   height: 100vh;
@@ -39,6 +46,11 @@
   padding: 65px;
 }
 
+#editor h1, #editor span {
+    color: #ddd;
+}
+
 #player {
   flex-basis: 100%;
+  background-color: rgba(32,32,32,0.36)
 }

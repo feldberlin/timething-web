@@ -130,7 +130,7 @@ export default function Editor({
                 editing={editingTitle}
                 setEditing={setEditingTitle}
                 setValue={setTitle}
-                value={title === null ? 'Transcript' : title}
+                value={title === null ? 'Script' : title}
                 onUpdate={_.partial(debouncedPutTitle, initialTranscriptionId)}
               />
               <a
