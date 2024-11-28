@@ -5,6 +5,19 @@
   padding: 15px;
 }
 
+#dropzone h2 {
+  font-size: 28px;
+}
+
+#dropzone p {
+  color: var(--color-black-40);
+  font-size: 16px;
+}
+
+#dropzone p.drag {
+  color: var(--color-yellow);
+}
+
 #dropzone .dots {
   background-image: radial-gradient(circle, #2f2f2f 1.5px, transparent 0);
   background-size: 9px 9px;

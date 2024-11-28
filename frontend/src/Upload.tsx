@@ -630,21 +630,32 @@ export default function Upload({
       );
     }
     return (
-      <div>
-        <h2 className="text-2xl mb-7 text-center">
-          Drag and drop your video or audio file here or
-        </h2>
-        <div className="button text-center pb-4">
-          <label htmlFor="media" className="btn btn-lg btn-primary">
-            Choose a file to upload
-          </label>
-          <input
-            className="hidden"
-            type="file"
-            name="media"
-            id="media"
-            onChange={hSelect}
-          />
+      <div className="flex">
+        <div className="basis-7/12">
+          <h2 className="mb-7">
+            Upload media assets to your cloud dubbing project
+          </h2>
+          <p>
+            Don't worry about large files – we'll resume them if there's
+            a problem. We will also process your media, transcribe the content and
+            assign speaker identities. Asset will be available in your media
+            library.
+          </p>
+        </div>
+        <div className="basis-5/12 flex flex-col items-center justify-center ml-10">
+          <div className="text-center pb-4">
+            <label htmlFor="media" className="button">
+              Choose a file to upload
+            </label>
+            <input
+              className="hidden"
+              type="file"
+              name="media"
+              id="media"
+              onChange={hSelect}
+            />
+          </div>
+          <p className="drag">Or drag your files in</p>
         </div>
       </div>
     );

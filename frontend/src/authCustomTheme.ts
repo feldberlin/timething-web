@@ -15,10 +15,10 @@ const customTheme = {
       inputText: '#333',
     },
     fonts: {
-      bodyFontFamily: 'Test Söhne Breit Halbfett, sans-serif',
-      buttonFontFamily: 'Test Söhne Breit Halbfett, sans-serif',
-      inputFontFamily: 'Test Söhne Breit Halbfett, sans-serif',
-      labelFontFamily: 'Test Söhne Breit Halbfett, sans-serif',
+      bodyFontFamily: 'var(--font-family-primary)',
+      buttonFontFamily: 'var(--font-family-primary)',
+      inputFontFamily: 'var(--font-family-primary)',
+      labelFontFamily: 'var(--font-family-primary)',
     },
     fontSizes: {
       baseButtonSize: '14px',

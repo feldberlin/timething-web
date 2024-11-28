@@ -4,14 +4,69 @@
 
 @font-face {
   font-family: "ABC Oracle Light";
-  src: url("/fonts/ABCOracle-Light-Trial.otf") format("opentype");
+  src: url("../fonts/ABCOracle-Light-Trial.otf") format("opentype");
+}
+
+@font-face {
+  font-family: "Test Founders Grotesk Regular";
+  src: url("../fonts/TestFoundersGrotesk-Regular.otf") format("opentype");
+}
+
+@font-face {
+  font-family: "Test Founders Grotesk Medium";
+  src: url("../fonts/TestFoundersGrotesk-Medium.otf") format("opentype");
+}
+
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 :root {
-  --primary-background-color: #090909;
-  --lighter-background-color: #131313;
-  --eggshell-white: #efefef;
-  --border-color: #333;
+
+  /* primary colors */
+  --color-blue: #22ccff;
+  --color-blue-muted: #0e282f;
+  --color-yellow: #faff48;
+  --color-yellow-muted: #b8bd0b;
+  --color-red: #ff322f;
+  --color-red-muted: #c4120f;
+
+  /* monochrome */
+  --color-whitest: #efefef;
+  --color-blackest: #090909;
+  --color-black-90: #131313;
+  --color-black-80: #333333;
+  --color-black-40: #8f8f8f;
+
+  /* color assignments */
+  --primary-background-color: var(--color-blackest);
+  --lighter-background-color: var(--color-black-90);
+  --eggshell-white: var(--color-whitest);
+  --border-color: var(--color-black-80);
+
+  /* fonts */
+  --font-family-primary: "Test Founders Grotesk Regular", sans-serif;
+  --font-family-mono: "Test Founders Grotesk Regular", sans-serif;
+  --font-family-button: "Test Founders Grotesk Medium", sans-serif;
+}
+
+/* buttons */
+
+.button {
+    background-color: var(--color-yellow-muted);
+    border-radius: 9999px;
+    color: var(--color-yellow);
+    cursor: pointer;
+    font-family: var(--font-family-button);
+    font-size: 17px;
+    padding: 15px 30px;
+    transition: background-color 0.5s, color 0.5s;
+}
+
+.button:hover {
+    opacity: 0.9;
+    transition-duration: 0.2s;
 }
 
 body {
@@ -21,19 +76,19 @@ body {
 }
 
 h1, label.btn-primary {
-  font-family: 'Test Söhne Breit Halbfett';
+  font-family: var(--font-family-primary);
 }
 
 body, h2, h2 em, #studio h1, #studio p, #studio article {
-  font-family: 'Test National', sans-serif;
+  font-family: var(--font-family-primary);
 }
 
 #timer {
-  font-family: 'Test Pitch Sans';
+  font-family: var(--font-family-mono);
 }
 
 .bg-images {
-  background-image: url(../bg.svg);
+  background-image: url(../bg.png);
   background-repeat: no-repeat;
   background-position: left 35em top 5em;
 }
