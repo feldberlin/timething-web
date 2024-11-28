@@ -31,7 +31,7 @@ transcoder_image = (
 
 
 @app.function(
-    cpu=8.0,
+    cpu=24.0,
     container_idle_timeout=180,
     image=transcoder_image,
     network_file_systems=common.nfs,

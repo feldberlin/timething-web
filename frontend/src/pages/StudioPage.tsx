@@ -308,9 +308,9 @@ export default function StudioPage() {
           </div>
         </dialog>
       </div>
-      <div id="sidebar" className="h-screen bg-base-100 w-72 text-base">
+      <div id="sidebar" className="h-screen w-72 text-base">
         { /* Logo */ }
-        <div className="section border-b border-base-200">
+        <div className="section border-b">
           <img
             src={logoImg}
             height="26"
@@ -320,7 +320,7 @@ export default function StudioPage() {
           />
         </div>
         { /* Title */ }
-        <div className="section border-b border-base-200 py-1">
+        <div className="section border-b">
           { (!title && !editingTitle) && (
             <div className="tt-add float-right tooltip tooltip-top" data-tip={help.trackTitle}>
               <img
@@ -346,7 +346,7 @@ export default function StudioPage() {
           )}
         </div>
         { /* Description */ }
-        <div className="section border-b border-base-200 py-1">
+        <div className="section border-b">
           { (!description && !editingDescription) && (
             <div className="tt-add float-right tooltip tooltip-top" data-tip={help.trackDescription}>
               <img
@@ -372,7 +372,7 @@ export default function StudioPage() {
           )}
         </div>
         { /* Source Language */ }
-        <div className="section border-b border-base-200 py-1 pb-7">
+        <div className="section border-b pb-7">
           <h3 className="my-3 mb-4 mx-8 font-bold">Source Language</h3>
           <ZeeSelect
             onChange={hChange}
@@ -382,7 +382,7 @@ export default function StudioPage() {
           />
         </div>
         { /* Transcripts */ }
-        <div className="section border-b border-base-200 py-1">
+        <div className="section border-b py-1">
           <h3 className="my-3 mx-8 font-bold">Transcripts</h3>
           <p className="my-3 mx-8">
             { retranscribing
@@ -396,7 +396,7 @@ export default function StudioPage() {
           </p>
         </div>
         { /* Speakers */ }
-        <div className="section border-b border-base-200 pt-1 pb-5">
+        <div className="section border-b pt-1 pb-5">
           <h3 className="my-3 mx-8 font-bold">Speakers</h3>
           {speakers.map((speaker) => (
             <EditableText
@@ -417,7 +417,7 @@ export default function StudioPage() {
           ))}
         </div>
       </div>
-      <div id="editor" className="bg-white">
+      <div id="editor">
         {err
           && <ErrorMessage message={err} />}
         <Editor

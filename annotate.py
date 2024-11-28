@@ -43,7 +43,7 @@ class Progress:
 
 
 @app.function(
-    gpu="A10G",
+    gpu=["A100-40GB", "A10G"],
     cpu=8.0,
     container_idle_timeout=180,
     image=annotation_image,
@@ -65,13 +65,11 @@ def annotate(transcription_id):
         raise AnnotationError(f"invalid id : {transcription_id}")
 
     hf_token = os.getenv('HF_TOKEN')
+    device = torch.device(common.get_device())
     pipeline = Pipeline.from_pretrained(
         "pyannote/speaker-diarization-3.1",
         use_auth_token=hf_token,
-    )
-
-    device = torch.device(common.get_device())
-    pipeline.to(device)
+    ).to(device)
     logger.info(f"pipeline loaded onto {device}")
 
     with ProgressHook() as hook:

@@ -26,6 +26,10 @@
   filter: brightness(1.05);
 }
 
+#sidebar .border-b {
+  border-color: var(--border-color)
+}
+
 #editor {
   box-shadow: 7px 0 15px -2px #e8e6e0;
   min-width: 640px;

@@ -75,9 +75,9 @@
 }
 
 body {
-  color: rgb(239, 239, 239);
-  font-size: 20px;
   background-color: var(--primary-background-color);
+  color: var(--color-whitest);
+  font-size: 20px;
 }
 
 h1, label.btn-primary {

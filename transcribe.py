@@ -40,7 +40,7 @@ transcriber_image = (
 
 
 @app.function(
-    gpu="A10G",
+    gpu=["A100-40GB", "A10G"],
     cpu=8.0,
     container_idle_timeout=180,
     image=transcriber_image,
