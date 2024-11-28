@@ -88,6 +88,6 @@ export const ETA = {
 export const Error = {
   args: {
     initialUploading: false,
-    initialError: 'Oops! Please retry and we\'ll pick up right where we left off! 🌟',
+    initialError: 'Error - please retry. Uploads will resume.',
   },
 };

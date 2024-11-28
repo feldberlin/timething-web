@@ -45,10 +45,15 @@
   --eggshell-white: var(--color-whitest);
   --border-color: var(--color-black-80);
 
+  /* daisy-ui overrides */
+  --fallback-er: var(--color-red-muted);
+
   /* fonts */
   --font-family-primary: "Test Founders Grotesk Regular", sans-serif;
   --font-family-mono: "Test Founders Grotesk Regular", sans-serif;
   --font-family-button: "Test Founders Grotesk Medium", sans-serif;
+
+
 }
 
 /* buttons */

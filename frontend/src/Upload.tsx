@@ -87,7 +87,7 @@ export default function Upload({
    *
    */
   function setUploadError() {
-    setError("Oops! Please retry and we'll pick up right where we left off! 🌟");
+    setError("Error – please try again. Uploads will resume.");
     setProgress(null);
     setUploading(false);
   }
