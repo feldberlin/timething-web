@@ -26,19 +26,11 @@ export default function App() {
       <Route path="/" element={<HomePage />} />
       <Route
         path="/studio/:transcriptionId"
-        element={(
-          <RequireAuth>
-            <StudioPage />
-          </RequireAuth>
-      )}
+        element={<RequireAuth><StudioPage /></RequireAuth>}
       />
       <Route
         path="/upload"
-        element={(
-          <RequireAuth>
-            <UploadPage />
-          </RequireAuth>
-      )}
+        element={<RequireAuth><UploadPage /></RequireAuth>}
       />
     </Routes>
   );

@@ -1,6 +1,6 @@
 // @ts-expect-error keep react here
 import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Auth } from '@supabase/auth-ui-react';
 import { useAuth } from '../components/hooks/useAuth.tsx';
 import supabase from '../supabaseClient.ts';
@@ -19,6 +19,7 @@ import '../../css/pages/HomePage.css';
  */
 export default function HomePage() {
   const { session, user, authChangeEvent } = useAuth();
+  const { state } = useLocation();
   const navigate = useNavigate();
 
   const isSignedIn = session && user
@@ -27,7 +28,7 @@ export default function HomePage() {
 
   useEffect(() => {
     if (isSignedIn) {
-      navigate('/upload');
+      navigate(state?.path || '/upload');
     }
   }, [isSignedIn, navigate]);
 

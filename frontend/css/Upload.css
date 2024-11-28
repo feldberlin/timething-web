@@ -79,3 +79,9 @@
 #uploader .progress.progress-secondary::-webkit-progress-value { background: var(--color-red); }
 #uploader .progress.progress-secondary { color: var(--color-red); }
 
+/* progress success */
+#uploader .progress.progress-success { background-color: var(--color-red-muted); }
+#uploader .progress.progress-success::-moz-progress-bar { background: var(--color-red); }
+#uploader .progress.progress-success::-webkit-progress-value { background: var(--color-red); }
+#uploader .progress.progress-success { color: var(--color-red); }
+
