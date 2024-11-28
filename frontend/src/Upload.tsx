@@ -552,7 +552,7 @@ export default function Upload({
 
       return (
         <div id="uploader" className="flex flex-col items-center">
-          <div className="text-2xl mt-5">
+          <div className="text-2xl">
             {progressText}
           </div>
           {percentDone === 100
@@ -588,7 +588,7 @@ export default function Upload({
 
       return (
         <div id="uploader">
-          <div className="text-2xl mt-5 flex justify-between">
+          <div className="text-2xl flex justify-between">
             {progressText}
             <div className="tooltip tooltip-top" data-tip={bpsText}>
               <span className={`text-lg ${etaClass}`}>

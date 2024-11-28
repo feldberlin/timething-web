@@ -56,7 +56,7 @@ export const ProcessingAudio = {
   args: {
     initialUploading: true,
     initialProgress: { percent: 20, currentBytes: 20, totalBytes: 100 },
-    initialProgressText: 'Processing audio',
+    initialProgressText: 'Converting media file',
     initialProgressColor: 'secondary',
   },
 };
@@ -65,7 +65,7 @@ export const ConvertingAudioToText = {
   args: {
     initialUploading: true,
     initialProgress: { percent: 20, currentBytes: 20, totalBytes: 100 },
-    initialProgressText: 'Converting audio to text',
+    initialProgressText: 'Extracting text from audio',
     initialProgressColor: 'secondary',
   },
 };
