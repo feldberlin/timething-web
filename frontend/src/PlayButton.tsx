@@ -49,7 +49,7 @@ export default function PlayButton({
   }
 
   return (
-    <div className="bg-primary text-white shadow-zee" style={styles} onClick={hClick}>
+    <div className="bg-black text-white" style={styles} onClick={hClick}>
       <img src={playing ? pauseImg : playImg} alt="play" style={imgStyles} />
     </div>
   );

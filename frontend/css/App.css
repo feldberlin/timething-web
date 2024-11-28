@@ -27,10 +27,13 @@
   /* primary colors */
   --color-blue: #22ccff;
   --color-blue-muted: #0e282f;
+  --color-blue-dormant: #0e282f;
   --color-yellow: #faff48;
   --color-yellow-muted: #b8bd0b;
+  --color-yellow-dormant: #b8bd0b;
   --color-red: #ff322f;
   --color-red-muted: #c4120f;
+  --color-red-dormant: #7a0200;
 
   /* monochrome */
   --color-whitest: #efefef;
@@ -55,6 +58,33 @@
 
 
 }
+
+/* progress */
+progress { height: 3px; }
+
+/* progress primary */
+progress.progress-primary { background-color: var(--color-blue-dormant); }
+progress.progress-primary::-moz-progress-bar { background: var(--color-blue); }
+progress.progress-primary::-webkit-progress-value { background: var(--color-blue); }
+progress.progress-primary { color: var(--color-blue); }
+
+/* progress neutral */
+progress.progress-neutral { background-color: var(--color-blue-dormant); }
+progress.progress-neutral::-moz-progress-bar { background: var(--color-blue); }
+progress.progress-neutral::-webkit-progress-value { background: var(--color-blue); }
+progress.progress-neutral { color: var(--color-blue); }
+
+/* progress secondary */
+progress.progress-secondary { background-color: var(--color-red-dormant); }
+progress.progress-secondary::-moz-progress-bar { background: var(--color-red); }
+progress.progress-secondary::-webkit-progress-value { background: var(--color-red); }
+progress.progress-secondary { color: var(--color-red); }
+
+/* progress success */
+progress.progress-success { background-color: var(--color-red-dormant); }
+progress.progress-success::-moz-progress-bar { background: var(--color-red); }
+progress.progress-success::-webkit-progress-value { background: var(--color-red); }
+progress.progress-success { color: var(--color-red); }
 
 /* buttons */
 

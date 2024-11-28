@@ -186,7 +186,7 @@ const Player = forwardRef(({
 
       <progress
         id="video-progress"
-        className="progress progress-primary cursor-pointer"
+        className="progress progress-secondary cursor-pointer"
         onClick={hClickProgress}
         onMouseMove={hMouseMoveProgress}
         onMouseOut={hMouseOutProgress}

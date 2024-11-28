@@ -79,7 +79,7 @@ export default function Editor({
         return (
           <h3 key={speakerId} className="-mb-2 mt-1">
             <EditableText
-              className="pl-1 mt-4 font-semibold text-base-300"
+              className="mt-4 font-semibold text-base-300"
               value={speaker.name}
               setValue={(name) => {
                 const newSpeakers = [...speakers];
@@ -102,7 +102,7 @@ export default function Editor({
         if (token.wordIndex === focus) {
           return (
             <>
-              <span className="bg-primary text-white rounded inline-block pl-1 pr-1 cursor-pointer" data-key={token.wordIndex}>{token.value}</span>
+              <span className="focussed inline-block cursor-pointer" data-key={token.wordIndex}>{token.value}</span>
               <span> </span>
             </>
           );
@@ -110,8 +110,8 @@ export default function Editor({
 
         return (
           <>
-            <span className="hover:bg-primary hover:text-white hover:rounded inline-block ml-1 mr-1 cursor-pointer" data-key={token.wordIndex}>{token.value}</span>
-            <span className="inline-block -ml-px"> </span>
+            <span className="unfocussed inline-block cursor-pointer" data-key={token.wordIndex}>{token.value}</span>
+            <span> </span>
           </>
         );
       }

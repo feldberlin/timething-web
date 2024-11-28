@@ -6,3 +6,9 @@ article.article-loaded .contents {
   color: rgba(0,0,0,1.0);
   transition: all 0.5s ease-in-out 0.1s;
 }
+
+#editor .contents span.focussed, #editor .contents span.unfocussed:hover {
+  color: var(--color-red);
+  -webkit-font-smoothing: auto;
+  -moz-osx-font-smoothing: auto;
+}

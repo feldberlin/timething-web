@@ -24,6 +24,7 @@ import ZeeSelect from '../ZeeSelect.tsx';
 
 // images
 import logoImg from '../../voicelayer.svg';
+import logoGrayscaleImg from '../../voicelayer-grayscale.svg';
 import addImg from '../../add.svg';
 
 // styles
@@ -312,10 +313,10 @@ export default function StudioPage() {
         { /* Logo */ }
         <div className="section border-b">
           <img
-            src={logoImg}
+            src={logoGrayscaleImg}
             height="26"
-            width="130"
-            className="ml-8 my-7"
+            width="140"
+            className="logo ml-8"
             alt="Logo"
           />
         </div>

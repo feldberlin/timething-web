@@ -56,32 +56,3 @@
 #uploader #status, #uploader .tooltip {
   color: var(--color-whitest);
 }
-
-
-/* progress */
-#uploader .progress { height: 3px; }
-
-/* progress primary */
-#uploader .progress.progress-primary { background-color: var(--color-blue-muted); }
-#uploader .progress.progress-primary::-moz-progress-bar { background: var(--color-blue); }
-#uploader .progress.progress-primary::-webkit-progress-value { background: var(--color-blue); }
-#uploader .progress.progress-primary { color: var(--color-blue); }
-
-/* progress neutral */
-#uploader .progress.progress-neutral { background-color: var(--color-blue-muted); }
-#uploader .progress.progress-neutral::-moz-progress-bar { background: var(--color-blue); }
-#uploader .progress.progress-neutral::-webkit-progress-value { background: var(--color-blue); }
-#uploader .progress.progress-neutral { color: var(--color-blue); }
-
-/* progress secondary */
-#uploader .progress.progress-secondary { background-color: var(--color-red-muted); }
-#uploader .progress.progress-secondary::-moz-progress-bar { background: var(--color-red); }
-#uploader .progress.progress-secondary::-webkit-progress-value { background: var(--color-red); }
-#uploader .progress.progress-secondary { color: var(--color-red); }
-
-/* progress success */
-#uploader .progress.progress-success { background-color: var(--color-red-muted); }
-#uploader .progress.progress-success::-moz-progress-bar { background: var(--color-red); }
-#uploader .progress.progress-success::-webkit-progress-value { background: var(--color-red); }
-#uploader .progress.progress-success { color: var(--color-red); }
-
