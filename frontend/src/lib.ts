@@ -123,8 +123,8 @@ export type Transcription = {
 export const transcriptionStates = {
   preparing: { text: 'Preparing your file', shortText: 'Preparing', color: 'success' },
   uploading: { text: 'Uploading', shortText: 'Preparing', color: 'primary' },
-  transcoding: { text: 'Processing audio', shortText: 'Processing', color: 'neutral' },
-  transcribing: { text: 'Converting audio to text', shortText: 'Recognising', color: 'secondary' },
+  transcoding: { text: 'Processing media', shortText: 'Processing', color: 'neutral' },
+  transcribing: { text: 'Extracting text', shortText: 'Recognising', color: 'secondary' },
   annotating: { text: 'Detecting speakers', shortText: 'Detect speakers', color: 'secondary' },
 };
 
