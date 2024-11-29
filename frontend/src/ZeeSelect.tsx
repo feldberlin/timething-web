@@ -26,21 +26,22 @@ export default function ZeeSelect({
    */
   const containerStyles = {
     margin: '0 22px',
+    color: '#888',
   };
 
   const selectStyles = {
     control: (base: any, state: any) => ({
       ...base,
-      background: '#f5f3ed',
+      background: '#111',
       // match with the menu
       borderRadius: state.isFocused ? '3px 3px 0 0' : 3,
       // Overwrittes the different states of border
-      borderColor: state.isFocused ? '#d4d4d4' : '#d4d4d4',
+      borderColor: state.isFocused ? '#777' : '#555',
       // Removes weird border around container
       boxShadow: state.isFocused ? null : null,
       '&:hover': {
         // Overwrittes the different states of border
-        borderColor: state.isFocused ? '#b4b4b4' : '#b4b4b4',
+        borderColor: state.isFocused ? '#999' : '#888',
       },
     }),
     menu: (base: any) => ({
@@ -60,8 +61,8 @@ export default function ZeeSelect({
       ...base,
       background: state.isSelected ? '#3a59ff' : '#f5f3ed',
       '&:hover': {
-        color: 'white',
-        background: '#3a59ff',
+        color: 'var(--color-black-40)',
+        background: 'var(--color-black-90)',
         filter: 'brightness(150%)',
       },
     }),

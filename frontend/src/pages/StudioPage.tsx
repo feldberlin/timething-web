@@ -260,12 +260,7 @@ export default function StudioPage() {
       // very modal
       setPlaying(false);
       setRequestedLanguage(s.value);
-      setModalMessage(
-        '😬 Looks like we got the source language wrong.'
-        + ' Would you like to generate a new automatic transcription'
-        + ` in ${s.label}?`,
-      );
-
+      setModalMessage(`Would you like to switch to ${s.label}?`);
       const modal = document.querySelector('#change-language-modal') as HTMLFormElement;
       if (modal) {
         modal.showModal();
@@ -372,9 +367,9 @@ export default function StudioPage() {
             />
           )}
         </div>
-        { /* Source Language */ }
+        { /* Language */ }
         <div className="section border-b py-1 pb-7">
-          <h3 className="my-3 mb-4 mx-8 font-bold">Source Language</h3>
+          <h3 className="my-3 mb-4 mx-8 font-bold">Language</h3>
           <ZeeSelect
             onChange={hChange}
             selected={language}
