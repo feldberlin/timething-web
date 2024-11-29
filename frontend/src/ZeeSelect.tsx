@@ -26,7 +26,6 @@ export default function ZeeSelect({
    */
   const containerStyles = {
     margin: '0 22px',
-    color: '#888',
   };
 
   const selectStyles = {
@@ -43,6 +42,10 @@ export default function ZeeSelect({
         // Overwrittes the different states of border
         borderColor: state.isFocused ? '#999' : '#888',
       },
+    }),
+    singleValue: (base: any) => ({
+      ...base,
+      color: '#red',
     }),
     menu: (base: any) => ({
       ...base,
