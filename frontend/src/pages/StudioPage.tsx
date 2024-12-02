@@ -40,6 +40,7 @@ import {
   help,
   languageLongName,
   process,
+  roundAlignmentTimecodes,
   supportedLanguages as languages,
   Speaker,
   transcriptionToZDocument,
@@ -122,7 +123,12 @@ export default function StudioPage() {
 
           // alignment
           if (meta.alignment) {
-            setAlignment(meta.alignment);
+            let alignment = meta.alignment
+            // normalise alignment timecodes to 6dp. this is needed because
+            // seeking is only possible to 6dp. timecode sync between editor
+            // and player broke due to >= errors introduced by seeking
+            alignment = roundAlignmentTimecodes(alignment)
+            setAlignment(alignment);
           }
 
           // whisper transcript
@@ -202,8 +208,8 @@ export default function StudioPage() {
 
       const { words = [] } = alignment || {};
       for (let i = 0; i < words.length; i++) {
-        if (words[i].start >= playerElapsed) {
-          return i;
+        if (words[i].start > playerElapsed) {
+          return Math.max(i - 1, 0);
         }
       }
 
@@ -213,6 +219,8 @@ export default function StudioPage() {
     const f = findFocus();
     setElapsed(playerElapsed);
     setFocus(f);
+    const { words = [] } = alignment || {};
+    const word = words[f] || {}
   };
 
   const hRetranscribe = () => {

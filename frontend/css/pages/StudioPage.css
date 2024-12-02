@@ -40,20 +40,6 @@
     color: #bbbbbb;
 }
 
-#editor {
-  background-color: #131313;
-  box-shadow: 15px 10px 50px -2px #000000;
-  min-width: 640px;
-  max-width: 640px;
-  height: 100vh;
-  overflow: auto;
-  padding: 65px;
-}
-
-#editor h1, #editor span {
-    color: #ddd;
-}
-
 #player {
   flex-basis: 100%;
   background-color: rgba(32,32,32,0.36)

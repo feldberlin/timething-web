@@ -518,3 +518,17 @@ export function transcriptionToZDocument(t: Transcription): ZDocument {
     turns,
   };
 }
+
+/**
+ * Round timecodes to 6dp
+ *
+ */
+export function roundAlignmentTimecodes(a: Alignment): Alignment {
+  const words = a.words.map((w) => ({
+    ...w,
+    start: Math.round(w.start * 1000000) / 1000000,
+    end: Math.round(w.end * 1000000) / 1000000,
+  }));
+
+  return { words };
+}

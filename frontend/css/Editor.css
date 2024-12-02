@@ -7,6 +7,20 @@ article.article-loaded .contents {
   transition: all 0.5s ease-in-out 0.1s;
 }
 
+#editor {
+  background-color: var(--color-black-85);
+  box-shadow: 15px 10px 50px -2px #000000;
+  min-width: 640px;
+  max-width: 640px;
+  height: 100vh;
+  overflow: auto;
+  padding: 65px;
+}
+
+#editor h1, #editor span {
+    color: #ddd;
+}
+
 #editor .contents span.focussed, #editor .contents span.unfocussed:hover {
   color: var(--color-red);
   -webkit-font-smoothing: auto;
