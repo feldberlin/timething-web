@@ -21,8 +21,13 @@ article.article-loaded .contents {
     color: #ddd;
 }
 
+#editor .contents span.unfocussed {
+  transition: 2.5s linear all;
+}
+
 #editor .contents span.focussed, #editor .contents span.unfocussed:hover {
   color: var(--color-red);
+  transition: none;
   -webkit-font-smoothing: auto;
   -moz-osx-font-smoothing: auto;
 }
