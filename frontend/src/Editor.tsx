@@ -121,7 +121,7 @@ export default function Editor({
   }
 
   return (
-    <>
+    <div className="transcript-editor">
       <h1 className="mb-4 flex justify-between">
         {zDocument !== null
           ? (
@@ -168,6 +168,6 @@ export default function Editor({
           { zDocument !== null && targets(zDocument) }
         </div>
       </article>
-    </>
+    </div>
   );
 }

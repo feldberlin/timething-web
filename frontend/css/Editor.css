@@ -1,33 +1,49 @@
-article.article-loading .contents {
+.transcript-editor article.article-loading .contents {
   color: rgba(0,0,0,0);
 }
 
-article.article-loaded .contents {
+.transcript-editor article.article-loaded .contents {
   color: rgba(0,0,0,1.0);
   transition: all 0.5s ease-in-out 0.1s;
 }
 
-#editor {
+.transcript-editor  {
   background-color: var(--color-black-85);
   box-shadow: 15px 10px 50px -2px #000000;
   min-width: 640px;
   max-width: 640px;
   height: 100vh;
   overflow: auto;
-  padding: 65px;
+  padding: 66px;
 }
 
-#editor h1, #editor span {
+.transcript-editor  h1, .transcript-editor  span {
     color: #ddd;
 }
 
-#editor .contents span.unfocussed {
-  transition: 2.5s linear all;
-}
-
-#editor .contents span.focussed, #editor .contents span.unfocussed:hover {
-  color: var(--color-red);
-  transition: none;
+.transcript-editor .contents span.focussed,
+.transcript-editor .contents span.unfocussed:hover {
   -webkit-font-smoothing: auto;
   -moz-osx-font-smoothing: auto;
+}
+
+@keyframes fadeRedToWhite {
+  0% {
+    color: var(--color-red);
+  }
+  100% {
+    color: var(--color-whitest);
+  }
+}
+
+.transcript-editor .contents span.focussed {
+  animation: fadeRedToWhite 2s ease-in-out;
+}
+
+.transcript-editor .contents span.unfocussed {
+  transition: none;
+}
+
+.transcript-editor .contents span.unfocussed:hover {
+  color: var(--color-red);
 }
