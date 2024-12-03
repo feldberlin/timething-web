@@ -38,7 +38,7 @@ def test_upload(client):
 def test_upload_chunk(client, transcription_id="abc"):
     with common.tmpdir_scope() as tmp_dir:
         media_path = Path(tmp_dir)
-        with patch('common.db', new=common.Store(media_path)):
+        with patch("common.db", new=common.Store(media_path)):
             common.db.create(
                 common.Transcription(
                     transcription_id=transcription_id,
@@ -46,31 +46,31 @@ def test_upload_chunk(client, transcription_id="abc"):
                     upload=common.UploadInfo(
                         filename="file.name",
                         content_type="audio/mp3",
-                        size_bytes=15
-                    )
+                        size_bytes=15,
+                    ),
                 )
             )
 
             res = client.put(
                 f"/upload/{transcription_id}",
-                content=b'0123456789',
+                content=b"0123456789",
                 headers={
                     "Content-Range": "bytes=0-9/15",
                     "Content-Type": "audio/mp3",
-                    "X-Content-Length": "10"
-                }
+                    "X-Content-Length": "10",
+                },
             )
 
             assert res.status_code == 308, res.text
 
             res = client.put(
                 f"/upload/{transcription_id}",
-                data=b'01234',
+                data=b"01234",
                 headers={
                     "Content-Range": "bytes=10-14/15",
                     "Content-Type": "audio/mp3",
-                    "X-Content-Length": "5"
-                }
+                    "X-Content-Length": "5",
+                },
             )
 
             assert res.status_code == 200, res.text
@@ -85,7 +85,7 @@ resume_stub = MockedStub()
 def test_resume(client, transcription_id="abc"):
     with common.tmpdir_scope() as tmp_dir:
         media_path = Path(tmp_dir)
-        with patch('common.db', new=common.Store(media_path)):
+        with patch("common.db", new=common.Store(media_path)):
             common.db.create(
                 common.Transcription(
                     transcription_id=transcription_id,
@@ -93,20 +93,20 @@ def test_resume(client, transcription_id="abc"):
                     upload=common.UploadInfo(
                         filename="file.name",
                         content_type="audio/mp3",
-                        size_bytes=16
-                    )
+                        size_bytes=16,
+                    ),
                 )
             )
 
             # upload a first chunk
             res = client.put(
                 f"/upload/{transcription_id}",
-                content=b'0123456789',
+                content=b"0123456789",
                 headers={
                     "Content-Range": "bytes=0-9/16",
                     "Content-Type": "audio/mp3",
-                    "X-Content-Length": "10"
-                }
+                    "X-Content-Length": "10",
+                },
             )
 
             assert res.status_code == 308, res.text
@@ -117,44 +117,44 @@ def test_resume(client, transcription_id="abc"):
                 content=None,
                 headers={
                     "Content-Range": "bytes=*/16",
-                    "X-Content-Length": "0"
-                }
+                    "X-Content-Length": "0",
+                },
             )
 
             assert res.status_code == 308, res.text
-            assert res.headers['Content-Length'] == '0'
-            assert res.headers['Range'] == 'bytes=0-9'
+            assert res.headers["Content-Length"] == "0"
+            assert res.headers["Range"] == "bytes=0-9"
 
             # resume invalid
             res = client.put(
                 f"/upload/{transcription_id}",
-                content=b'abcd',
+                content=b"abcd",
                 headers={
                     "Content-Range": "bytes=12-15/16",
                     "Content-Type": "audio/mp3",
-                    "X-Content-Length": "4"
-                }
+                    "X-Content-Length": "4",
+                },
             )
 
             assert res.status_code == 400, res.text
-            assert 'content-range is not contiguous' in res.text
+            assert "content-range is not contiguous" in res.text
 
             # resume valid
             res = client.put(
                 f"/upload/{transcription_id}",
-                content=b'abcdef',
+                content=b"abcdef",
                 headers={
                     "Content-Range": "bytes=10-15/16",
                     "Content-Type": "audio/mp3",
-                    "X-Content-Length": "6"
-                }
+                    "X-Content-Length": "6",
+                },
             )
 
             assert res.status_code == 200, res.text
 
             # check the file
-            with open(media_path / transcription_id, 'rb') as f:
-                assert f.read() == b'0123456789abcdef'
+            with open(media_path / transcription_id, "rb") as f:
+                assert f.read() == b"0123456789abcdef"
 
 
 update_track_stub = MockedStub()
@@ -166,7 +166,7 @@ update_track_stub = MockedStub()
 def test_update_track(client, transcription_id="abc"):
     with common.tmpdir_scope() as tmp_dir:
         media_path = Path(tmp_dir)
-        with patch('common.db', new=common.Store(media_path)):
+        with patch("common.db", new=common.Store(media_path)):
             common.db.create(
                 common.Transcription(
                     transcription_id=transcription_id,
@@ -175,17 +175,15 @@ def test_update_track(client, transcription_id="abc"):
                     upload=common.UploadInfo(
                         filename="file.name",
                         content_type="audio/mp3",
-                        size_bytes=16
-                    )
+                        size_bytes=16,
+                    ),
                 )
             )
 
             # upload a first chunk
             res = client.put(
                 f"/transcription/{transcription_id}/track",
-                json=json.dumps({
-                    "description": "it's a new day"
-                }),
+                json=json.dumps({"description": "it's a new day"}),
             )
 
             assert res.status_code == 200, res.text
@@ -202,11 +200,11 @@ export_stub = MockedStub()
 def test_export_srt(client, transcription_id="abc"):
     with open("fixtures/meta.json") as f:
         meta = json.loads(f.read())
-        transcript = meta['transcript']
+        transcript = meta["transcript"]
 
     with common.tmpdir_scope() as tmp_dir:
         media_path = Path(tmp_dir)
-        with patch('common.db', new=common.Store(media_path)):
+        with patch("common.db", new=common.Store(media_path)):
             common.db.create(
                 common.Transcription(
                     transcription_id=transcription_id,
@@ -215,10 +213,10 @@ def test_export_srt(client, transcription_id="abc"):
                     upload=common.UploadInfo(
                         filename="file.name",
                         content_type="audio/mp3",
-                        size_bytes=16
+                        size_bytes=16,
                     ),
                 )
-             )
+            )
 
             # get the srt file
             res = client.get(f"/export/{transcription_id}?format=srt")

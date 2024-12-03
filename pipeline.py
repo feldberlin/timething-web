@@ -30,7 +30,7 @@ def pipeline(
     language: str = None,
     prompt: str = None,
     media_path: str = common.MEDIA_PATH,
-    local_mode: bool = False
+    local_mode: bool = False,
 ):
     """
     The media processing pipeline
@@ -54,34 +54,30 @@ def pipeline(
         if (not t.transcoded) or (not t.track):
             logger.info(f"transcoding...")
             yield PipelineProgress(state="transcoding")
-            for update in transcode_fn(
-                transcription_id,
-                media_path=media_path
-            ):
+            for update in transcode_fn(transcription_id, media_path=media_path):
                 match update:
                     case TranscodingProgress(percent_done, None):
                         yield update
-                    case TranscodingProgress(percent_done, track) if track is not None:
+                    case TranscodingProgress(
+                        percent_done, track
+                    ) if track is not None:
                         logger.info(f"completed transcoding. {track}")
                         t = replace(t, transcoded=True, track=track)
                         common.db.create(t)
                         yield update
                     case x:
-                        raise ValueError(f"cannot parse TranscodingProgress: {x}")
+                        raise ValueError(
+                            f"cannot parse TranscodingProgress: {x}"
+                        )
         else:
             logger.info(f"already transcoded. continuing")
 
-
         # transcribe
-        changing_language = (language and language != t.language)
+        changing_language = language and language != t.language
         if (not t.transcribed) or changing_language:
             logger.info("transcribing...")
             yield PipelineProgress(state="transcribing")
-            for update in transcribe_fn(
-                transcription_id,
-                language,
-                prompt
-            ):
+            for update in transcribe_fn(transcription_id, language, prompt):
                 match update:
                     case int(percent_done):
                         yield TranscriptionProgress(percent_done=percent_done)
@@ -95,11 +91,14 @@ def pipeline(
                         t = replace(t, transcript=transcript, language=language)
                         align.piecewise_linear(t)
                         common.db.create(t)
-                        yield TranscriptionProgress(percent_done=100, transcript=t.transcript)
+                        yield TranscriptionProgress(
+                            percent_done=100, transcript=t.transcript
+                        )
                     case _:
                         update_str = f"{update} ({type(update)})"
                         raise ValueError(
-                            f"cannot parse TranscriptionProgress: {update_str}")
+                            f"cannot parse TranscriptionProgress: {update_str}"
+                        )
         else:
             logger.info(f"already transcribed. continuing")
 
@@ -110,13 +109,11 @@ def pipeline(
         common.db.create(t)
         logger.info("diarized.")
 
-        yield PipelineProgress(
-            state="completed",
-            transcription=t
-        )
+        yield PipelineProgress(state="completed", transcription=t)
 
     except Exception as e:
         import traceback
+
         print(traceback.format_exc())
         logger.error(e)
         yield PipelineProgress(state="error")

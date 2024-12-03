@@ -27,7 +27,7 @@ transcode_stub = MockedStub()
 def test_transcode(transcription_id="overgrown.mp3"):
     with common.tmpdir_scope() as tmp:
         media_path = Path(tmp)
-        with patch('common.db', new=common.Store(media_path)):
+        with patch("common.db", new=common.Store(media_path)):
             from_file = fixtures / transcription_id
             to_file = media_path / transcription_id
             shutil.copyfile(from_file, to_file)
@@ -37,8 +37,8 @@ def test_transcode(transcription_id="overgrown.mp3"):
                 upload=common.UploadInfo(
                     filename="file.name",
                     content_type="audio/mp3",
-                    size_bytes=15
-                )
+                    size_bytes=15,
+                ),
             )
             common.db.create(t)
 
@@ -46,7 +46,7 @@ def test_transcode(transcription_id="overgrown.mp3"):
                 transcode.transcode.local(
                     transcription_id,
                     media_path=media_path,
-                    force_reprocessing=True
+                    force_reprocessing=True,
                 )
             )
 
@@ -58,15 +58,9 @@ def test_transcode(transcription_id="overgrown.mp3"):
             assert track.title == "Overgrown"
             assert track.artist == "Totonoko"
             assert track.album == "Totonoko EP"
-            assert (
-                track.comment
-                == "Totonoko comment one, comment two"
-            )
+            assert track.comment == "Totonoko comment one, comment two"
             assert track.date == "2014"
 
             probe = ffmpeg.probe(t.transcoded_file)
             assert probe["format"]["format_name"] == "wav"
-            assert (
-                int(float(probe["format"]["duration"]))
-                == 222
-            )
+            assert int(float(probe["format"]["duration"])) == 222

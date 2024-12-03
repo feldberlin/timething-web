@@ -35,7 +35,7 @@ transcoder_image = (
     container_idle_timeout=180,
     image=transcoder_image,
     network_file_systems=common.nfs,
-    timeout=1800
+    timeout=1800,
 )
 def transcode(
     transcription_id: str,
@@ -66,10 +66,10 @@ def transcode(
                 format="wav",
                 ac=1,
                 acodec="pcm_s16le",
-                ar=sr
+                ar=sr,
             )
             .overwrite_output()
-            .global_args('-progress', 'unix://{}'.format(socket_filename))
+            .global_args("-progress", "unix://{}".format(socket_filename))
             .run_async(
                 cmd=["ffmpeg", "-nostdin"],
             )
@@ -77,7 +77,7 @@ def transcode(
 
         yield from map(
             lambda x: TranscodingProgress(percent_done=x),
-            progress(socket, track.duration)
+            progress(socket, track.duration),
         )
 
         return_code = process.wait()
@@ -91,7 +91,7 @@ def transcode(
 def progress(sock, total_duration):
     """Connect to ffmpeg progress unix socket and read lines of progress"""
     connection, client_address = sock.accept()
-    data = b''
+    data = b""
     progress = 0
     try:
         while True:
@@ -100,17 +100,17 @@ def progress(sock, total_duration):
             if not more_data:
                 break
             data += more_data
-            lines = data.split(b'\n')
+            lines = data.split(b"\n")
             for line in lines[:-1]:
                 line = line.decode()
-                parts = line.split('=')
+                parts = line.split("=")
                 key = parts[0] if len(parts) > 0 else None
                 value = parts[1] if len(parts) > 1 else None
-                if key == 'out_time_ms':
-                    current = round(float(value) / 1000000., 2)
+                if key == "out_time_ms":
+                    current = round(float(value) / 1000000.0, 2)
                     progress = int(100 * current / total_duration)
                     yield progress
-                elif key == 'progress' and value == 'end':
+                elif key == "progress" and value == "end":
                     yield progress
 
             data = lines[-1]
@@ -123,7 +123,7 @@ def progress(sock, total_duration):
 def create_sock():
     """Creating and close a unix-domain socket"""
     with common.tmpdir_scope() as tmpdir:
-        socket_filename = os.path.join(tmpdir, 'sock')
+        socket_filename = os.path.join(tmpdir, "sock")
         sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         with contextlib.closing(sock):
             sock.bind(socket_filename)

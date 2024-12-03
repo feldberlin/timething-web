@@ -24,7 +24,7 @@ transcribe_stub = MockedStub()
 def test_transcribe(transcription_id="abc"):
     with common.tmpdir_scope() as tmp:
         media_path = Path(tmp)
-        with patch('common.db', new=common.Store(media_path)):
+        with patch("common.db", new=common.Store(media_path)):
             from_file = fixtures / "one.wav"
             to_file = media_path / transcription_id
             shutil.copyfile(from_file, to_file.with_suffix(".wav"))
@@ -35,8 +35,8 @@ def test_transcribe(transcription_id="abc"):
                     upload=common.UploadInfo(
                         filename="file.name",
                         content_type="audio/mp3",
-                        size_bytes=15
-                    )
+                        size_bytes=15,
+                    ),
                 )
             )
 
@@ -50,5 +50,5 @@ def test_transcribe(transcription_id="abc"):
                     case Exception() as e:
                         print(e)
 
-            assert transcript['language'] == "en"
-            assert transcript['text'].strip() == "One."
+            assert transcript["language"] == "en"
+            assert transcript["text"].strip() == "One."

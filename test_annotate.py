@@ -33,7 +33,9 @@ def test_annotate_one_speaker(transcription_id="one.wav"):
                 transcription_id=transcription_id,
                 path=to_file,
                 upload=common.UploadInfo(
-                    filename="file.name", content_type="audio/mp3", size_bytes=15
+                    filename="file.name",
+                    content_type="audio/mp3",
+                    size_bytes=15,
                 ),
             )
             common.db.create(t)
@@ -56,7 +58,9 @@ def test_annotate_two_speakers(transcription_id="two.wav"):
                 transcription_id=transcription_id,
                 path=to_file,
                 upload=common.UploadInfo(
-                    filename="file.name", content_type="audio/mp3", size_bytes=15
+                    filename="file.name",
+                    content_type="audio/mp3",
+                    size_bytes=15,
                 ),
             )
             common.db.create(t)

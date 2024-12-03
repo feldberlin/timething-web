@@ -24,10 +24,8 @@ class AnnotationError(Exception):
     pass
 
 
-annotation_image = (
-    Image
-        .debian_slim(python_version="3.10.8")
-        .pip_install("pyannote.audio===3.1.1", "num2words")
+annotation_image = Image.debian_slim(python_version="3.10.8").pip_install(
+    "pyannote.audio===3.1.1", "num2words"
 )
 
 
@@ -36,9 +34,10 @@ class Progress:
         self,
         step_name,
         step_artifact,
-        file = None,
+        file=None,
         total: typing.Optional[int] = None,
-        completed: typing.Optional[int] = None):
+        completed: typing.Optional[int] = None,
+    ):
         pass
 
 
@@ -64,7 +63,7 @@ def annotate(transcription_id):
     if not t:
         raise AnnotationError(f"invalid id : {transcription_id}")
 
-    hf_token = os.getenv('HF_TOKEN')
+    hf_token = os.getenv("HF_TOKEN")
     device = torch.device(common.get_device())
     pipeline = Pipeline.from_pretrained(
         "pyannote/speaker-diarization-3.1",
@@ -76,11 +75,9 @@ def annotate(transcription_id):
         # load audio. https://github.com/m-bain/whisperX/issues/399
         waveform, sample_rate = torchaudio.load(str(t.transcoded_file))
         logger.info(f"loaded waveform {waveform.size()}")
-        diarization = pipeline({
-            "waveform": waveform,
-            "sample_rate": sample_rate,
-            "hook": hook
-        })
+        diarization = pipeline(
+            {"waveform": waveform, "sample_rate": sample_rate, "hook": hook}
+        )
 
         turns = []
         for turn, _, speaker in diarization.itertracks(yield_label=True):
@@ -100,6 +97,4 @@ def annotate(transcription_id):
                 number = int(t.speaker.split("_")[1]) + 1
                 t.speaker = f"Speaker {number}"
 
-        return common.Diarization(
-            turns=turns
-        )
+        return common.Diarization(turns=turns)

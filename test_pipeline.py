@@ -20,15 +20,13 @@ def test_encode_pipeline_progress():
     transcription_id = "abc"
     p = PipelineProgress(
         state="completed",
-        transcription = common.Transcription(
+        transcription=common.Transcription(
             transcription_id=transcription_id,
             path="/tmp/abc",
             upload=common.UploadInfo(
-                filename="file.name",
-                content_type="audio/mp3",
-                size_bytes=100
-            )
-        )
+                filename="file.name", content_type="audio/mp3", size_bytes=100
+            ),
+        ),
     )
 
     progress = common.dataclass_to_event(p)
@@ -52,7 +50,7 @@ pipeline_stub = MockedStub()
 def test_pipeline(transcription_id="abc"):
     with common.tmpdir_scope() as tmp:
         media_path = Path(tmp)
-        with patch('common.db', new=common.Store(media_path)):
+        with patch("common.db", new=common.Store(media_path)):
             from_file = fixtures / "one.mp3"
             to_file = media_path / transcription_id
             shutil.copyfile(from_file, to_file)
@@ -65,17 +63,17 @@ def test_pipeline(transcription_id="abc"):
                     upload=common.UploadInfo(
                         filename="file.name",
                         content_type="audio/mp3",
-                        size_bytes=15
-                    )
+                        size_bytes=15,
+                    ),
                 )
             )
 
             updates = list(
-               pipeline.pipeline(
+                pipeline.pipeline(
                     transcription_id,
                     "en",
                     media_path=Path(tmp),
-                    local_mode=True
+                    local_mode=True,
                 )
             )
 
@@ -88,7 +86,7 @@ def test_pipeline(transcription_id="abc"):
 
             assert type(updates[-3]) == TranscriptionProgress
             assert updates[-3].percent_done is 100
-            assert updates[-3].transcript['text'].strip() == "One."
+            assert updates[-3].transcript["text"].strip() == "One."
 
             assert type(updates[-2]) == PipelineProgress
             assert updates[-2].state == "annotating"

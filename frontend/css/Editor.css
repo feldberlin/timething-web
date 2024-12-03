@@ -37,13 +37,20 @@
 }
 
 .transcript-editor .contents span.focussed {
-  animation: fadeRedToWhite 2s ease-in-out;
+  color: var(--color-red); /* Focused words stay red */
 }
 
 .transcript-editor .contents span.unfocussed {
-  transition: none;
+  animation: none; /* Default state has no animation */
+  color: var(--color-whitest); /* Unfocused words are white */
+  transition: none; /* Prevent hover transition from applying here */
+}
+
+.transcript-editor .contents span.unfocussed.player-moving {
+  animation: fadeRedToWhite 2s ease-in-out; /* Fade from red to white */
 }
 
 .transcript-editor .contents span.unfocussed:hover {
-  color: var(--color-red);
+  color: var(--color-red); /* Words turn red on hover */
+  transition: color 0.1s; /* Immediate change on hover */
 }

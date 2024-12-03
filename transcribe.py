@@ -24,18 +24,17 @@ class TranscriptionError(Exception):
 
 def load_whisper():
     import whisper
+
     whisper.load_model(common.MODEL_NAME)
 
 
 transcriber_image = (
-    Image
-        .debian_slim(python_version="3.10.8")
-        .apt_install("ffmpeg")
-        .pip_install(
-            "https://github.com/openai/whisper/archive/v20230314.tar.gz",
-            "tqdm"
-        )
-        .run_function(load_whisper)
+    Image.debian_slim(python_version="3.10.8")
+    .apt_install("ffmpeg")
+    .pip_install(
+        "https://github.com/openai/whisper/archive/v20230314.tar.gz", "tqdm"
+    )
+    .run_function(load_whisper)
 )
 
 
@@ -45,7 +44,7 @@ transcriber_image = (
     container_idle_timeout=180,
     image=transcriber_image,
     network_file_systems=common.nfs,
-    timeout=1200
+    timeout=1200,
 )
 def transcribe(transcription_id, language, prompt=None):
     import torch.multiprocessing as mp
@@ -59,7 +58,7 @@ def transcribe(transcription_id, language, prompt=None):
     q = mp.Queue()
     p = mp.Process(
         target=worker,
-        args=(q, str(t.transcoded_file), device, language, prompt)
+        args=(q, str(t.transcoded_file), device, language, prompt),
     )
     logger.info("spawning whisper process")
     p.start()
@@ -87,10 +86,11 @@ def worker(q, audio, device, language, prompt):
             percent_done = int(100 * self._current / self.total)
             logger.info(f"progress: {percent_done}")
             q.put(percent_done)
+
     try:
 
         # patch whisper so we can generate progress
-        transcribe_module = sys.modules['whisper.transcribe']
+        transcribe_module = sys.modules["whisper.transcribe"]
         transcribe_module.tqdm.tqdm = Progress
 
         # run recognition and send back the transcript. this will also send
@@ -100,11 +100,7 @@ def worker(q, audio, device, language, prompt):
         model = whisper.load_model(common.MODEL_NAME, device=device)
         logger.info(f"transcribe {language} (gpu:{use_gpu}). prompt: {prompt}")
         transcript = model.transcribe(
-            audio,
-            language=language,
-            prompt=prompt,
-            fp16=use_gpu,
-            verbose=False
+            audio, language=language, prompt=prompt, fp16=use_gpu, verbose=False
         )
         q.put(transcript)
         q.put(None)

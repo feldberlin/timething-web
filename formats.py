@@ -5,7 +5,7 @@ import common
 
 def format(transcription, format_type):
     match format_type:
-        case 'srt':
+        case "srt":
             return srt(transcription)
 
 
@@ -33,10 +33,10 @@ def srt(transcription, n_columns=80):
         return ""
 
     blocks = []
-    for (i, segment) in enumerate(transcription['segments']):
-        text = segment['text'].strip()
-        start = float(segment['start'])
-        end = float(segment['end'])
+    for i, segment in enumerate(transcription["segments"]):
+        text = segment["text"].strip()
+        start = float(segment["start"])
+        end = float(segment["end"])
         header = f"{i+1}\n{seconds_to_srt(start)} --> {seconds_to_srt(end)}\n"
         wrapped = textwrap.fill(text, n_columns)
         blocks.append(header + wrapped + "\n\n")

@@ -8,4 +8,4 @@ def test_from_dict():
         d = json.load(f)
         t = common.Transcription.from_dict(d)
         assert t.transcription_id == "e4f0f909-8772-4b18-a397-a9b4c4726476"
-        assert t.transcript['language'] == "en"
+        assert t.transcript["language"] == "en"

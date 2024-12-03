@@ -14,6 +14,7 @@ class ChatGPT:
 
     def __init__(self, system_prompt, max_tokens):
         from openai import OpenAI
+
         self.system_prompt = system_prompt
         self.max_tokens = max_tokens
         self.client = OpenAI()
