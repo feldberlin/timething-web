@@ -2,11 +2,11 @@ from dataclasses import dataclass, replace
 import logging
 import typing
 
-import align
-import common
+from align import align, align_piecewise_linear
+from annotate import annotate, AnnotationProgress
 from transcode import transcode, TranscodingProgress
 from transcribe import transcribe, TranscriptionProgress
-from annotate import annotate, AnnotationProgress
+import common
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -45,10 +45,12 @@ def pipeline(
         transcode_fn = transcode.remote_gen
         transcribe_fn = transcribe.remote_gen
         annotate_fn = annotate.remote
+        align_fn = align.remote
         if local_mode:
             transcode_fn = transcode.local
             transcribe_fn = transcribe.local
             annotate_fn = annotate.local
+            align_fn = align.local
 
         # transcode
         if (not t.transcoded) or (not t.track):
@@ -89,7 +91,6 @@ def pipeline(
                         # completed
                         logger.info(f"completed transcription.")
                         t = replace(t, transcript=transcript, language=language)
-                        align.piecewise_linear(t)
                         common.db.create(t)
                         yield TranscriptionProgress(
                             percent_done=100, transcript=t.transcript
@@ -102,12 +103,19 @@ def pipeline(
         else:
             logger.info(f"already transcribed. continuing")
 
-        # diarize
+        # align
+        logger.info("aligning...")
+        yield PipelineProgress(state="aligning")
+        t.alignment = align_fn(transcription_id, language=language)
+
+        # ... and diarize
         logger.info("diarizing...")
         yield PipelineProgress(state="annotating")
         t.diarization = annotate_fn(transcription_id)
+
+        # .. and save
         common.db.create(t)
-        logger.info("diarized.")
+        logger.info("competed.")
 
         yield PipelineProgress(state="completed", transcription=t)
 

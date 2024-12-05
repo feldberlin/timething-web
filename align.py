@@ -7,12 +7,14 @@ import common
 from common import app
 
 
-alignment_image = Image.debian_slim(
-    python_version="3.10.8"
-).pip_install_private_repos(
-    "github.com/voicelayerai/timething@1.0.1",
-    git_user="purzelrakete",
-    secrets=[modal.Secret.from_name("github-read-private")],
+alignment_image = (
+    Image.debian_slim(python_version="3.10.8")
+    .apt_install("sox", "libsox-dev")
+    .pip_install_private_repos(
+        "github.com/voicelayerai/timething@1.0.4",
+        git_user="purzelrakete",
+        secrets=[modal.Secret.from_name("github-read-private")],
+    )
 )
 
 
@@ -24,9 +26,8 @@ alignment_image = Image.debian_slim(
     network_file_systems=common.nfs,
     timeout=1200,
 )
-def timething_align(
-    transcript: str,
-    audio_file: Path,
+def align(
+    transcription_id: str,
     language: str,
     batch_size=1,
     n_workers=10,
@@ -34,25 +35,38 @@ def timething_align(
 ):
     from timething import dataset, job, utils
 
-    cfg = utils.load_config(language)
+    if not language:
+        # timething model key
+        language = "en"
+
+    t = common.db.select(transcription_id)
     ds = dataset.WindowedTrackDataset(
-        Path(audio_file),
-        Path(audio_file).suffix[1:],
-        transcript,
+        str(t.transcoded_file),
+        t.transcoded_file.suffix[1:],
+        t.transcript["text"],
         seconds_per_window * 1000,
         seconds_per_window * 1000,
         16000,
     )
 
-    click.echo("setting up aligner...")
+    cfg = utils.load_config(language)
     j = job.LongTrackJob(cfg, ds, batch_size=batch_size, n_workers=n_workers)
+    tt_alignment = j.run()
 
-    click.echo("starting aligment...")
-    alignment = j.run()
+    # convert to studio alignment
+    alignment = common.Alignment(words=[])
+    for s in tt_alignment.words:
+        alignment.words.append(common.Segment(
+            label=s.label,
+            start=s.start,
+            end=s.end,
+            score=s.score
+        ))
+
     return alignment
 
 
-def piecewise_linear(transcription: common.Transcription):
+def align_piecewise_linear(transcription: common.Transcription):
     alignment = common.Alignment()
     for s in transcription.transcript["segments"]:
         text = s["text"]
@@ -70,4 +84,4 @@ def piecewise_linear(transcription: common.Transcription):
                 )
             )
 
-    transcription.alignment = alignment
+    return alignment

@@ -123,8 +123,9 @@ export type Transcription = {
 export const transcriptionStates = {
   preparing: { text: 'Preparing your file', shortText: 'Preparing', color: 'success' },
   uploading: { text: 'Uploading', shortText: 'Preparing', color: 'primary' },
-  transcoding: { text: 'Processing media', shortText: 'Processing', color: 'neutral' },
-  transcribing: { text: 'Extracting text', shortText: 'Recognising', color: 'secondary' },
+  transcoding: { text: 'Processing media', shortText: 'Processing', color: 'primary' },
+  transcribing: { text: 'Transcribing', shortText: 'Transcribing', color: 'secondary' },
+  aligning: { text: 'Matching timecodes', shortText: 'Aligning', color: 'secondary' },
   annotating: { text: 'Detecting speakers', shortText: 'Detect speakers', color: 'secondary' },
 };
 
@@ -300,6 +301,10 @@ export const process = ({
       case 'transcribing':
         setProgress(null);
         showState(transcriptionStates.transcribing);
+        break;
+      case 'aligning':
+        setProgress(null);
+        showState(transcriptionStates.aligning);
         break;
       case 'annotating':
         setProgress(null);

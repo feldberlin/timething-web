@@ -34,7 +34,10 @@ remote_path = Path("/assets")
 mount = Mount.from_local_dir(static_path, remote_path=remote_path)
 
 # image
-app_image = Image.debian_slim(python_version="3.10.8").pip_install("openai")
+app_image = (
+    Image.debian_slim(python_version="3.10.8")
+    .pip_install("openai")
+)
 
 
 class MediaForm(BaseModel):

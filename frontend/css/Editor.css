@@ -1,3 +1,15 @@
+.transcript-editor {
+  scrollbar-color: #444 black;
+}
+
+.transcript-editor ::-webkit-scrollbar {
+    background-color: black;
+}
+
+.transcript-editor ::-webkit-scrollbar-thumb {
+    background-color: #444;
+}
+
 .transcript-editor article.article-loading .contents {
   color: rgba(0,0,0,0);
 }
